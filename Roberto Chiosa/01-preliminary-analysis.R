@@ -246,31 +246,31 @@ head(df_mp_univariate)
     seq_index = 5000,
     seq_nn = 1000
   )
-#   
-#   ct <- rpart::rpart(mp ~ as.factor(day) + holiday  + time,                                                    # target attribute based on training attributes
-#                      data = df_mp_univariate,                                                               # data to be used
-#                      control = rpart::rpart.control(
-#                        cp = 0 ,                                          # nessun vincolo sul cp permette lo svoluppo completo dell'albero
-#                        xval = (length(df_mp_univariate) - 1 ),                        # !!!!!!! ATTENZIONE non dovrebbe essere dim()[1] ?? k-fold leave one out LOOCV dim
-#                        maxdepth = 2)) 
-#   summary(ct)
-#   rpart::plotcp(ct, lty = 2, col = "red", upper = "size")
-#   ct1 <- partykit::as.party(ct)
-#   plot(ct1, tnex = 2.5,  gp = grid::gpar(fontsize = 12))
-#   
-#   ggplot(df_mp_univariate) + geom_boxplot(aes(x = index, y = mp, color = day))
-#   
-#   df_mp_univariate$mp[df_mp_univariate$day == 5 | df_mp_univariate$day== 6 | df_mp_univariate$holiday!= "No"] <- 
-#     median(df_mp_univariate$mp)
-#   
-#   ggplot(df_mp_univariate) + geom_line(aes(x = index, y = mp)) 
-#   
-#   ggplot(df_mp_univariate) + geom_boxplot(aes(x = 1, y = mp)) 
-#   
-#   
-#   ggplot(df_mp_univariate %>% filter(day!= 5 & day!= 6 & holiday== "No" )) + geom_boxplot(aes(x = 1, y = mp)) 
-#   
-#   
+
+  ct <- rpart::rpart(mp ~ as.factor(day) + holiday  + time,                                                    # target attribute based on training attributes
+                     data = df_mp_univariate,                                                               # data to be used
+                     control = rpart::rpart.control(
+                       cp = 0 ,                                          # nessun vincolo sul cp permette lo svoluppo completo dell'albero
+                       xval = (length(df_mp_univariate) - 1 ),                        # !!!!!!! ATTENZIONE non dovrebbe essere dim()[1] ?? k-fold leave one out LOOCV dim
+                       maxdepth = 2))
+  summary(ct)
+  rpart::plotcp(ct, lty = 2, col = "red", upper = "size")
+  ct1 <- partykit::as.party(ct)
+  plot(ct1, tnex = 2.5,  gp = grid::gpar(fontsize = 12))
+
+  ggplot(df_mp_univariate) + geom_boxplot(aes(x = index, y = mp, color = day))
+
+  df_mp_univariate$mp[df_mp_univariate$day == 5 | df_mp_univariate$day== 6 | df_mp_univariate$holiday!= "No"] <-
+    median(df_mp_univariate$mp)
+
+  ggplot(df_mp_univariate) + geom_line(aes(x = index, y = mp))
+
+  ggplot(df_mp_univariate) + geom_boxplot(aes(x = 1, y = mp))
+
+
+  ggplot(df_mp_univariate %>% filter(day!= 5 & day!= 6 & holiday== "No" )) + geom_boxplot(aes(x = 1, y = mp))
+
+
   p1mp_box <-  plot_sequence(
     type = "raw",
     df_mp_univariate,
