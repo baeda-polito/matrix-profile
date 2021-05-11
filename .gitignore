@@ -1,3 +1,9 @@
+# system files 
+.DS_Store
+
+# system files 
+.gitattributes
+
 # History files
 .Rhistory
 .Rapp.history
