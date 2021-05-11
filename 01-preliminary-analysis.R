@@ -140,6 +140,14 @@ load("./data/mp_univariate_total_05ex_w96.RData") # load to save time
 mp_length = length(mp_univariate$mp)
 
 df_mp_univariate <- data.frame(
+  year = df_univariate$Year[c(1:mp_length)],
+  month = df_univariate$Month[c(1:mp_length)],
+  day = df_univariate$Week_day[c(1:mp_length)],
+  hour = df_univariate$Hour[c(1:mp_length)],
+  time = df_univariate$Time[c(1:mp_length)],
+  holiday = df_univariate$Holiday[c(1:mp_length)],
+  tou = df_univariate$ToU[c(1:mp_length)],
+  year = df_univariate$Year[c(1:mp_length)],
   data = df_univariate$Power_total[c(1:mp_length)],
   data_index = df_univariate$CET[c(1:mp_length)],
   index = as.integer(rownames(df_univariate)[c(1:mp_length)]),
@@ -225,15 +233,83 @@ head(df_mp_univariate)
   
 }
 
+{
+
+  p0data_box <- plot_sequence(
+    type = "raw",
+    df_mp_univariate,
+    x = "data_index",
+    x_lab = NULL,
+    y = "data",
+    y_lab = "Total [kW]",
+    w = 96,
+    seq_index = 5000,
+    seq_nn = 1000
+  )
+#   
+#   ct <- rpart::rpart(mp ~ as.factor(day) + holiday  + time,                                                    # target attribute based on training attributes
+#                      data = df_mp_univariate,                                                               # data to be used
+#                      control = rpart::rpart.control(
+#                        cp = 0 ,                                          # nessun vincolo sul cp permette lo svoluppo completo dell'albero
+#                        xval = (length(df_mp_univariate) - 1 ),                        # !!!!!!! ATTENZIONE non dovrebbe essere dim()[1] ?? k-fold leave one out LOOCV dim
+#                        maxdepth = 2)) 
+#   summary(ct)
+#   rpart::plotcp(ct, lty = 2, col = "red", upper = "size")
+#   ct1 <- partykit::as.party(ct)
+#   plot(ct1, tnex = 2.5,  gp = grid::gpar(fontsize = 12))
+#   
+#   ggplot(df_mp_univariate) + geom_boxplot(aes(x = index, y = mp, color = day))
+#   
+#   df_mp_univariate$mp[df_mp_univariate$day == 5 | df_mp_univariate$day== 6 | df_mp_univariate$holiday!= "No"] <- 
+#     median(df_mp_univariate$mp)
+#   
+#   ggplot(df_mp_univariate) + geom_line(aes(x = index, y = mp)) 
+#   
+#   ggplot(df_mp_univariate) + geom_boxplot(aes(x = 1, y = mp)) 
+#   
+#   
+#   ggplot(df_mp_univariate %>% filter(day!= 5 & day!= 6 & holiday== "No" )) + geom_boxplot(aes(x = 1, y = mp)) 
+#   
+#   
+  p1mp_box <-  plot_sequence(
+    type = "raw",
+    df_mp_univariate,
+    x = "index",
+    x_lab = NULL,
+    y = "mp",
+    y_lab = "MP",
+    w = 96,
+    seq_index = 5000,
+    seq_nn = 1000
+  )
+
+
+}
+
+
 #  SEQUENCE DISCOVERY ------------------------------------------------------------------
 #  https://matrixprofile.org/tsmp/reference/find_discord.html
+
+## DISCORD DISCOVERY
 discord <- find_discord(mp_univariate,
                         n_discords = 1,
                         n_neighbors = 1
-                        )
-
+)
+sequence_string <- "Discord"
 # discord index
 sequence_index <- as.numeric(discord$discord$discord_idx)
+
+
+## MOOTIF DISCOVERY
+# motif <- find_motif(mp_univariate,
+#                     n_motifs = 1,
+#                     n_neighbors = 1
+# )
+# sequence_string <- "Motif"
+## motif index
+# sequence_index <- as.numeric(motif$motif$motif_idx[[1]][[1]])
+
+
 
 #  PLOTS ------------------------------------------------------------------
 # first nn index
@@ -309,14 +385,14 @@ sequence_index <- as.numeric(discord$discord$discord_idx)
     align = "v"
   )
   
-  annotate_figure(fig, top = text_grob("Discord discovery", color = "black", face = "bold", size = 13))
-                  
-                  
-  ggsave("./figures/01.03-total-MP-discord.png",
+  annotate_figure(fig, top = text_grob(paste(sequence_string, "discovery"), color = "black", face = "bold", size = 13))
+  
+  
+  ggsave( gsub(" ", "", paste("./figures/01.03-total-MP-", sequence_string, ".png")),
          width = 10,
          height = 7)
   dev.off()
-  }
+}
 
 # plot discord profiles normal and normalized
 {
@@ -330,7 +406,7 @@ sequence_index <- as.numeric(discord$discord$discord_idx)
     w = 96, 
     seq_index = sequence_index ,
     seq_nn =  df_mp_univariate$mp_index[sequence_index]
-  ) + labs( title="Power [kW]")
+  )
   
   pmp_discord_z <-  plot_window(
     type = "znorm",
@@ -342,7 +418,7 @@ sequence_index <- as.numeric(discord$discord$discord_idx)
     w = 96, 
     seq_index = sequence_index,
     seq_nn = df_mp_univariate$mp_index[sequence_index]
-  )+ labs( title="Power [znorm]")
+  )
   
   prmp_discord_pure <-  plot_window(
     type = "pure",
@@ -404,11 +480,17 @@ sequence_index <- as.numeric(discord$discord$discord_idx)
     align = "v"
   )
   
-  annotate_figure(fig, top = text_grob("Discord discovery window profile", color = "black", face = "bold", size = 13))
+  annotate_figure(fig, 
+                  top = text_grob(paste(sequence_string, "discovery window profile"), color = "black", face = "bold", size = 13),
+                  left = text_grob("Power [kW]", color = "black", size = 11, rot = 90),
+                  right = text_grob("Power [z-norm]", color = "black",  size = 11, rot = 90),
+                  bottom = text_grob("Obs. Index", color = "black",  size = 11)
+                  
+  )
   
   
   ggsave(
-    "./figures/01.04-total-MP-discord-profile.png",
+    gsub(" ", "", paste("./figures/01.04-total-MP-", sequence_string, "-profile.png")),
     width = 10,
     height = 7
   )

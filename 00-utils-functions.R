@@ -92,7 +92,7 @@ plot_sequence <- function(type = "data",
                          </span>"
       ))
     
-    if (dataset[[mp_index]][seq_index] > dataset[[x]][seq_index] ) { # rigth
+    if (dataset[[mp_index]][seq_index] > dataset[[x]][seq_index] ) { # right
       plot <- plot + 
         annotate("rect", 
                  xmin = dataset[[x]][seq_index], 
@@ -101,11 +101,11 @@ plot_sequence <- function(type = "data",
                  ymax = ymax_mp,
                  alpha = .3,fill = "gray")
       
-    } else {
+    } else { # left
       plot <- plot + 
         annotate("rect", 
-                 xmin = dataset[[mp_index]][seq_index],
-                 xmax = min( dataset[[x]]),
+                 xmin = min( dataset[[x]]),
+                 xmax = dataset[[x]][seq_index], 
                  ymin = 0, 
                  ymax = ymax_mp,
                  alpha = .3,fill = "gray")
@@ -133,6 +133,7 @@ plot_window <- function(type = "pure",
 ) 
 {
   fontsize <- 11
+  linesize <- 1
   seq_color <- "green"
   nn_color <- "blue"
   
@@ -146,14 +147,14 @@ plot_window <- function(type = "pure",
                                 index <= seq_index +  w) ,
       aes(x = c(0:w), y = data),
       color = "green",
-      size = 1.5
+      size = linesize
     ) +
       geom_line(
         data = dataset %>% filter(index >= seq_nn,
                                   index <= seq_nn +  w) ,
         aes(x = c(0:w), y = data),
         color = "blue",
-        size = 1.5
+        size = linesize
       ) 
   } else if (type == "znorm") {
     
@@ -163,14 +164,14 @@ plot_window <- function(type = "pure",
                                   index <= seq_index +  w) ,
         aes(x = c(0:w), (data - mean(data)) / sd(data)),
         color = "green",
-        size = 1.5
+        size = linesize
       ) +
       geom_line(
         data = dataset %>% filter(index >= seq_nn,
                                   index <= seq_nn +  w) ,
         aes(x = c(0:w), (data - mean(data)) / sd(data)),
         color = "blue",
-        size = 1.5
+        size = linesize
       ) 
   }
     
@@ -205,6 +206,7 @@ plot_window <- function(type = "pure",
       axis.text.x = element_text(size = fontsize),
       axis.text.y = element_text(size = fontsize)
     ) + 
+    scale_x_continuous(limits = c(0, w ), expand = c(0,0)) +
     labs(x = x_lab, y = y_lab)
   
   return(plot)
