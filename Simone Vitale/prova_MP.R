@@ -153,8 +153,74 @@ fig_compl <- fig_compl %>% layout(title='AV COMPLEXITY')
 
 fig_compl
 
+# av_motion_artifact
+
+av_ma <- av_motion_artifact(mp, apply = TRUE)
+
+matrix_prof_tot <- matrix_prof_tot %>%
+  mutate(mp_ma=av_ma[["mp"]]) %>% 
+  mutate(av_ma=av_ma[["av"]])
 
 
+
+p6 <-ggplot()+
+  geom_line(data =matrix_prof_tot,aes(x=X, y=mp_ma),size=0.5, color='magenta')+
+  geom_line(data =matrix_prof_tot,aes(x=X, y=av_ma),size=0.5, color='purple')+
+  theme(axis.text.x = element_text(angle=-90),
+        panel.grid.major.x =element_line( size=.1, color = 'black'))+
+  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), 500))+
+  labs(x='X', y='MP_with_AV')
+
+fig_ma <- subplot(p1,p2,p6, nrows = 3,titleX = F,titleY = T)
+fig_ma <- fig_ma %>% layout(title='AV MOTION ARTIFACT')
+
+fig_ma
+
+# av_stop_word
+
+av_sw <- av_stop_word(mp,stop_word_loc = 100, apply = TRUE)
+
+matrix_prof_tot <- matrix_prof_tot %>%
+  mutate(mp_sw=av_sw[["mp"]]) %>% 
+  mutate(av_sw=av_sw[["av"]])
+
+
+
+p7 <-ggplot()+
+  geom_line(data =matrix_prof_tot,aes(x=X, y=mp_sw),size=0.5, color='magenta')+
+  geom_line(data =matrix_prof_tot,aes(x=X, y=av_sw),size=0.5, color='brown')+
+  theme(axis.text.x = element_text(angle=-90),
+        panel.grid.major.x =element_line( size=.1, color = 'black'))+
+  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), 500))+
+  labs(x='X', y='MP_with_AV')
+
+fig_sw <- subplot(p1,p2,p7, nrows = 3,titleX = F,titleY = T)
+fig_sw <- fig_sw %>% layout(title='AV STOP WORD')
+
+fig_sw
+
+# av_zerocrossing
+
+av_zc <- av_zerocrossing(mp, apply = TRUE)
+
+matrix_prof_tot <- matrix_prof_tot %>%
+  mutate(mp_zc=av_zc[["mp"]]) %>% 
+  mutate(av_zc=av_zc[["av"]])
+
+
+
+p8 <-ggplot()+
+  geom_line(data =matrix_prof_tot,aes(x=X, y=mp_zc),size=0.5, color='magenta')+
+  geom_line(data =matrix_prof_tot,aes(x=X, y=av_zc),size=0.5, color='gold')+
+  theme(axis.text.x = element_text(angle=-90),
+        panel.grid.major.x =element_line( size=.1, color = 'black'))+
+  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), 500))+
+  labs(x='X', y='MP_with_AV')
+
+fig_zc <- subplot(p1,p2,p8, nrows = 3,titleX = F,titleY = T)
+fig_zc <- fig_zc %>% layout(title='AV ZERO CROSSING')
+
+fig_zc
 
 
 
