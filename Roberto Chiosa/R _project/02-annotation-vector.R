@@ -48,16 +48,26 @@ load("./data/mp_univariate_total_05ex_w96.RData") # load to save time
 # define length of mp
 mp_length = length(mp_univariate$mp)
 
-
 ## Apply AV to mp
-# add annotation vector to mp list
-mp_univariate$av <- df_univariate$av[c(1:mp_length)]
-class(mp_univariate) <- tsmp:::update_class(class(mp_univariate), "AnnotationVector")
-mp_univariate <- tsmp::av_apply(mp_univariate)
+# # add annotation vector to mp list
+# mp_univariate$av <- df_univariate$av[c(1:mp_length)]
+# class(mp_univariate) <- tsmp:::update_class(class(mp_univariate), "AnnotationVector")
+# mp_univariate <- tsmp::av_apply(mp_univariate)
 
+# mp_annotated <- av_complexity(mp_univariate, apply = TRUE)
+# av_type <- "complexity"
 
+# mp_annotated <- av_hardlimit_artifact(mp_univariate, apply = TRUE)
+# av_type <- "hardlimit_artifact"
+
+# mp_annotated <- av_motion_artifact(mp_univariate, apply = TRUE)
+# av_type <- "motion_artifact"
+
+mp_annotated <- av_zerocrossing(mp_univariate, apply = TRUE)
+av_type <- "zerocrossing"
+
+#  ANNOTATION VECTOR: COMPLEXITY ------------------------------------------------------------------
 df_mp_univariate <- data.frame(
-  av = df_univariate$av[c(1:mp_length)],
   year = df_univariate$Year[c(1:mp_length)],
   month = df_univariate$Month[c(1:mp_length)],
   day = df_univariate$Week_day[c(1:mp_length)],
@@ -69,14 +79,72 @@ df_mp_univariate <- data.frame(
   data = df_univariate$Power_total[c(1:mp_length)],
   data_index = df_univariate$CET[c(1:mp_length)],
   index = as.integer(rownames(df_univariate)[c(1:mp_length)]),
-  mp = mp_univariate[[1]],
-  mp_index = mp_univariate[[2]],
-  rmp = mp_univariate[[3]],
-  rmp_index = mp_univariate[[4]],
-  lmp = mp_univariate[[5]],
-  lmp_index = mp_univariate[[6]]
+  mp = mp_annotated$mp,
+  mp_index = mp_annotated$pi,
+  rmp = mp_annotated$rmp,
+  rmp_index = mp_annotated$rpi,
+  lmp = mp_annotated$lmp,
+  lmp_index = mp_annotated$lpi,
+  av = mp_annotated$av
 )
-head(df_mp_univariate)
+
+{
+  # time series plot and sequence identification
+  p0data <-  plot_sequence(
+    type = "raw",
+    df_mp_univariate,
+    x = "data_index",
+    x_lab = NULL,
+    y = "data",
+    y_lab = "Power [kW]"
+  )
+  
+  p1mp_av <- plot_sequence(
+    type = "raw",
+    df_mp_univariate,
+    x = "index",
+    x_lab = NULL,
+    y = "av",
+    y_lab = "AV [-]"
+  )
+  
+  plot(mp_annotated$av)
+  
+  p1mp <- plot_sequence(
+    type = "raw",
+    df_mp_univariate,
+    x = "index",
+    x_lab = NULL,
+    y = "mp",
+    y_lab = "MP",
+    ymax_mp = 20,
+    mp_index = "mp_index"
+  )
+  
+  dev.new()
+  
+  fig <- ggarrange(
+    p0data,
+    p1mp_av,
+    p1mp,
+    ncol = 1,
+    nrow = 3,
+    widths = c(3),
+    align = "v"
+  )
+  
+  annotate_figure(fig, top = text_grob(paste(av_type, "discovery"), color = "black", face = "bold", size = 13))
+  
+  
+  ggsave( gsub(" ", "", paste("./figures/01.05-total-MP-", av_type, ".png")),
+          width = 10,
+          height = 7)
+  dev.off()
+}
+
+
+
+
 
 
 #  SEQUENCE DISCOVERY ------------------------------------------------------------------
@@ -146,9 +214,7 @@ sequence_index <- as.numeric(motif$motif$motif_idx[[1]][[1]])
     seq_index = sequence_index,
     seq_nn = df_mp_univariate$mp_index[sequence_index]
   )
-  
-  
-  
+
   dev.new()
   
   fig <- ggarrange(

@@ -15,10 +15,6 @@ df <- read.csv("data/df.csv")
 
 # My first MP 
 
-<<<<<<< Updated upstream
-data <- df$X1226
-w <- 96
-=======
  data <- df$X1226
  
  w <- 96
@@ -71,7 +67,7 @@ w <- 96
  
 dev.new()
 plot(motif_subseq)
->>>>>>> Stashed changes
+
 
 #mp <- tsmp(data, window_size = w, verbose = 2)
 #save(mp,file = './data/mp_total.Rdata')
