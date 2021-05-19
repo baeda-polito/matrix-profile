@@ -1,4 +1,24 @@
 
+make_AV <- function(data, subsequenceLength){
+  
+  AV = 0*c(1:length(data)-subsequenceLength+1)
+  stdVector= 0*c(1:length(data)-subsequenceLength+1)
+  
+  for (bb in 1:(length(data)-subsequenceLength+1)){
+    
+    stdVector[bb] = sd( data[ c(bb:(bb+subsequenceLength-1)) ] )
+    
+  }
+  meanstdV <- mean(stdVector)
+  
+  AV = ifelse(stdVector >= meanstdV,1,0)
+  
+  return( list(AV = AV,
+               stdVector = stdVector,
+               meanstdV = meanstdV)
+  )
+}
+
 plot_sequence <- function(type = "data",
                           dataset,
                           x,

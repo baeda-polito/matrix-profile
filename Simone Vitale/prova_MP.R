@@ -20,7 +20,7 @@ df <- read.csv("data/df.csv")
  w <- 96
  data <- df$X1226
  #mp <- tsmp(data, window_size = w, verbose = 2)
- 
+
  #save(mp,file = './data/mp_total.Rdata')
  
  load('./data/mp_total.Rdata')
@@ -117,8 +117,6 @@ matrix_prof_tot <- matrix_prof_tot %>%
   mutate(mp_hla=av_hla[["mp"]]) %>% 
   mutate(av_hla=av_hla[["av"]])
 
-
-
 p4 <-ggplot()+
   geom_line(data =matrix_prof_tot,aes(x=X, y=mp_hla),size=0.5, color='magenta')+
   geom_line(data =matrix_prof_tot,aes(x=X, y=av_hla),size=0.5, color='blue')+
@@ -163,6 +161,12 @@ matrix_prof_tot <- matrix_prof_tot %>%
   mutate(mp_ma=av_ma[["mp"]]) %>% 
   mutate(av_ma=av_ma[["av"]])
 
+plot(av_ma$av, type = "l")
+
+
+av_list <- make_AV(av_ma$data[[1]], 96)
+
+plot(av_list$AV, type = "l")
 
 
 p6 <-ggplot()+
