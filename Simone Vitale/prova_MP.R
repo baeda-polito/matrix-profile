@@ -79,12 +79,14 @@ matrix_prof_tot <- matrix_prof_tot %>%
   mutate(X=c(1:nrow(matrix_prof_tot))) %>%
   mutate(Month=df$Month[c(1:nrow(matrix_prof_tot))])
 
+xticks=100
+
 
 p1 <-ggplot()+
   geom_line(data =df,aes(x=X, y=X1226),size=0.5)+
   theme(axis.text.x = element_text(angle=-90),
         panel.grid.major.x =element_line( size=.1, color = 'black'))+
-  scale_x_continuous(breaks = seq(0, length(df$X), 500))+
+  scale_x_continuous(breaks = seq(0, length(df$X), xticks))+
   labs(x='X', y='Power[KW]')
 
 
@@ -92,7 +94,7 @@ p2 <-ggplot()+
   geom_line(data =matrix_prof_tot,aes(x=X, y=V1),size=0.5, color='red')+
   theme(axis.text.x = element_text(angle=-90),
         panel.grid.major.x =element_line( size=.1, color = 'black'))+
-  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), 500))+
+  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X),xticks ))+
   labs(x='X', y='MP')
 
 dev.new()
@@ -122,7 +124,7 @@ p4 <-ggplot()+
   geom_line(data =matrix_prof_tot,aes(x=X, y=av_hla),size=0.5, color='blue')+
   theme(axis.text.x = element_text(angle=-90),
         panel.grid.major.x =element_line( size=.1, color = 'black'))+
-  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), 500))+
+  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), xticks))+
   labs(x='X', y='MP_with_AV')
 
 fig_hla <- subplot(p1,p2,p4, nrows = 3,titleX = F,titleY = T)
@@ -145,7 +147,7 @@ p5 <-ggplot()+
   geom_line(data =matrix_prof_tot,aes(x=X, y=av_compl),size=0.5, color='green')+
   theme(axis.text.x = element_text(angle=-90),
         panel.grid.major.x =element_line( size=.1, color = 'black'))+
-  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), 500))+
+  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), xticks))+
   labs(x='X', y='MP_with_AV')
 
 fig_compl <- subplot(p1,p2,p5, nrows = 3,titleX = F,titleY = T)
@@ -168,7 +170,7 @@ p6 <-ggplot()+
   geom_line(data =matrix_prof_tot,aes(x=X, y=av_ma),size=0.5, color='purple')+
   theme(axis.text.x = element_text(angle=-90),
         panel.grid.major.x =element_line( size=.1, color = 'black'))+
-  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), 500))+
+  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), xticks))+
   labs(x='X', y='MP_with_AV')
 
 fig_ma <- subplot(p1,p2,p6, nrows = 3,titleX = F,titleY = T)
@@ -191,7 +193,7 @@ p7 <-ggplot()+
   geom_line(data =matrix_prof_tot,aes(x=X, y=av_sw),size=0.5, color='brown')+
   theme(axis.text.x = element_text(angle=-90),
         panel.grid.major.x =element_line( size=.1, color = 'black'))+
-  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), 500))+
+  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), xticks))+
   labs(x='X', y='MP_with_AV')
 
 fig_sw <- subplot(p1,p2,p7, nrows = 3,titleX = F,titleY = T)
@@ -214,7 +216,7 @@ p8 <-ggplot()+
   geom_line(data =matrix_prof_tot,aes(x=X, y=av_zc),size=0.5, color='gold')+
   theme(axis.text.x = element_text(angle=-90),
         panel.grid.major.x =element_line( size=.1, color = 'black'))+
-  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), 500))+
+  scale_x_continuous(breaks = seq(0, length(matrix_prof_tot$X), xticks))+
   labs(x='X', y='MP_with_AV')
 
 fig_zc <- subplot(p1,p2,p8, nrows = 3,titleX = F,titleY = T)
