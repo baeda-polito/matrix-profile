@@ -1,6 +1,6 @@
 # system files 
 .DS_Store
-.manuscript/ # paper drafts
+manuscript/ # paper drafts
 
 # system files 
 .gitattributes
