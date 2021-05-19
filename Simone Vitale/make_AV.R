@@ -1,28 +1,33 @@
-
-data <- runif(40)
-subsequenceLength <-  5
-
+a<- sample(1:10,30,replace = T)
+w <-5
 
 make_AV <- function(data, subsequenceLength){
   
   AV = 0*c(1:length(data)-subsequenceLength+1)
-  stdVector = 0*c(1:length(data)-subsequenceLength+1)
+  stdVector= 0*c(1:length(data)-subsequenceLength+1)
 
-  for (ii in 1:length(data)-subsequenceLength+2){
+  for (bb in 1:(length(data)-subsequenceLength+1)){
     
-    stdVector[ii] = sd( data[ ii:(ii+subsequenceLength-1) ] )
+    stdVector[bb] = sd( data[ c(bb:(bb+subsequenceLength-1)) ] )
     
   }
+  meanstdV <-mean(stdVector)
   
- AV(stdVector >= mean(stdVector))=0 
- AV(stdVector < mean(stdVector))=1 
+  AV =ifelse(stdVector >=meanstdV,1,0)
+  
  
- return(AV)
+  return(list(AV,stdVector,meanstdV))
+
+
   
 }
 
+debug(make_AV)
+make_AV(a,w)
 
-make_AV(data, w)
+
+
+
 
 
                     
