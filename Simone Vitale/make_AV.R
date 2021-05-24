@@ -108,5 +108,3 @@ plot(av$av, type = "l")
 av_new <- make_AV( data = data, subsequenceLength = w, type = 'motion_artifact', binary = TRUE)
 plot(av_new, type = "l")
 
-
-

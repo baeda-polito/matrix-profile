@@ -11,6 +11,7 @@ library(ggpubr)
 library(tsmp)
 library(plotly)
 
+
 df <- read.csv("data/df.csv")
 
 # My first MP 
