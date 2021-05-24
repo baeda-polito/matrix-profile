@@ -83,6 +83,14 @@ make_AV <- function(data, subsequenceLength, type = c('motion_artifact','complex
   
 }
 
+
+#debug(make_AV)
+#make_AV(aa,672,'motion_artifact',F)
+
+
+
+
+
 ## example for debug
 library(tsmp)
 
