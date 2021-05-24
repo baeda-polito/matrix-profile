@@ -53,7 +53,7 @@ make_AV <- function(data, subsequenceLength, type = c('motion_artifact','complex
     else if(binary == FALSE){
       # returns a real valued {0,1} annotation vector
       # AV <- stdVector/max(stdVector) 
-      AV <- zero_one_norm(AV)
+      AV <- zero_one_norm(stdVector)
       return(AV)
     }
     else {
@@ -84,11 +84,8 @@ make_AV <- function(data, subsequenceLength, type = c('motion_artifact','complex
 }
 
 
-#debug(make_AV)
-#make_AV(aa,672,'motion_artifact',F)
-
-
-
+debug(make_AV)
+make_AV(data,50,'motion_artifact',F)
 
 
 ## example for debug
@@ -115,4 +112,3 @@ plot(av$av, type = "l")
 # debug(make_AV)
 av_new <- make_AV( data = data, subsequenceLength = w, type = 'motion_artifact', binary = TRUE)
 plot(av_new, type = "l")
-
