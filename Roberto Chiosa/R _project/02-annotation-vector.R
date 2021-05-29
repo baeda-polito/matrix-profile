@@ -1,72 +1,21 @@
 #  LOAD PACKAGES and FUNCTIONS ------------------------------------------------------------------
-cat("\014")             # clears the console
-rm(list = ls())         # remove all variables of the workspace
-library(energydataset)  # energy dataset to test
-library(tsmp)           # matrix profile dataset
-library(dplyr)          # dataset handling
-library(ggplot2)        # plot
-library(ggpubr)         # arrange plots
-library(ggtext)         # annotate text
+cat("\014")                 # clears the console
+rm(list = ls())             # remove all variables of the workspace
+source(file = "00-setup.R") # load user functions
 
-source(file = "00-utils-functions.R") # load user functions
-
-#  PREPROCESSING ------------------------------------------------------------------
-
-# load dataset
-df <- energydataset::data_power_raw
-
-# fix dataset names
-df_univariate <- df %>%
-  mutate(
-    CET = as.POSIXct(CET , format = "%Y-%m-%d %H:%M:%S" , tz = "GMT"),
-    Power_total = `1226`,
-    Power_data_centre = `1045`,
-    Power_canteen = `1047`,
-    Power_mechanical_room = `1022`,
-    Power_dimat = `294`,
-    Power_bar = `1046`,
-    Power_rectory = `1085`,
-    Power_print_shop = `1086`
-  ) %>%
-  dplyr::select(-c(2:9)) %>%
-  # add annotation vector that favors weekdays or weekends/holyday
-  mutate(
-    # av = if_else(Week_day == 7 | Week_day == 8 | Holiday == TRUE, 0, 1) # AV1
-    av = if_else(Week_day == 7 | Week_day == 8 | Holiday == TRUE, 1, 0) # AV2
-  )
-
-
-
-#  MATRIX PROFILE ------------------------------------------------------------------
-#  matrix profile on the total electrical power
+load( "./data/df_univariate_small.RData" ) # load to save time
 w = 96 # window size
-# mp_univariate <- tsmp(df_univariate$Power_total, window_size = w, exclusion_zone = 0.5 )
 
-
-av_type <- c("complexity", "hardlimit_artifact", "motion_artifact", "zerocrossing")
+av_type <- c("complexity", "hardlimit_artifact", "motion_artifact", "zerocrossing", "make_AV_complexity", "make_AV_motion_real", "make_AV_motion_binary")
 
 for (i in 1:length(av_type)) {
-
-  load("./data/mp_univariate_total_05ex_w96.RData") # load to save time
+  
+  load("./data/mp-Power_total-w96.RData") # load to save time
   
   # define length of mp
   mp_length = length(mp_univariate$mp)
   
-  # depending on the type
-  switch (av_type[i],
-          complexity                = mp_annotated <- av_complexity(mp_univariate, apply = TRUE),
-          hardlimit_artifact        = mp_annotated <- av_hardlimit_artifact(mp_univariate, apply = TRUE),
-          motion_artifact           = mp_annotated <- av_motion_artifact(mp_univariate, apply = TRUE),
-          zerocrossing              = mp_annotated <- av_zerocrossing(mp_univariate, apply = TRUE)
-  )
-  ## Apply AV to mp
-  # # add annotation vector to mp list
-  # mp_univariate$av <- df_univariate$av[c(1:mp_length)]
-  # class(mp_univariate) <- tsmp:::update_class(class(mp_univariate), "AnnotationVector")
-  # mp_univariate <- tsmp::av_apply(mp_univariate)
-
-  
-  #  ANNOTATION VECTOR: COMPLEXITY ------------------------------------------------------------------
+  # creates dataframe for plot
   df_mp_univariate <- data.frame(
     year = df_univariate$Year[c(1:mp_length)],
     month = df_univariate$Month[c(1:mp_length)],
@@ -79,14 +28,37 @@ for (i in 1:length(av_type)) {
     data = df_univariate$Power_total[c(1:mp_length)],
     data_index = df_univariate$CET[c(1:mp_length)],
     index = as.integer(rownames(df_univariate)[c(1:mp_length)]),
-    mp = mp_annotated$mp,
-    mp_index = mp_annotated$pi,
-    rmp = mp_annotated$rmp,
-    rmp_index = mp_annotated$rpi,
-    lmp = mp_annotated$lmp,
-    lmp_index = mp_annotated$lpi,
-    av = mp_annotated$av
+    mp_original = mp_univariate$mp
   )
+  
+  
+  # depending on the type
+  switch (av_type[i],
+          complexity                = mp_annotated <- av_complexity(mp_univariate, apply = TRUE),
+          hardlimit_artifact        = mp_annotated <- av_hardlimit_artifact(mp_univariate, apply = TRUE),
+          motion_artifact           = mp_annotated <- av_motion_artifact(mp_univariate, apply = TRUE),
+          zerocrossing              = mp_annotated <- av_zerocrossing(mp_univariate, apply = TRUE),
+          # custom av need to be created and thenn applied to MP
+          make_AV_complexity        ={
+            mp_univariate$av <- make_AV( data = mp_univariate$data[[1]], subsequenceLength = w, type = 'complexity')
+            class(mp_univariate) <-tsmp:::update_class(class(mp_univariate), "AnnotationVector")
+            mp_annotated <- tsmp::av_apply(mp_univariate)
+          },
+          make_AV_motion_real       ={
+            mp_univariate$av <-  make_AV( data = mp_univariate$data[[1]], subsequenceLength = w, type = 'motion_artifact', binary = FALSE)
+            class(mp_univariate) <-tsmp:::update_class(class(mp_univariate), "AnnotationVector")
+            mp_annotated <- tsmp::av_apply(mp_univariate)
+          },
+          make_AV_motion_binary     ={
+            mp_univariate$av <- make_AV( data = mp_univariate$data[[1]], subsequenceLength = w, type = 'motion_artifact', binary = TRUE)
+            class(mp_univariate) <-tsmp:::update_class(class(mp_univariate), "AnnotationVector")
+            mp_annotated <- tsmp::av_apply(mp_univariate)
+          }
+  )
+  
+  # adds annotated results of mp
+  df_mp_univariate$mp_annotated <- mp_annotated$mp
+  df_mp_univariate$av <- mp_annotated$av
   
   # plot
   {
@@ -100,7 +72,18 @@ for (i in 1:length(av_type)) {
       y_lab = "Power [kW]"
     )
     
-    p1mp_av <- plot_sequence(
+    p1mp_old <- plot_sequence(
+      type = "raw",
+      df_mp_univariate,
+      x = "index",
+      x_lab = NULL,
+      y = "mp_original",
+      y_lab = "MP original",
+      ymax_mp = 20,
+      mp_index = "mp_index"
+    )
+    
+    p2mp_av <- plot_sequence(
       type = "raw",
       df_mp_univariate,
       x = "index",
@@ -109,38 +92,40 @@ for (i in 1:length(av_type)) {
       y_lab = "AV [-]"
     )
     
-    p1mp <- plot_sequence(
+    p3mp_new <- plot_sequence(
       type = "raw",
       df_mp_univariate,
       x = "index",
       x_lab = NULL,
-      y = "mp",
-      y_lab = "MP",
+      y = "mp_annotated",
+      y_lab = "MP annotated",
       ymax_mp = 20,
       mp_index = "mp_index"
     )
+    
+    
     
     dev.new()
     
     fig <- ggarrange(
       p0data,
-      p1mp_av,
-      p1mp,
+      p1mp_old,
+      p2mp_av,
+      p3mp_new, 
       ncol = 1,
-      nrow = 3,
+      nrow = 4,
       widths = c(3),
       align = "v"
     )
     
-    annotate_figure(fig, top = text_grob(paste(av_type[i], "discovery"), color = "black", face = "bold", size = 13))
+    annotate_figure(fig, top = text_grob(paste("Annotation Vector :", av_type[i]), color = "black", face = "bold", size = 13))
     
-    
-    ggsave( gsub(" ", "", paste("./figures/02.0",i,"-AV-", av_type[i], ".png")),
+    ggsave( gsub(" ", "", paste("./figures/02-annotation-vector/01-AV-", av_type[i], ".png")),
             width = 10,
             height = 7)
     dev.off()
   }
-
+  
 }
 
 
