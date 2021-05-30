@@ -41,7 +41,7 @@ make_AV <- function(data, subsequenceLength, type = c('motion_artifact','complex
     for (bb in 1:(length(data)-subsequenceLength+1) ){
       
       # calculates standard deviation
-      stdVector[bb] <- sd( data[ c(bb:(bb+subsequenceLength-1)) ] )
+      stdVector[bb] <- sd( data[c(bb:(bb+subsequenceLength-1))] )
       
     }
     
@@ -84,27 +84,33 @@ make_AV <- function(data, subsequenceLength, type = c('motion_artifact','complex
 }
 
 
+
+
+#debug(make_AV)
+#make_AV(aaa,96,'motion_artifact',T)
+
+
 ## example for debug
-library(tsmp)
+#library(tsmp)
 
 # to make comparison we use tsmp builtin datasets
-data <- mp_test_data$train$data[1:1000]
-w <- 50
+#data <- mp_test_data$train$data[1:1000]
+#w <- 50
 
 #############  tsmp complexity vs custom
-mp <- tsmp(data, window_size = w, verbose = 0)
-av <- av_complexity(mp, apply = TRUE)
-plot(av$av, type = "l")
+#mp <- tsmp(data, window_size = w, verbose = 0)
+#av <- av_complexity(mp, apply = TRUE)
+#plot(av$av, type = "l")
 
 # debug(make_AV)
-av_new <- make_AV( data = data, subsequenceLength = w, type = 'complexity')
-plot(av_new, type = "l")
+#av_new <- make_AV( data = data, subsequenceLength = w, type = 'complexity')
+#plot(av_new, type = "l")
 
 ############# tsmp motion_artifact vs custom
-mp <- tsmp(data, window_size = w, verbose = 0)
-av <- av_motion_artifact(mp, apply = TRUE)
-plot(av$av, type = "l")
+#mp <- tsmp(data, window_size = w, verbose = 0)
+#av <- av_motion_artifact(mp, apply = TRUE)
+#plot(av$av, type = "l")
 
 # debug(make_AV)
-av_new <- make_AV( data = data, subsequenceLength = w, type = 'motion_artifact', binary = TRUE)
-plot(av_new, type = "l")
+#av_new <- make_AV( data = data, subsequenceLength = w, type = 'motion_artifact', binary = TRUE)
+#plot(av_new, type = "l")

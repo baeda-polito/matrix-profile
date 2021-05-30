@@ -28,20 +28,22 @@ df <- df %>%
          Time=Hour+ (Minute/60))
 
 # build CART model
-
 rt <-rpart(data=df, Total_Power ~ Time)
 
 dev.new()
 plot(as.party(rt), main = "REGRESSION TREE")
 
 #extract leaf node number from rpart variable, rt
-
 leaf_node_n <- which(rt[['frame']][['var']]=='<leaf>')
 
 # add a column to df with leaf node number
-
 df<- mutate(df, leaf_node_number=rt[['where']])
 
+
+# the following analysis is restricted to a small time interval
+row_start <- 4000
+row_end<-row_start+(7*96)
+df<-df[c(row_start:row_end),]
 
 # divide time series in as many interval as leaf node number
 time_series <- matrix(nrow = nrow(df),ncol = length(leaf_node_n))
@@ -78,26 +80,25 @@ df_time_series <-mutate(df_time_series,X=c(1:nrow(df_time_series)))
 names(df_AV_color)<-paste0("color_node_",leaf_node_n )
 df_AV_color<-mutate(df_AV_color,X=c(1:nrow(df_AV_color)))
 
-
 #make MP on time series
 
-#data <- df$Total_Power
+data <- df$Total_Power
 
-w<- 96*7  
+w<- 96 
 
-#mp_power_tot_sett <- tsmp(data, window_size = w, verbose = 2)
+mp_power <- tsmp(data, window_size = w, verbose = 2)
 
-#save(mp_power_tot_sett,file = './data/mp_power_tot_sett.Rdata')
+#save(mp_power,file = './data/mp_power.Rdata')
 
 # new df to store annotated mp
 
-load("./data/mp_power_tot_sett.RData")
+load("./data/mp_power.RData")
 
-df_mp <- as.data.frame(c(1:nrow(mp_power_tot_sett[['mp']])))
+df_mp <- as.data.frame(c(1:nrow(mp_power[['mp']])))
 
 colnames(df_mp)[1] <-'X'
 
-df_mp<- mutate(df_mp,original_MP=mp_power_tot_sett[['mp']])
+df_mp<- mutate(df_mp,original_MP=mp_power[['mp']])
 
 
 # select one of the leaf node from df_time_series
@@ -110,7 +111,7 @@ annotation<-NULL
 
 for (ii in 1:length(av_type)) {
   
-  load("./data/mp_power_tot_sett.RData") # load to save time
+  load("./data/mp_power.RData") # load to save time
   
   
   # depending on the type
@@ -127,107 +128,26 @@ for (ii in 1:length(av_type)) {
           
   )
   
-  ## Apply AV to mp
+  # Apply AV to mp
   # add annotation vector to mp list
-  mp_power_tot_sett$av <- annotation
-  class(mp_power_tot_sett) <-tsmp:::update_class(class(mp_power_tot_sett), "AnnotationVector")
-  mp_power_tot_sett <- tsmp::av_apply(mp_power_tot_sett)
+  mp_power$av <- annotation
+  class(mp_power) <-tsmp:::update_class(class(mp_power), "AnnotationVector")
+  mp_power <- tsmp::av_apply(mp_power)
   
   
   
-  mp_annotated <- mp_power_tot_sett[['mp']]                               # Create new columns
-  AV <-mp_power_tot_sett[['av']]
+  mp_annotated <- mp_power[['mp']]                                        # Create new columns
+  AV <-mp_power[['av']]
   df_mp[ , ncol(df_mp) + 1] <- mp_annotated                               # Append new column to df_mp
   colnames(df_mp)[ncol(df_mp)] <- paste0("mp_annotated_", av_type[ii])    # Rename column name
   df_mp[ , ncol(df_mp) + 1] <- AV   
   colnames(df_mp)[ncol(df_mp)] <- paste0("av_", av_type[ii])
   
   # find discord
-  mp_power_tot_sett<- find_discord(mp_power_tot_sett)
-  mp_discord<-mp_power_tot_sett[['discord']][["discord_idx"]]
-  df_mp[length(mp_discord) , ncol(df_mp) + 1] <- mp_discord 
+  mp_power<- find_discord(mp_power, n_discords = 4)
+  mp_discord<-mp_power[['discord']][["discord_idx"]]
+  df_mp$mp_discord <- ifelse(df_mp$X %in% mp_discord,1,NaN)                                      # c(mp_discord, rep(NA, nrow(df_mp)-length(mp_discord)))
   colnames(df_mp)[ncol(df_mp)] <- paste0("discord_", av_type[ii])
   
 }
-
-write.csv(df_mp,"./data/df_mp.csv", row.names = FALSE)
-
-# plot_AV_MAB
-
-p1 <- ggplot()+
-  geom_line(data=df, aes(x=Date, y=Total_Power))+
-  theme_bw()
-
-p2 <-ggplot()+
-  geom_line(data=df_mp, aes(x=X,y=original_MP))+
-  theme_bw()
-
-p3 <-ggplot()+
-  geom_line(data=df_mp, aes(x=X,y=mp_annotated_M_A_B))+
-  geom_line(data = df_mp, aes(x=X, y=av_M_A_B*max(df_mp$mp_annotated_M_A_B)),color='blue')+
-  scale_y_continuous(sec.axis=sec_axis(~./max(df_mp$mp_annotated_M_A_B), name='AV'))+
-  geom_point(data=df_mp, aes(x=df_mp$discord_M_A_B[1],y=mp_annotated_M_A_B[df_mp$discord_M_A_B[1]]),color='red')
-
-# Get the start and end points for highlighted regions
-inds <- diff(c(0, df_AV_color$color_node_2))
-start <- df_AV_color$X[inds == 1]
-end <- df_AV_color$X[inds == -1]
-if (length(start) > length(end)) end <- c(end, tail(df_AV_color$X, 1))
-
-# highlight region data
-rects <- data.frame(start=start, end=end, group=seq_along(start))
-
-p3 <-p3+
-  geom_rect(data=rects, inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin=-Inf,
-                                               ymax=Inf, group=group), fill="orange", alpha=0.3)
-
-
-dev.new()
-ggarrange(p1,p2,p3,nrow = 3)
-ggsave(file='./grafici/AV_MAB.pdf')
-
-
-# plot_AV_MA
-
-p1 <- ggplot()+
-  geom_line(data=df, aes(x=Date, y=Total_Power))+
-  theme_bw()
-
-p2 <-ggplot()+
-  geom_line(data=df_mp, aes(x=X,y=original_MP))+
-  theme_bw()
-
-p3 <-ggplot()+
-  geom_line(data=df_mp, aes(x=X,y=mp_annotated_M_A))+
-  geom_line(data = df_mp, aes(x=X, y=av_M_A*max(df_mp$mp_annotated_M_A)),color='blue')+
-  scale_y_continuous(sec.axis=sec_axis(~./max(df_mp$mp_annotated_M_A), name='AV'))+
-  geom_point(data=df_mp, aes(x=df_mp$discord_M_A[1],y=mp_annotated_M_A[df_mp$discord_M_A[1]]),color='red')
-
-
-dev.new()
-ggarrange(p1,p2,p3,nrow = 3)
-ggsave(file='./grafici/AV_MA.pdf')
-
-html<-subplot(p1, p2, p3, nrows = 3)
-htmlwidgets::saveWidget(as_widget(html), "./grafici/AV_MA.html")
-
-
-
-
-
-
-  
- 
-
-
-
-
-
-
-
-
-
-
-
-
 
