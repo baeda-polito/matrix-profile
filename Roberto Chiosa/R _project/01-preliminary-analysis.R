@@ -168,6 +168,7 @@ head(df_mp_univariate)
 {
   mplimity <- 15
   
+  
   p0data <- plot_sequence(
     type = "raw",
     df_mp_univariate,
