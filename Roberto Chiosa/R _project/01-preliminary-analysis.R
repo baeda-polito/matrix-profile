@@ -5,32 +5,34 @@ source(file = "00-setup.R") # load user functions
 
 #  PREPROCESSING ------------------------------------------------------------------
 # load dataset
-df <- energydataset::data_power_raw
-
-# fix dataset names
-df_univariate <- df %>%
-  mutate(
-    CET = as.POSIXct(CET , format = "%Y-%m-%d %H:%M:%S" , tz = "GMT"),
-    Power_total = `1226`,
-    Power_data_centre = `1045`,
-    Power_canteen = `1047`,
-    Power_mechanical_room = `1022`,
-    Power_dimat = `294`,
-    Power_bar = `1046`,
-    Power_rectory = `1085`,
-    Power_print_shop = `1086`
-  ) %>%
-  dplyr::select(-c(2:9))
-
+# df <- energydataset::data_power_raw
+# 
+# # fix dataset names
+# df_univariate <- df %>%
+#   mutate(
+#     CET = as.POSIXct(CET , format = "%Y-%m-%d %H:%M:%S" , tz = "GMT"),
+#     Power_total = `1226`,
+#     Power_data_centre = `1045`,
+#     Power_canteen = `1047`,
+#     Power_mechanical_room = `1022`,
+#     Power_dimat = `294`,
+#     Power_bar = `1046`,
+#     Power_rectory = `1085`,
+#     Power_print_shop = `1086`
+#   ) %>%
+#   dplyr::select(-c(2:9))
+#
 # save(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.RData")))
-
+#
 # subset original dataframe 
-df_univariate <- df_univariate[c(6000:10000),]
-
+#df_univariate <- df_univariate[c(6000:10000),]
+#
 # reset rownames from 1 to end
-rownames(df_univariate) <- c(6000:10000)-6000+1
+#rownames(df_univariate) <- c(6000:10000)-6000+1
 
 # save(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_small.RData")))
+
+load("./data/df_univariate_small.RData")
 
 # plot dataset time series
 {
