@@ -6,7 +6,6 @@ source(file = "00-setup.R") # load user functions
 load( "./data/df_univariate_small.RData" ) # load to save time
 w = 96 # window size
 
-
 # !!!!!!!!!!!!!!
 # to make the AV we can use a custom timeseries, not only the original timeseries
 
@@ -23,6 +22,7 @@ actual_ts <-c(
   "Power_print_shop" 
 )
 
+ifelse(!dir.exists(file.path(mainDir, subDir)), dir.create(file.path(mainDir, subDir)), FALSE)
 
 for (i in 1:length(actual_ts)) {
   
@@ -231,7 +231,7 @@ for (i in 1:length(actual_ts)) {
     
     annotate_figure(fig, top = text_grob(paste("Custom AV using ", ts_for_AV_name), color = "black", face = "bold", size = 13))
     
-    ggsave( gsub(" ", "", paste("./figures/03-focus-custom-annotation-vector/01-custom-AV-", ts_for_AV_name ,".png")),
+    ggsave( gsub(" ", "", paste("./figures/03-focus-custom-annotation-vector/",ts_for_AV_name,"/01-custom-AV-", ts_for_AV_name ,".png")),
             width = 13,
             height = 10)
     dev.off()

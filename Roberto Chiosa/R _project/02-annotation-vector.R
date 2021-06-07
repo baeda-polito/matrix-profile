@@ -4,7 +4,10 @@ rm(list = ls())             # remove all variables of the workspace
 source(file = "00-setup.R") # load user functions
 
 load( "./data/df_univariate_small.RData" ) # load to save time
-w = 96 # window size
+
+variable <- "Power_total"                                         # this is the timeseries used to perform the MP
+w <- 96                                                           # window size # this is the window size used to compute the MP
+figure_path <- "./figures/02-annotation-vector/"                  # path to figure  directory
 
 av_type <- c("complexity", "hardlimit_artifact", "motion_artifact", "zerocrossing", "make_AV_complexity", "make_AV_motion_real", "make_AV_motion_binary")
 
@@ -40,25 +43,25 @@ for (i in 1:length(av_type)) {
           zerocrossing              = mp_annotated <- av_zerocrossing(mp_univariate, apply = TRUE),
           # custom av need to be created and thenn applied to MP
           make_AV_complexity        ={
-            mp_univariate$av <- make_AV( data = mp_univariate$data[[1]], subsequenceLength = w, type = 'complexity')
-            class(mp_univariate) <-tsmp:::update_class(class(mp_univariate), "AnnotationVector")
-            mp_annotated <- tsmp::av_apply(mp_univariate)
+            mp_univariate$av     <- make_AV( data = mp_univariate$data[[1]], subsequenceLength = w, type = 'complexity')
+            class(mp_univariate) <- tsmp:::update_class(class(mp_univariate), "AnnotationVector")
+            mp_annotated         <- tsmp::av_apply(mp_univariate)
           },
           make_AV_motion_real       ={
-            mp_univariate$av <-  make_AV( data = mp_univariate$data[[1]], subsequenceLength = w, type = 'motion_artifact', binary = FALSE)
-            class(mp_univariate) <-tsmp:::update_class(class(mp_univariate), "AnnotationVector")
-            mp_annotated <- tsmp::av_apply(mp_univariate)
+            mp_univariate$av     <-  make_AV( data = mp_univariate$data[[1]], subsequenceLength = w, type = 'motion_artifact', binary = FALSE)
+            class(mp_univariate) <- tsmp:::update_class(class(mp_univariate), "AnnotationVector")
+            mp_annotated         <- tsmp::av_apply(mp_univariate)
           },
           make_AV_motion_binary     ={
-            mp_univariate$av <- make_AV( data = mp_univariate$data[[1]], subsequenceLength = w, type = 'motion_artifact', binary = TRUE)
-            class(mp_univariate) <-tsmp:::update_class(class(mp_univariate), "AnnotationVector")
-            mp_annotated <- tsmp::av_apply(mp_univariate)
+            mp_univariate$av     <- make_AV( data = mp_univariate$data[[1]], subsequenceLength = w, type = 'motion_artifact', binary = TRUE)
+            class(mp_univariate) <- tsmp:::update_class(class(mp_univariate), "AnnotationVector")
+            mp_annotated         <- tsmp::av_apply(mp_univariate)
           }
   )
   
   # adds annotated results of mp
   df_mp_univariate$mp_annotated <- mp_annotated$mp
-  df_mp_univariate$av <- mp_annotated$av
+  df_mp_univariate$av           <- mp_annotated$av
   
   # plot
   {
@@ -78,7 +81,7 @@ for (i in 1:length(av_type)) {
       x = "index",
       x_lab = NULL,
       y = "mp_original",
-      y_lab = "MP original",
+      y_lab = paste("MP - w",w),
       ymax_mp = 20,
       mp_index = "mp_index"
     )
@@ -98,12 +101,10 @@ for (i in 1:length(av_type)) {
       x = "index",
       x_lab = NULL,
       y = "mp_annotated",
-      y_lab = "MP annotated",
+      y_lab = paste("CMP - w",w),
       ymax_mp = 20,
       mp_index = "mp_index"
     )
-    
-    
     
     dev.new()
     
@@ -120,7 +121,7 @@ for (i in 1:length(av_type)) {
     
     annotate_figure(fig, top = text_grob(paste("Annotation Vector :", av_type[i]), color = "black", face = "bold", size = 13))
     
-    ggsave( gsub(" ", "", paste("./figures/02-annotation-vector/01-AV-", av_type[i], ".png")),
+    ggsave( gsub(" ", "", paste(figure_path <- "./figures/02-annotation-vector/", av_type[i], ".png")),
             width = 10,
             height = 7)
     dev.off()
