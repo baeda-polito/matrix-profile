@@ -23,6 +23,7 @@ df_univariate <- df %>%
   dplyr::select(-c(2:9))
 
 save(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.RData")))
+write.csv2(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.csv")))
 
 # subset original dataframe
 df_univariate <- df_univariate[c(6000:10000),]
@@ -31,6 +32,7 @@ df_univariate <- df_univariate[c(6000:10000),]
 rownames(df_univariate) <- c(6000:10000)-6000+1
 
 save(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_small.RData")))
+write.csv(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_small.csv")))
 
 load("./data/df_univariate_small.RData")
 

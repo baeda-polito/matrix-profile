@@ -3,9 +3,6 @@ cat("\014")                 # clears the console
 rm(list = ls())             # remove all variables of the workspace
 source(file = "00-setup.R") # load user functions
 
-load( "./data/df_univariate_small.RData" ) # load to save time
-w = 96 # window size
-
 # !!!!!!!!!!!!!!
 # to make the AV we can use a custom timeseries, not only the original timeseries
 
@@ -22,13 +19,29 @@ actual_ts <-c(
   "Power_print_shop" 
 )
 
-ifelse(!dir.exists(file.path(mainDir, subDir)), dir.create(file.path(mainDir, subDir)), FALSE)
+actual_ts <-c(
+"Holiday"
+)
 
 for (i in 1:length(actual_ts)) {
   
+  
   rm(df_mp_univariate, mp_univariate, discord, sequence_index)
 
+  #  VARIABLES SETTING ------------------------------------------------------------------
+  load( "./data/df_univariate_small.RData" )                        # load to save time
+  #df_univariate$Holiday <- as.numeric(df_univariate$Holiday)-1
+  df_univariate <- mutate(df_univariate, Holiday = if_else(Week_day == 6 | Week_day == 7, 1, 0))
   
+  
+  w <- 96                                                           # window size # this is the window size used to compute the MP
+  figure_directory <- actual_ts[i]                                      # this is the figure directory of this analysis
+  figure_path <- gsub(" ", "", paste("./figures/03-focus-custom-annotation-vector/", figure_directory)) # path to figure  directory
+  
+  if ( file.exists(figure_path) == FALSE ){ # directory does not exists
+    dir.create( figure_path )
+  }
+
   load("./data/mp-Power_total-w96.RData") # load to save time
   
   # define length of mp
@@ -56,9 +69,13 @@ for (i in 1:length(actual_ts)) {
   ts_for_AV <-  as.numeric(df_univariate[[ts_for_AV_name]]) # vector of the av we are working on
   
   # save the av in the matrix profile generated
-  mp_univariate$av <-  make_AV( data = ts_for_AV, subsequenceLength = w, type = 'motion_artifact', binary = TRUE, debug_mode = TRUE)$AV[c(1:mp_length)]
+  #mp_univariate$av <-  make_AV( data = ts_for_AV, subsequenceLength = w, type = 'motion_artifact', binary = TRUE, debug_mode = TRUE)$AV[c(1:mp_length)]
+  mp_univariate$av <-  1-make_AV( data = ts_for_AV, subsequenceLength = w, type = 'deterministic', binary = TRUE, debug_mode = TRUE)
+  
   # save the std vector as well
-  mp_univariate$stdVector <-  make_AV( data = ts_for_AV, subsequenceLength = w, type = 'motion_artifact', binary = TRUE, debug_mode = TRUE)$stdVector[c(1:mp_length)]
+  #mp_univariate$stdVector <-  make_AV( data = ts_for_AV, subsequenceLength = w, type = 'motion_artifact', binary = TRUE, debug_mode = TRUE)$stdVector[c(1:mp_length)]
+  mp_univariate$stdVector <-  1-make_AV( data = ts_for_AV, subsequenceLength = w, type = 'deterministic', binary = TRUE, debug_mode = TRUE)
+  
   # change class in order to be consistent
   class(mp_univariate) <-tsmp:::update_class(class(mp_univariate), "AnnotationVector")
   # apply and correct matrix profile
@@ -230,8 +247,8 @@ for (i in 1:length(actual_ts)) {
     )
     
     annotate_figure(fig, top = text_grob(paste("Custom AV using ", ts_for_AV_name), color = "black", face = "bold", size = 13))
-    
-    ggsave( gsub(" ", "", paste("./figures/03-focus-custom-annotation-vector/",ts_for_AV_name,"/01-custom-AV-", ts_for_AV_name ,".png")),
+    figure_path
+    ggsave( gsub(" ", "", paste(figure_path, "/global.png")),
             width = 13,
             height = 10)
     dev.off()
@@ -327,7 +344,7 @@ for (i in 1:length(actual_ts)) {
                     
     )
     
-    ggsave( gsub(" ", "", paste("./figures/03-focus-custom-annotation-vector/02-custom-AV-", ts_for_AV_name ,"-profile.png")),
+    ggsave( gsub(" ", "", paste(figure_path, "/profile.png")),
             width = 7,
             height = 9
     )

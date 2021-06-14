@@ -16,9 +16,6 @@ if ( file.exists(figure_path) == FALSE ){ # directory does not exists
   dir.create( figure_path )
 }
 
-
-
-
 #  MATRIX PROFILE ------------------------------------------------------------------
 
 mp_univariate <- tsmp(df_univariate[[variable]], window_size = w, exclusion_zone = 0.5 )

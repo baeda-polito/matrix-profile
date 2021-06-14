@@ -30,13 +30,29 @@ zero_one_norm <- function(data) {
 #' @param binary wether the annotation vector should be reported in binary from or real valued
 #' @param debug_mode if debug mode on the result returned is a list of vectors useful for debug
 
-make_AV <- function(data, subsequenceLength, type = c('motion_artifact','complexity'), binary = TRUE, debug_mode = FALSE){
+make_AV <- function(data, subsequenceLength, type = c('deterministic','motion_artifact','complexity'), binary = TRUE, debug_mode = FALSE){
   
   # initialize function based variables
   AV <- NULL
   stdVector <-  NULL
   
-  if (type == 'motion_artifact'){
+  if (type == 'deterministic'){
+
+    # proceed to calculate AV with moving window
+    for (bb in 1:(length(data)-subsequenceLength+1) ){
+      
+      # calculates standard deviation
+      if (sum( data[ c(bb:(bb+subsequenceLength-1)) ] ) != 0){
+        AV[bb] <- 1
+      }else{
+        AV[bb] <- 0
+      }
+    }
+    return(AV)
+    
+    
+  }
+  else if (type == 'motion_artifact'){
     
     # proceed to calculate AV with moving window
     for (bb in 1:(length(data)-subsequenceLength+1) ){
@@ -113,8 +129,8 @@ make_AV <- function(data, subsequenceLength, type = c('motion_artifact','complex
 # av <- av_complexity(mp, apply = TRUE)
 # plot(av$av, type = "l")
 # 
-# # debug(make_AV)
-# av_new <- make_AV( data = data, subsequenceLength = w, type = 'complexity')
+#debug(make_AV)
+#av_new <- make_AV( data = data, subsequenceLength = w, type = 'complexity')
 # plot(av_new, type = "l")
 # 
 # ############# tsmp motion_artifact vs custom

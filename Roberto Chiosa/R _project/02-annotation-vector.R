@@ -9,7 +9,7 @@ variable <- "Power_total"                                         # this is the 
 w <- 96                                                           # window size # this is the window size used to compute the MP
 figure_path <- "./figures/02-annotation-vector/"                  # path to figure  directory
 
-av_type <- c("complexity", "hardlimit_artifact", "motion_artifact", "zerocrossing", "make_AV_complexity", "make_AV_motion_real", "make_AV_motion_binary")
+av_type <- c("deterministic", "complexity", "hardlimit_artifact", "motion_artifact", "zerocrossing", "make_AV_complexity", "make_AV_motion_real", "make_AV_motion_binary")
 
 for (i in 1:length(av_type)) {
   
