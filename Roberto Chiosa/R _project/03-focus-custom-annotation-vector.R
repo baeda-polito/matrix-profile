@@ -19,9 +19,9 @@ actual_ts <-c(
   "Power_print_shop" 
 )
 
-actual_ts <-c(
-"Holiday"
-)
+# actual_ts <-c(
+# "Holiday"
+# )
 
 for (i in 1:length(actual_ts)) {
   
@@ -69,12 +69,12 @@ for (i in 1:length(actual_ts)) {
   ts_for_AV <-  as.numeric(df_univariate[[ts_for_AV_name]]) # vector of the av we are working on
   
   # save the av in the matrix profile generated
-  #mp_univariate$av <-  make_AV( data = ts_for_AV, subsequenceLength = w, type = 'motion_artifact', binary = TRUE, debug_mode = TRUE)$AV[c(1:mp_length)]
-  mp_univariate$av <-  1-make_AV( data = ts_for_AV, subsequenceLength = w, type = 'deterministic', binary = TRUE, debug_mode = TRUE)
+  mp_univariate$av <-  make_AV( data = ts_for_AV, subsequenceLength = w, type = 'motion_artifact', binary = TRUE, debug_mode = TRUE)$AV[c(1:mp_length)]
+  # mp_univariate$av <-  1-make_AV( data = ts_for_AV, subsequenceLength = w, type = 'deterministic', binary = TRUE, debug_mode = TRUE)
   
   # save the std vector as well
-  #mp_univariate$stdVector <-  make_AV( data = ts_for_AV, subsequenceLength = w, type = 'motion_artifact', binary = TRUE, debug_mode = TRUE)$stdVector[c(1:mp_length)]
-  mp_univariate$stdVector <-  1-make_AV( data = ts_for_AV, subsequenceLength = w, type = 'deterministic', binary = TRUE, debug_mode = TRUE)
+  mp_univariate$stdVector <-  make_AV( data = ts_for_AV, subsequenceLength = w, type = 'motion_artifact', binary = TRUE, debug_mode = TRUE)$stdVector[c(1:mp_length)]
+  # mp_univariate$stdVector <-  1-make_AV( data = ts_for_AV, subsequenceLength = w, type = 'deterministic', binary = TRUE, debug_mode = TRUE)
   
   # change class in order to be consistent
   class(mp_univariate) <-tsmp:::update_class(class(mp_univariate), "AnnotationVector")
@@ -139,9 +139,9 @@ for (i in 1:length(actual_ts)) {
     
     # plot of std vector mean and ts for av in debug mode
     p2mp_av_debug <- ggplot(df_mp_univariate) +
-      geom_line( aes_string(x = "index", y = "stdVector"),  color = "red") +
-      geom_line( aes_string(x = "index", y = "mean_stdVector"),  color = "green") +
       geom_line( aes(x = index, y = ts_for_AV[c(1: (length(ts_for_AV)-w+1)) ] /coeff),  color = "gray") +
+      geom_line( aes_string(x = "index", y = "stdVector"),  color = "red") +
+      geom_line( aes_string(x = "index", y = "mean_stdVector"),  color = "red", linetype = "dashed") +
       scale_y_continuous(
         # Add a second axis and specify its features
         sec.axis = sec_axis(~.*coeff)

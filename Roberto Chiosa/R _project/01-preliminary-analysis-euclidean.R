@@ -21,6 +21,22 @@ mp_euclidean <- read.csv(file = "/Users/robi/Desktop/matrix_profile/Roberto Chio
                          col.names = c("row","mp", "pi", "lpi", "rpi")) %>%
   dplyr::mutate(row = row-1)
 
+# mp_euclidean$row <- NULL
+# mp_euclidean <- as.list(mp_euclidean)
+# mp_euclidean$mp <- as.matrix(mp_euclidean$mp)
+# mp_euclidean$pi <- as.matrix(mp_euclidean$pi)
+# mp_euclidean$lpi <- as.matrix(mp_euclidean$lpi)
+# mp_euclidean$rpi <- as.matrix(mp_euclidean$rpi)
+# 
+# mp_euclidean$w <- 96
+# mp_euclidean$ez <- 0.5
+# mp_euclidean$data <- list(as.matrix( df_univariate$Power_total ))
+# 
+# class(mp_euclidean) <- "MatrixProfile"
+# 
+# find_motif(mp_euclidean, n_motifs = 1)
+# 
+# class(mp_univariate)
 
 load( gsub(" ", "", paste("./data/mp-", variable,"-w", w,".RData")) ) # load to save time
 

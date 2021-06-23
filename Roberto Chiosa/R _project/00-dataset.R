@@ -22,6 +22,30 @@ df_univariate <- df %>%
   ) %>%
   dplyr::select(-c(2:9))
 
+
+#### visualization to inspect POLITO dataframe
+library(highcharter)
+library(quantmod)
+
+
+df_provajoin_ts <- xts(df_univariate$Power_total, order.by = df_univariate$CET)
+
+hchart(df_provajoin_ts, name = "Power Total") %>%
+  hc_add_theme(hc_theme_elementary()) %>%
+  hc_xAxis(
+    dateTimeLabelFormats = list(
+      week = "%b-%y" # Month name and short year
+    )
+  ) %>%
+  highcharter:: hc_yAxis(
+    title = "Power Total [kWh]",
+    labels = list(
+      format= '{value} kWh'
+    )
+  )
+
+
+
 save(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.RData")))
 write.csv2(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.csv")))
 
