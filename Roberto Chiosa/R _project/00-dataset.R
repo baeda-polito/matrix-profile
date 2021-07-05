@@ -23,61 +23,21 @@ df_univariate <- df %>%
   dplyr::select(-c(2:9))
 
 
-#### visualization to inspect POLITO dataframe
-library(highcharter)
-library(quantmod)
-
-
-df_provajoin_ts <- xts(df_univariate$Power_total, order.by = df_univariate$CET)
-
-hchart(df_provajoin_ts, name = "Power Total") %>%
-  hc_add_theme(hc_theme_elementary()) %>%
-  hc_xAxis(
-    dateTimeLabelFormats = list(
-      week = "%b-%y" # Month name and short year
-    )
-  ) %>%
-  highcharter:: hc_yAxis(
-    title = "Power Total [kWh]",
-    labels = list(
-      format= '{value} kWh'
-    )
-  )
-
-library(plotly)
-# volcano is a numeric matrix that ships with R
-# 
-tmp <- df_univariate %>%
-  mutate(Date = as.Date(CET)) %>%
-  select(Time, Date, Power_total)
-
-
-mat <- tidyr::pivot_wider( tmp, names_from = Time, values_from = Power_total) 
-
-rownames_mat <- mat$Date
-
-mat$Date <- NULL
-
-mat1 <- data.matrix(mat)
-
-rownames(mat1) <- as.character(rownames_mat)
-
-
-fig <- plot_ly(z = ~data.matrix(mat))
-fig <- fig %>% add_surface()
-
-fig
-
 
 
 save(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.RData")))
 write.csv2(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.csv")))
 
-# subset original dataframe
-df_univariate <- df_univariate[c(6000:10000),]
+# subset original dataframe 
+# - from 2018-01-15 00:00:00 (row 106129)
+# - to 2018-05-15 00:00:00 (row 117645)
+from_index <- 106129
+to_index <- 117645
 
+df_univariate <- df_univariate[c(from_index:to_index),]
 # reset rownames from 1 to end
-rownames(df_univariate) <- c(6000:10000)-6000+1
+rownames(df_univariate) <- c(from_index:to_index)-from_index+1
+
 
 save(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_small.RData")))
 write.csv(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_small.csv")))
