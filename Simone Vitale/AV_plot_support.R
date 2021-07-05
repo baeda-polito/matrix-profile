@@ -26,7 +26,7 @@ AV_plot_support<-function(df_data,type=c('M_A_B', 'M_A', 'C' ),df_mp_type,n_leaf
   for (ii in c(1:(length(df_annotation)-1))) {
     
     
-    pp_plot[[2+ii]]<-ggplot( aes(x=X), data = df_mp_type)
+    pp_plot[[ii+2]]<-ggplot( aes(x=X), data = df_mp_type)
     
     loop_input_mp = paste("geom_line(aes(y=mp_annotated_",n_leaf[ii],"))", sep="")
     loop_input_av = paste("geom_line(aes(y= av_",n_leaf[ii],"*max(mp_annotated_",n_leaf[ii],")), color='blue')", sep="")
@@ -41,18 +41,21 @@ AV_plot_support<-function(df_data,type=c('M_A_B', 'M_A', 'C' ),df_mp_type,n_leaf
     
     # highlight region data
     rects <- data.frame(start=start, end=end, group=seq_along(start))
-    rects<-rects[c(1:(nrow(rects))-1),]
+    rects<-rects[c(1:(nrow(rects))),]
     
-    pp_plot[[2+ii]] <- pp_plot[[2+ii]] + eval(parse(text=loop_input_mp))+ eval(parse(text=loop_input_av))+eval(parse(text=loop_input_discord))
+    pp_plot[[ii+2]] <- pp_plot[[ii+2]] + eval(parse(text=loop_input_mp))+ eval(parse(text=loop_input_av))+eval(parse(text=loop_input_discord))
     
-    pp_plot[[2+ii]]<- pp_plot[[2+ii]]+geom_rect(data=rects, inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin=-Inf,
+    pp_plot[[ii+2]]<- pp_plot[[ii+2]]+geom_rect(data=rects, inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin=-Inf,
                                                                                    ymax=Inf, group=group), fill="orange", alpha=0.3)+
       xlim(0,nrow(df_data))
     
   }
  
-  pp<-gridExtra::grid.arrange(grobs = pp_plot, ncol=1)
+  pp<-gridExtra::grid.arrange(grobs = pp_plot, ncol=1, nrow=9)
   
  
-  ggsave(paste("./grafici/plot_AV_",type,'.png'), plot =pp,width=15,height=12)
+  ggsave(paste("./grafici/plot_AV_prova_",type,'.png'), plot =pp,width=15,height=12)
 }
+
+# debug(AV_plot_support)
+# AV_plot_support(df_univariate,'C', df_mp_C,leaf_node_n,df_time_series,df_AV_color)

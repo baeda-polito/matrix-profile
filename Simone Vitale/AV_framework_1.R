@@ -1,6 +1,4 @@
 # this script performs an AV framework which involves combined use of CART and customized AV function
-library(rpart)                 #CART
-library(partykit)
 library(lubridate)             # makes it easier to work with dates and times
 library(dplyr)                 # manipulate data, mutate()
 library(magrittr)              #%>% pipe operator
@@ -14,32 +12,34 @@ source(file = 'AV_plot_support.R')     #load customized function
 
 
 # create a data frame, load data_tot.csv
-#df <- read.csv("data/data_tot.csv")
+df <- read.csv("data/data_tot.csv")
 load('data/df_univariate_small.Rdata')
 df_univariate<- df_univariate %>% mutate(df_univariate, X=c(1:nrow(df_univariate)))
 
-# df <- df %>%
-#   mutate(Timestamp=as_datetime(Timestamp,tz='GMT')) %>%
-#   mutate(Date=as.Date(Timestamp),
-#          Year=year(Timestamp),
-#          Month=month(Timestamp),
-#          Day=day(Timestamp),
-#          DayofWeek=wday(Timestamp),
-#          Hour=hour(Timestamp),
-#          Minute=minute(Timestamp),
-#          Time=Hour+ (Minute/60))
+df <- df %>%
+  mutate(Timestamp=as.POSIXct(Timestamp, tz = "GMT", "%Y-%m-%dT%H:%M:%OS"))%>% 
+  mutate(Year=year(Timestamp),
+         Month=(month(Timestamp)),
+         Day=day(Timestamp),
+         Week_day=wday(Timestamp),
+         Hour=hour(Timestamp),
+         Minute=minute(Timestamp),
+         Time=as.factor(format(Timestamp, '%H:%M')))
 
-## BUILD CART MODEL
-rt <-rpart(data=df_univariate, Power_total ~ Time)
-
-dev.new()
-plot(as.party(rt), main = "REGRESSION TREE")
+##LOAD CART MODEL
+load('./data/rt.Rdata')
 
 #extract leaf node number from rpart variable, rt
 leaf_node_n <- which(rt[['frame']][['var']]=='<leaf>')
 
 # add a column to df with leaf node number
-df_univariate<- mutate(df_univariate, leaf_node_number=rt[['where']])
+pred <- predict(rt, newdata = df_univariate[,c(3,5,6,7,9)], type ="matrix")
+
+for (ii in c(1:nrow(df_univariate))) {
+  
+  df_univariate$leaf_node_number[ii]<-which(rt[['frame']][['yval']]==pred[ii])
+  
+}
 
 
 # the following analysis is restricted to a small time interval
@@ -85,6 +85,7 @@ df_AV_color<-mutate(df_AV_color,X=c(1:nrow(df_AV_color)))
 #make MP on time series
 #data <- df_univariate$Power_total
 #w<- 96 
+# window for AV_make function
 w_AV_make <-4
 #mp_power <- tsmp(data, window_size = w, verbose = 2)
 #save(mp_power,file = './data/mp_power.Rdata')
@@ -149,14 +150,22 @@ for (ii in 1:length(av_type)) {
               colnames(df_mp_MAB)[ncol(df_mp_MAB)] <- paste0("av_",leaf_node_n[jj] )
               
               # find discord
-              mp_power<- find_discord(mp_power, n_discords = 2)
-              mp_discord<-mp_power[['discord']][["discord_idx"]]
-              df_mp_MAB$mp_discord <- ifelse(df_mp_MAB$X %in% mp_discord,1,NA)                   # c(mp_discord, rep(NA, nrow(df_mp)-length(mp_discord)))
-              colnames(df_mp_MAB)[ncol(df_mp_MAB)] <- paste0("discord_", leaf_node_n[jj])
+              condition <-paste0("df_mp_MAB$mp_annotated_",leaf_node_n[jj])
+              condition<-eval(parse(text=condition))
               
-            }
+              if(is.na(condition[1])){
+                df_mp_MAB$mp_discord <- NA            
+                colnames(df_mp_MAB)[ncol(df_mp_MAB)] <- paste0("discord_", leaf_node_n[jj])
+                
+              }else{
+                mp_power<- find_discord(mp_power, n_discords = 2)
+                mp_discord<-mp_power[['discord']][["discord_idx"]]
+                df_mp_MAB$mp_discord <- ifelse(df_mp_MAB$X %in% mp_discord,1,NA)                   # c(mp_discord, rep(NA, nrow(df_mp)-length(mp_discord)))
+                colnames(df_mp_MAB)[ncol(df_mp_MAB)] <- paste0("discord_", leaf_node_n[jj])
+            }}
             
-            AV_plot_support(df_univariate,'M_A_B', df_mp_MAB,leaf_node_n,df_time_series,df_AV_color)},
+            #AV_plot_support(df_univariate,'M_A_B', df_mp_MAB,leaf_node_n,df_time_series,df_AV_color)
+          },
           
           M_A={
             
@@ -186,13 +195,21 @@ for (ii in 1:length(av_type)) {
               colnames(df_mp_MA)[ncol(df_mp_MA)] <- paste0("av_",leaf_node_n[jj] )
               
               # find discord
-              mp_power<- find_discord(mp_power, n_discords = 2)
-              mp_discord<-mp_power[['discord']][["discord_idx"]]
-              df_mp_MA$mp_discord <- ifelse(df_mp_MA$X %in% mp_discord,1,NA)                   # c(mp_discord, rep(NA, nrow(df_mp)-length(mp_discord)))
-              colnames(df_mp_MA)[ncol(df_mp_MA)] <- paste0("discord_", leaf_node_n[jj])
+              condition <-paste0("df_mp_MA$mp_annotated_",leaf_node_n[jj])
+              condition<-eval(parse(text=condition))
               
-            }
-            AV_plot_support(df_univariate,'M_A', df_mp_MA,leaf_node_n,df_time_series,df_AV_color)},
+              if(is.na(condition[1])){
+                df_mp_MA$mp_discord <- NA            
+                colnames(df_mp_MA)[ncol(df_mp_MA)] <- paste0("discord_", leaf_node_n[jj])
+                
+              }else{
+                mp_power<- find_discord(mp_power, n_discords = 2)
+                mp_discord<-mp_power[['discord']][["discord_idx"]]
+                df_mp_MA$mp_discord <- ifelse(df_mp_MA$X %in% mp_discord,1,NA)                   # c(mp_discord, rep(NA, nrow(df_mp)-length(mp_discord)))
+                colnames(df_mp_MA)[ncol(df_mp_MA)] <- paste0("discord_", leaf_node_n[jj])
+              }}
+           #AV_plot_support(df_univariate,'M_A', df_mp_MA,leaf_node_n,df_time_series,df_AV_color)
+          },
           
           C={
             
@@ -222,13 +239,22 @@ for (ii in 1:length(av_type)) {
               colnames(df_mp_C)[ncol(df_mp_C)] <- paste0("av_",leaf_node_n[jj] )
               
               # find discord
-              mp_power<- find_discord(mp_power, n_discords = 2)
-              mp_discord<-mp_power[['discord']][["discord_idx"]]
-              df_mp_C$mp_discord <- ifelse(df_mp_C$X %in% mp_discord,1,NA)                   # c(mp_discord, rep(NA, nrow(df_mp)-length(mp_discord)))
-              colnames(df_mp_C)[ncol(df_mp_C)] <- paste0("discord_", leaf_node_n[jj])
+              condition <-paste0("df_mp_C$mp_annotated_",leaf_node_n[jj])
+              condition<-eval(parse(text=condition))
               
-            }
-            AV_plot_support(df_univariate,'C', df_mp_C,leaf_node_n,df_time_series,df_AV_color)}
+              if(is.na(condition[1])){
+                df_mp_C$mp_discord <- NA            
+                colnames(df_mp_C)[ncol(df_mp_C)] <- paste0("discord_", leaf_node_n[jj])
+                
+              }else{
+                mp_power<- find_discord(mp_power, n_discords = 2)
+                mp_discord<-mp_power[['discord']][["discord_idx"]]
+                df_mp_C$mp_discord <- ifelse(df_mp_C$X %in% mp_discord,1,NA)                   # c(mp_discord, rep(NA, nrow(df_mp)-length(mp_discord)))
+                colnames(df_mp_C)[ncol(df_mp_C)] <- paste0("discord_", leaf_node_n[jj])
+              }}
+            #AV_plot_support(df_univariate,'C', df_mp_C,leaf_node_n,df_time_series,df_AV_color)
+            write.csv(df_mp_C,'./data/df_mp_C.csv')
+          }
   )
 }
 
