@@ -44,6 +44,30 @@ hchart(df_provajoin_ts, name = "Power Total") %>%
     )
   )
 
+library(plotly)
+# volcano is a numeric matrix that ships with R
+# 
+tmp <- df_univariate %>%
+  mutate(Date = as.Date(CET)) %>%
+  select(Time, Date, Power_total)
+
+
+mat <- tidyr::pivot_wider( tmp, names_from = Time, values_from = Power_total) 
+
+rownames_mat <- mat$Date
+
+mat$Date <- NULL
+
+mat1 <- data.matrix(mat)
+
+rownames(mat1) <- as.character(rownames_mat)
+
+
+fig <- plot_ly(z = ~data.matrix(mat))
+fig <- fig %>% add_surface()
+
+fig
+
 
 
 save(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.RData")))
