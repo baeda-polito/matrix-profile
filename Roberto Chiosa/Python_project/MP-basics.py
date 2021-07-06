@@ -4,7 +4,6 @@ import math
 import stumpy
 from matplotlib.patches import Rectangle
 from matplotlib import rc
-from sklearn import preprocessing
 
 # timeseries definition
 T = np.asarray([0, 1, 3, 2, 9, 1, 14, 15, 1, 2, 2, 10, 7])
@@ -92,11 +91,11 @@ fig.set_size_inches(8, 3)
 ax.plot(T, 'ko-')
 
 # add query sequence
-rect = Rectangle((i, 0), m - 1, max(T), facecolor='lightgreen', label=r"$T_{i,m}$")
+rect = Rectangle((i, 0), m - 1, max(T), facecolor='lightgreen', edgecolor='green', alpha=0.5, label=r"$T_{i,m}$")
 ax.add_patch(rect)
 
 # add compared sequence
-rect = Rectangle((j, 0), m - 1, max(T), facecolor='lightblue', label=r"$T_{j,m}$")
+rect = Rectangle((j, 0), m - 1, max(T), facecolor='lightblue', edgecolor='blue', alpha=0.5, label=r"$T_{j,m}$")
 ax.add_patch(rect)
 
 # add legend
@@ -146,21 +145,3 @@ ax.text(9.5, 17.8, r"Z-Normalized Distance Profile",
 plt.savefig('./figures/MP-basic-distance-profiles.png', dpi = 300)
 
 
-####
-import numpy as np
-import matplotlib.pyplot as plt
-
-fig, ax = plt.subplots()
-
-min_val, max_val = 0, 15
-
-intersection_matrix = np.random.randint(0, 10, size=(max_val, max_val))
-
-ax.matshow(intersection_matrix, cmap=plt.cm.Blues)
-
-for i in range(15):
-    for j in range(15):
-        c = intersection_matrix[j,i]
-        ax.text(i, j, str(c), va='center', ha='center')
-
-plt.show()
