@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rc
 from matplotlib.patches import Rectangle
+from matplotlib.colors import ListedColormap
 
 
 # define a function to visualize and plot timeseries
@@ -127,13 +128,12 @@ def plot_MP(matrix_profile_plot, kNN=1):
     # define figure dimension
     fig.set_size_inches(3, 6)
 
-# chose the color map
-    cmap_colors = ListedColormap(['w'])
     # create matrix visualization
-    ax1.matshow(matrix_profile_plot, cmap_colors=plt.cm.None)
-plt.show()
+    ax1.matshow(matrix_profile_plot, cmap=plt.cm.Blues)
+
     # adjust axes and thicks
     ax1.axes.xaxis.set_visible(False)
+
     yticks = np.arange(0, len(matrix_profile_plot), 1)
     ax1.set_yticks(yticks)
 
@@ -148,17 +148,20 @@ plt.show()
 
     # add numbers annotations on matrix profile
     for i in range(len(matrix_profile_plot)):
-        c = round(matrix_profile_plot[i, 0], 1)
+        #add mpindex
+        c = round(matrix_profile_plot[i, 0])
         ax1.text(0, i, str(c), va='center', ha='center')
+        # add mpvalue
+        c = round(matrix_profile_plot[i, 1], 1)
+        ax1.text(1, i, str(c), va='center', ha='center')
 
     # add matrix plofile lineplot
     ax2.plot(
-        np.asarray(matrix_profile_plot),
-        np.array([i for i in range(len(matrix_profile_plot))]),
+        np.asarray(matrix_profile_plot[:,1]),
+        np.array([i for i in range(len(matrix_profile_plot[:,1]))]),
         color='black'
 
     )
-
     plt.savefig('./figures/MP-basic-naive-matrix-profile-' + kNN + 'NN.png', dpi=300)
 
 
@@ -294,22 +297,22 @@ def plot_T_Tij(T, i, j, m, D_i, label):
             fontsize=annotation_fontsize,
             bbox=dict(facecolor='white', fill='white', edgecolor='white', boxstyle='round,pad=0'))
 
-    ax.text(12.5, 15, '$$T_{i,m} = T_{'+str(i+1)+','+str(m)+'}$$',
+    ax.text(12.5, 15, '$$T_{i,m} = T_{' + str(i + 1) + ',' + str(m) + '}$$',
             color='green',
             fontsize=annotation_fontsize,
             bbox=dict(facecolor='white', fill='white', edgecolor='white', boxstyle='round,pad=0'))
 
-    ax.text(12.5, 13.5, '$$T_{j,m} = T_{'+str(j+1)+','+str(m)+'}$$',
+    ax.text(12.5, 13.5, '$$T_{j,m} = T_{' + str(j + 1) + ',' + str(m) + '}$$',
             color='blue',
             fontsize=annotation_fontsize,
             bbox=dict(facecolor='white', fill='white', edgecolor='white', boxstyle='round,pad=0'))
 
-    ax.text(12.5, 12, 'i = ' + str(i+1),
+    ax.text(12.5, 12, 'i = ' + str(i + 1),
             color='black',
             fontsize=annotation_fontsize,
             bbox=dict(facecolor='white', fill='white', edgecolor='white', boxstyle='round,pad=0'))
 
-    ax.text(12.5, 10.5, 'j = ' + str(j+1),
+    ax.text(12.5, 10.5, 'j = ' + str(j + 1),
             color='black',
             fontsize=annotation_fontsize,
             bbox=dict(facecolor='white', fill='white', edgecolor='white', boxstyle='round,pad=0'))
@@ -324,7 +327,5 @@ def plot_T_Tij(T, i, j, m, D_i, label):
             fontsize=annotation_fontsize,
             bbox=dict(facecolor='white', fill='white', edgecolor='white', boxstyle='round,pad=0'))
 
-
-    #plt.show()
+    # plt.show()
     plt.savefig('./figures/MP-basic-gif-' + str(j) + '.png', dpi=200)
-

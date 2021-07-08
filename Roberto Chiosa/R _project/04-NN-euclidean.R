@@ -3,25 +3,46 @@ cat("\014")                 # clears the console
 rm(list = ls())             # remove all variables of the workspace
 source(file = "00-setup.R") # load user functions
 
-#  VARIABLES SETTING ------------------------------------------------------------------
-load("./data/df_univariate_small.RData")
-
-variable <- "Power_total"                                         # this is the timeseries used to perform the MP
-w <- 96                                                           # window size # this is the window size used to compute the MP
-figure_directory <- gsub(" ", "", paste("MP-",variable,"-w",w , "-euclidean"))  # this is the figure directory of this analysis
-
-
-figure_path <- gsub(" ", "", paste("./figures/04-NN-euclidean/", figure_directory)) # path to figure  directory
-
-if ( file.exists(figure_path) == FALSE ){ # directory does not exists
-  dir.create( figure_path )
-}
 
 #  MATRIX PROFILE ------------------------------------------------------------------
 
-mp_euclidean <- read.csv(file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/Python_project/data/mp_euclidean.csv",
-                         col.names = c("row","mp", "pi", "lpi", "rpi")) %>%
-  dplyr::mutate(row = row-1)
+
+dati <- read.csv(file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/Python_project/data/df_univariate_small.csv"
+                        ) %>%
+  select(Power_total)
+
+dati <- dati[1:3906,]
+
+mp_not_norm1 <- read.csv(file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/Python_project/data/mp_not_normalized1NN.csv",
+                         col.names = c("row","pi", "mp")) %>%
+  dplyr::mutate(row = row+1,
+                mp1 = mp) %>%
+  select(row, mp1)
+
+mp_not_norm2 <- read.csv(file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/Python_project/data/mp_not_normalized2NN.csv",
+                         col.names = c("row","pi", "mp")) %>%
+  dplyr::mutate(row = row-1,
+                mp2 = mp) %>%
+  select(mp2)
+
+mp_not_norm3 <- read.csv(file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/Python_project/data/mp_not_normalized3NN.csv",
+                         col.names = c("row","pi", "mp")) %>%
+  dplyr::mutate(row = row-1,
+                mp3 = mp) %>%
+  select(mp3)
+
+full_df <- cbind(mp_not_norm1,mp_not_norm2,mp_not_norm3, dati) %>%
+  mutate(dif_21 = mp2 - mp1)
+
+
+ggplot(full_df) +
+  geom_line(aes(x = row, y = dif_21), color = "red")+
+  #geom_line(aes(x = row, y = mp1/6), color = "blue")+
+  #geom_line(aes(x = row, y = mp2/6), color = "green") + 
+  #geom_line(aes(x = row, y = mp3/6), color = "purple") + 
+  geom_line(aes(x = row, y = dati), color = "black") + 
+  theme_bw()
+
 
 # mp_euclidean$row <- NULL
 # mp_euclidean <- as.list(mp_euclidean)

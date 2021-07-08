@@ -1,11 +1,16 @@
 import numpy as np
 import math
 import stumpy
+import pandas as pd
 # import custom plots
 from utils_plot import plot_T_D, plot_T_Tij
 
+
 # timeseries definition
-T = np.asarray([0, 1, 3, 2, 9, 1, 14, 15, 1, 2, 2, 10, 7])
+# read from dataframe
+T = pd.read_csv("./data/simple_timeseries_short.csv")
+# convert as array
+T = np.asarray(T["0"])
 print('Timeseries T =', T)
 
 # timeseries length
