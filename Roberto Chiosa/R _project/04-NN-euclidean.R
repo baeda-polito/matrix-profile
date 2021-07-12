@@ -7,332 +7,162 @@ source(file = "00-setup.R") # load user functions
 #  MATRIX PROFILE ------------------------------------------------------------------
 
 
-dati <- read.csv(file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/Python_project/data/df_univariate_small.csv"
-                        ) %>%
+data <- read.csv(file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/Python_project/data/df_univariate_small.csv") %>%
   select(Power_total)
 
-dati <- dati[1:3906,]
+data <- data[1:3906,]
 
 mp_not_norm1 <- read.csv(file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/Python_project/data/mp_not_normalized1NN.csv",
                          col.names = c("row","pi", "mp")) %>%
-  dplyr::mutate(row = row+1,
-                mp1 = mp) %>%
-  select(row, mp1)
+  dplyr::mutate(
+    index = row+1,
+    mp1 = mp,
+    pi1 = pi
+  ) %>%
+  select(index, mp1, pi1)
 
 mp_not_norm2 <- read.csv(file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/Python_project/data/mp_not_normalized2NN.csv",
                          col.names = c("row","pi", "mp")) %>%
-  dplyr::mutate(row = row-1,
-                mp2 = mp) %>%
-  select(mp2)
+  dplyr::mutate(
+    row = row+1,
+    mp2 = mp,
+    pi2 = pi
+  ) %>%
+  select(mp2, pi2)
 
 mp_not_norm3 <- read.csv(file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/Python_project/data/mp_not_normalized3NN.csv",
                          col.names = c("row","pi", "mp")) %>%
-  dplyr::mutate(row = row-1,
-                mp3 = mp) %>%
-  select(mp3)
+  dplyr::mutate(
+    row = row+1,
+    mp3 = mp,
+    pi3 = pi
+  ) %>%
+  select(mp3, pi3)
 
-full_df <- cbind(mp_not_norm1,mp_not_norm2,mp_not_norm3, dati) %>%
-  mutate(dif_21 = mp2 - mp1)
-
-
-ggplot(full_df) +
-  geom_line(aes(x = row, y = dif_21), color = "red")+
-  #geom_line(aes(x = row, y = mp1/6), color = "blue")+
-  #geom_line(aes(x = row, y = mp2/6), color = "green") + 
-  #geom_line(aes(x = row, y = mp3/6), color = "purple") + 
-  geom_line(aes(x = row, y = dati), color = "black") + 
-  theme_bw()
-
-
-# mp_euclidean$row <- NULL
-# mp_euclidean <- as.list(mp_euclidean)
-# mp_euclidean$mp <- as.matrix(mp_euclidean$mp)
-# mp_euclidean$pi <- as.matrix(mp_euclidean$pi)
-# mp_euclidean$lpi <- as.matrix(mp_euclidean$lpi)
-# mp_euclidean$rpi <- as.matrix(mp_euclidean$rpi)
-# 
-# mp_euclidean$w <- 96
-# mp_euclidean$ez <- 0.5
-# mp_euclidean$data <- list(as.matrix( df_univariate$Power_total ))
-# 
-# class(mp_euclidean) <- "MatrixProfile"
-# 
-# find_motif(mp_euclidean, n_motifs = 1)
-# 
-# class(mp_univariate)
-
-load( gsub(" ", "", paste("./data/mp-", variable,"-w", w,".RData")) ) # load to save time
-
-
-# define length of mp
-mp_length = length(mp_univariate$mp)
-
-df_mp_univariate <- data.frame(
-  year = df_univariate$Year[c(1:mp_length)],
-  month = df_univariate$Month[c(1:mp_length)],
-  day = df_univariate$Week_day[c(1:mp_length)],
-  hour = df_univariate$Hour[c(1:mp_length)],
-  time = df_univariate$Time[c(1:mp_length)],
-  holiday = df_univariate$Holiday[c(1:mp_length)],
-  tou = df_univariate$ToU[c(1:mp_length)],
-  year = df_univariate$Year[c(1:mp_length)],
-  data = df_univariate$Power_total[c(1:mp_length)],
-  data_index = df_univariate$CET[c(1:mp_length)],
-  index = as.integer(rownames(df_univariate)[c(1:mp_length)]),
-  mp = mp_univariate[[1]],
-  mp_index = mp_univariate[[2]],
-  mp_euclidean = mp_euclidean$mp,
-  mp_euclidean_index = mp_euclidean$pi
-)
-head(df_mp_univariate)
-
-############# 
-# validation of nn search
-
-w <- mp_toy_data$sub_len
-ref_data <- mp_toy_data$data[, 1]
-# minimum example, data and query
-nn <- dist_profile(ref_data, ref_data[1:w])
-distance_profile <- sqrt(nn$distance_profile)
-
-# Classical MDS
-# N rows (objects) x p columns (variables)
-# each row identified by a unique row name
-
-d <- dist(mp_univariate$mp[0:1000]) # euclidean distances between the rows
-fit <- cmdscale(d,eig=TRUE, k=2) # k is the number of dim
-#fit # view results
-
-# plot solution
-x <- fit$points[,1]
-y <- fit$points[,2]
-plot(x, y, xlab="Coordinate 1", ylab="Coordinate 2",
-     main="Metric MDS")
-text(x, y, labels = row.names(mydata), cex=.7)
+full_df <- cbind(mp_not_norm1,mp_not_norm2,mp_not_norm3, data) 
 
 
 
-find_discord(mp_univariate,
-             n_discords = 1,
-             n_neighbors = 3
-             #radius = 3,
-             #exclusion_zone = NULL,
-             )
+full_df1 <- full_df %>%
+  select(index, mp1, mp2,mp3) %>%
+  tidyr::pivot_longer(cols = c(mp1, mp2,mp3), names_to = "type", values_to = "values")
 
-# maximum of MP ie discord
-max(mp_univariate$mp)
-# discord index
-which( mp_univariate$mp == max(mp_univariate$mp) )
-# 1st NN
-mp_univariate$pi[ mp_univariate$mp == max(mp_univariate$mp) ]
-
-# find 2nd NN
-mp_univariate$mp[ which( mp_univariate$mp == max(mp_univariate$mp) ) ] <- NULL
-# maximum of MP ie discord
-max(mp_univariate$mp)
-# discord index
-which( mp_univariate$mp == max(mp_univariate$mp) )
-# 1st NN
-mp_univariate$pi[ mp_univariate$mp == max(mp_univariate$mp) ]
+p1 <- ggplot(full_df1) + 
+  geom_line(aes(x = index, y = values, color = type))+
+  theme_bw() +
+  labs(x = NULL, y = "Distance") + 
+  theme(legend.position = "top")
 
 
-mp_univariate$pi[ mp_univariate$mp == max(mp_univariate$mp) ]
+p2 <- ggplot(full_df) + 
+  geom_line(aes(x = index, y = data), color = "black") +
+  labs(x = "Index", y = "Power[kW]") + 
+  theme_bw() 
 
 
-#############
-diff <- NULL
-w <- 96
-for (j in 1:length(mp_euclidean$mp)) {
-
-  
-  # # index of this sequence
-  # df_mp_univariate$index[j]
-  # 
-  # # index of nearest neighbor
-  # df_mp_univariate$mp_euclidean_index[1]
-  
-  # profile
-  
-  actual_index <- j
-  prof1 <- mp_euclidean$mp[actual_index:(actual_index+w)]
-  energy_prof1 <- last(cumsum(prof1))-first(cumsum(prof1))
-    
-    
-  NN1_index <- mp_euclidean$pi[actual_index]
-  prof2 <- mp_euclidean$pi[NN1_index:(NN1_index+w)]
-  energy_prof2 <- last(cumsum(prof2))-first(cumsum(prof2))
-  
-  diff[j] <- energy_prof1 - energy_prof2
-  
-  # plot(df_mp_univariate$mp_euclidean[1:96], type = "l")
-  # plot(cumsum(df_mp_univariate$mp_euclidean[1:96]), type = "l")
-  # 
-  # df_mp_univariate$mp_euclidean_index[576]
-  # plot(df_mp_univariate$mp_euclidean[576:(576+96)], type = "l")
-  # 
-  # plot(cumsum(df_mp_univariate$mp_euclidean[576:(576+96)]), type = "l")
-  # 
-  # 
-  # df_mp_univariate$mp_euclidean_index[1346]
-  
-}
-
-df_mp_univariate$diff <- diff
-  
-
-p1mp <-  plot_sequence(
-  type = "raw",
-  df_mp_univariate,
-  x = "index",
-  x_lab = NULL,
-  y = "mp_euclidean"
-)
-
-p2mp <-  plot_sequence(
-  type = "raw",
-  df_mp_univariate,
-  x = "index",
-  x_lab = NULL,
-  y = "diff"
-)
-
-dev.new()
-
-ggarrange(
-
-  p1mp,
-  p2mp,
+fig <-  ggarrange(
+  p1, p2,
   ncol = 1,
   nrow = 2,
-  widths = c(3),
+  widths = c(3,3),
   align = "v"
 )
 
-
-ggsave(gsub(" ", "", paste(figure_path, "/1-MP.png")),
-       width = 10,
-       height = 7)
-dev.off()
+fig
 
 
-plot(diff, type = "l")
 
 
-#############
+sequence_index <- 100
+w <- 96
+
+pattern_1nn <-  plot_window(
+  type = "pure",
+  full_df,
+  x = "index",
+  x_lab = NULL,
+  y = "data",
+  y_lab = NULL,
+  w = w,
+  seq_index = sequence_index ,
+  seq_nn =  full_df$pi1[sequence_index]
+)
 
 
-custom_search(mp_univariate, 
-              INDEXX = 359,
-             n_discords = 1,
-             n_neighbors = 3)
-
-INDEX_CUSTOM = 359
 
 
-custom_search <- function(.mp, data, INDEXX, n_discords = 1, n_neighbors = 3, radius = 3, exclusion_zone = NULL, ...) {
-  if (!("MatrixProfile" %in% class(.mp))) {
-    stop("First argument must be an object of class `MatrixProfile`.")
+
+
+#######
+#######try to find sense among sequences
+
+annotated <- NULL
+for (i in 1:length(data) ) {
+  id <- i
+  w <-  96
+  
+  Tij <- data[id:(id+w)]
+  
+  # get 1nn profile
+  id_1nn <- mp_not_norm1$pi1[id]
+  Tij_1nn <- data[id_1nn:(id_1nn+w)]
+  
+  # get 2nn profile
+  id_2nn <- mp_not_norm2$pi2[id]
+  Tij_2nn <- data[id_2nn:(id_2nn+w)]
+  
+  # get 3nn profile
+  id_3nn <- mp_not_norm3$pi3[id]
+  Tij_3nn <- data[id_3nn:(id_3nn+w)]
+  
+  
+  df <- as.data.frame( cbind(Tij,Tij_1nn,Tij_2nn,Tij_3nn) ) %>%
+    mutate(
+      Tij_en = cumsum(Tij)-Tij[1],
+      Tij_1nn_en = cumsum(Tij_1nn)-Tij_1nn[1],
+      Tij_2nn_en = cumsum(Tij_2nn)-Tij_2nn[1],
+      Tij_3nn_en = cumsum(Tij_3nn)-Tij_3nn[1]
+    )
+  
+  
+  # df_power <- df %>%
+  #   mutate(index = as.integer(rownames(df))) %>%
+  #   tidyr::pivot_longer(cols = c(Tij,Tij_1nn,Tij_2nn,Tij_3nn), names_to = "Nearest", values_to = "values")
+  # 
+  # ggplot(df_power)+
+  #   geom_line(aes(x=index,y=values,color = Nearest))
+  # 
+  # df_energy <- df %>%
+  #   mutate(index = as.integer(rownames(df))) %>%
+  #   tidyr::pivot_longer(cols = c(Tij_en,Tij_1nn_en,Tij_2nn_en,Tij_3nn_en), names_to = "Nearest", values_to = "values")
+  # 
+  # ggplot(df_energy)+
+  #   geom_line(aes(x=index,y=values,color = Nearest))
+  
+  
+  valoreee <- last(df$Tij_en)-last(df$Tij_1nn_en) 
+  if (valoreee<0) {
+    valoreee=NA
   }
-  
-  if ("Valmod" %in% class(.mp)) {
-    stop("Function not implemented for objects of class `Valmod`.")
-  }
-  
-  if (missing(data) && !is.null(.mp$data)) {
-    data <- .mp$data[[1]]
-  }
-  
-  # transform data list into matrix
-  if (is.matrix(data) || is.data.frame(data)) {
-    if (is.data.frame(data)) {
-      data <- as.matrix(data)
-    } # just to be uniform
-    if (ncol(data) > nrow(data)) {
-      data <- t(data)
-    }
-    data_len <- nrow(data)
-    data_dim <- ncol(data)
-  } else if (is.list(data)) {
-    data_len <- length(data[[1]])
-    data_dim <- length(data)
-    
-    for (i in 1L:data_dim) {
-      len <- length(data[[i]])
-      # Fix TS size with NaN
-      if (len < data_len) {
-        data[[i]] <- c(data[[i]], rep(NA, data_len - len))
-      }
-    }
-    # transform data into matrix (each column is a TS)
-    data <- sapply(data, cbind)
-  } else if (is.vector(data)) {
-    data_len <- length(data)
-    data_dim <- 1
-    # transform data into 1-col matrix
-    data <- as.matrix(data) # just to be uniform
-  } else {
-    stop("`data` must be `matrix`, `data.frame`, `vector` or `list`.")
-  }
-  
-  matrix_profile <- .mp$mp # keep mp intact
-  matrix_profile_size <- length(matrix_profile)
-  discord_idxs <- list(discords = list(NULL), neighbors = list(NULL))
-  
-  if (is.null(exclusion_zone)) {
-    exclusion_zone <- .mp$ez
-  }
-  
-  exclusion_zone <- round(.mp$w * exclusion_zone + vars()$eps)
-  
-  nn <- NULL
-  
-  for (i in seq_len(n_discords)) {
-    discord_idx <- INDEXX
-    #discord_idx <- which.max(matrix_profile)
-    discord_distance <- matrix_profile[discord_idx]
-    discord_idxs[[1L]][[i]] <- discord_idx
-    
-    # query using the discord to find its neighbors
-    nn <- dist_profile(data, data, nn, window_size = .mp$w, index = discord_idx)
-    
-    distance_profile <- nn$distance_profile
-    distance_profile[distance_profile > (discord_distance * radius)^2] <- Inf
-    discord_zone_start <- max(1, discord_idx - exclusion_zone)
-    discord_zone_end <- min(matrix_profile_size, discord_idx + exclusion_zone)
-    distance_profile[discord_zone_start:discord_zone_end] <- Inf
-    st <- sort(distance_profile, index.return = TRUE)
-    distance_order <- st$x
-    distance_idx_order <- st$ix
-    
-    discord_neighbor <- vector(mode = "numeric")
-    
-    for (j in seq_len(n_neighbors)) {
-      if (is.infinite(distance_order[1]) || length(distance_order) < j) {
-        break
-      }
-      discord_neighbor[j] <- distance_idx_order[1L]
-      distance_order <- distance_order[2:length(distance_order)]
-      distance_idx_order <- distance_idx_order[2L:length(distance_idx_order)]
-      distance_order <- distance_order[!(abs(distance_idx_order - discord_neighbor[j]) < exclusion_zone)]
-      distance_idx_order <- distance_idx_order[!(abs(distance_idx_order - discord_neighbor[j]) < exclusion_zone)]
-    }
-    
-    discord_neighbor <- discord_neighbor[discord_neighbor != 0]
-    discord_idxs[[2]][[i]] <- discord_neighbor
-    
-    remove_idx <- c(discord_idxs[[1]][[i]], discord_idxs[[2]][[i]])
-    
-    for (j in seq_len(length(remove_idx))) {
-      remove_zone_start <- max(1, remove_idx[j] - exclusion_zone)
-      remove_zone_end <- min(matrix_profile_size, remove_idx[j] + exclusion_zone)
-      matrix_profile[remove_zone_start:remove_zone_end] <- -Inf
-    }
-  }
-  
-  .mp$discord <- list(discord_idx = discord_idxs[[1]], discord_neighbor = discord_idxs[[2]])
-  class(.mp) <- update_class(class(.mp), "Discord")
-  return(.mp)
+  # +
+  #   last(df$Tij_en)-last(df$Tij_2nn_en) +
+  #   last(df$Tij_en)-last(df$Tij_3nn_en)
+ 
+  annotated[i] <-  valoreee
 }
+
+annotated <- as.data.frame(annotated)
+
+annotated$index <- as.integer(rownames(annotated))
+
+ggplot()+
+  geom_line(data = annotated, aes(x=index,y=annotated)) +
+
+geom_line(data = full_df1, aes(x = index, y = values, color = type))+
+  theme_bw() +
+  labs(x = NULL, y = "Distance") + 
+  theme(legend.position = "top")
+
 
 
 
