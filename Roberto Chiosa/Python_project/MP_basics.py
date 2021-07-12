@@ -59,7 +59,7 @@ for tt in range(n - m + 1):
 
     d_ij_e = math.sqrt(d_ij2_e)
 
-    D_i_e[[tt]] = d_ij_e
+    D_i_e[[tt]] = d_ij_e/T[i + k]
 
     j = j + 1
 
