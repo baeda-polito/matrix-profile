@@ -45,13 +45,34 @@ last(df_py$timestamp)
 summary(df_py)
 
 df_py$value <- imputeTS::na_interpolation(df_py$value)
+
+
 df_py <- df_py[1:14496,]
 
 write.csv(df_py, file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/CMP/Polito_Usecase/polito.csv", row.names = FALSE)
 
+# holiday annotation
+df_py_holiday <- df_univariate %>%
+  mutate(
+    timestamp = as.Date(CET),
+    Holiday = as.logical( as.integer(Holiday)-1 )
+  ) %>%
+  dplyr::select(timestamp, Holiday) %>%
+  unique()
 
-save(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.RData")))
-write.csv(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.csv")))
+
+# create a fill dataframe
+start <- df_py_holiday$timestamp[1]
+interval <- 60*24
+
+end <- start + as.difftime(151, units="days")
+
+ttt <- data.frame(timestamp = seq(from=start, by=1, to=end))
+
+df_py_holiday <- merge.data.frame(ttt, df_py_holiday, all.x =  T)
+df_py_holiday <- df_py_holiday[1:151,]
+
+write.csv(df_py_holiday, file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/CMP/Polito_Usecase/polito_holiday.csv", row.names = FALSE)
 
 # subset original dataframe 
 # - from 2018-01-15 00:00:00 (row 106129)
