@@ -1,8 +1,7 @@
 import pandas as pd
-import stumpy
 
 # load the POLITO dataframe small from csv
-df_power = pd.read_csv("./data/df_univariate_small.csv")
+df_power = pd.read_csv("/Users/robi/Downloads/df_summer.csv", sep=',', header=None)
 df_power.head()
 
 # time window length
