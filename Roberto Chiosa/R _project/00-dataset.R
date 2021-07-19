@@ -22,11 +22,36 @@ df_univariate <- df %>%
   ) %>%
   dplyr::select(-c(2:9))
 
+df_py <- df_univariate %>%
+  mutate(
+    timestamp = CET,
+    value = Power_total
+  ) %>%
+  dplyr::select(timestamp, value)
 
+
+# create a fill dataframe
+start <- df_py$timestamp[1]
+interval <- 15
+
+end <- start + as.difftime(151, units="days")
+
+ttt <- data.frame(timestamp = seq(from=start, by=interval*60, to=end))
+
+df_py <- merge.data.frame(ttt, df_py, all.x =  T)
+
+last(df_py$timestamp)
+
+summary(df_py)
+
+df_py$value <- imputeTS::na_interpolation(df_py$value)
+df_py <- df_py[1:14496,]
+
+write.csv(df_py, file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/CMP/Polito_Usecase/polito.csv", row.names = FALSE)
 
 
 save(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.RData")))
-write.csv2(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.csv")))
+write.csv(df_univariate, file = gsub(" ", "", paste("./data/df_univariate_full.csv")))
 
 # subset original dataframe 
 # - from 2018-01-15 00:00:00 (row 106129)
