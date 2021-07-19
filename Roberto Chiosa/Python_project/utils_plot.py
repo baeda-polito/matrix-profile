@@ -103,7 +103,7 @@ def plot_T_D(T, i, j, m, D_i_e, D_i_ze):
 
 
 # define a function to visualize and plot matrix plofile
-def plot_MP(matrix_profile_plot, kNN=1, annotate=True):
+def plot_MP(matrix_profile_plot, kNN=1):
     """Plot matrix profile in matrix and lineplot form.
 
                 :param matrix_profile_plot the matrix profile as matrix
@@ -111,9 +111,6 @@ def plot_MP(matrix_profile_plot, kNN=1, annotate=True):
 
                 :param kNN: the number of nearest neighbor to plot
                 :type kNN: int
-
-                :param annotate: wether the plot should be annotated or not
-                :type annotate: bool
 
                 :returns: An image is saved in the figures directory
     """
@@ -133,34 +130,32 @@ def plot_MP(matrix_profile_plot, kNN=1, annotate=True):
 
     # create matrix visualization
     ax1.matshow(matrix_profile_plot, cmap=plt.cm.Blues)
-plt.show()
+
     # adjust axes and thicks
     ax1.axes.xaxis.set_visible(False)
 
-    if annotate == True:
-        yticks = np.arange(0, len(matrix_profile_plot), 1)
-        ax1.set_yticks(yticks)
+    yticks = np.arange(0, len(matrix_profile_plot), 1)
+    ax1.set_yticks(yticks)
 
-        # set ticks in order to beging with 1 instead of 0
-        yticks_labels = yticks + 1
-        ax1.set_yticklabels(yticks_labels)
+    # set ticks in order to beging with 1 instead of 0
+    yticks_labels = yticks + 1
+    ax1.set_yticklabels(yticks_labels)
 
-        # removes axes from all plots
-        # ax1.axis('off')
-
-        # add numbers annotations on matrix profile
-        for i in range(len(matrix_profile_plot)):
-            #add mpindex
-            c = round(matrix_profile_plot[i, 0])
-            ax1.text(0, i, str(c), va='center', ha='center')
-            # add mpvalue
-            c = round(matrix_profile_plot[i, 1], 1)
-            ax1.text(1, i, str(c), va='center', ha='center')
-
-    # add matrix plofile lineplot
+    # removes axes from all plots
+    # ax1.axis('off')
 
     ax2.axis('off')
 
+    # add numbers annotations on matrix profile
+    for i in range(len(matrix_profile_plot)):
+        #add mpindex
+        c = round(matrix_profile_plot[i, 0])
+        ax1.text(0, i, str(c), va='center', ha='center')
+        # add mpvalue
+        c = round(matrix_profile_plot[i, 1], 1)
+        ax1.text(1, i, str(c), va='center', ha='center')
+
+    # add matrix plofile lineplot
     ax2.plot(
         np.asarray(matrix_profile_plot[:,1]),
         np.array([i for i in range(len(matrix_profile_plot[:,1]))]),
@@ -171,14 +166,11 @@ plt.show()
 
 
 # define a function to plot fulla distance matrix
-def plot_full_dist_matrix(matrix_full, annotate=True):
+def plot_full_dist_matrix(matrix_full):
     """Plot matrix profile in matrix and lineplot form.
 
         :param matrix_full: full distance matrix
         :type matrix_full: matrix
-
-        :param annotate: wether the plot should be annotated or not
-        :type annotate: bool
 
         :returns: An image is saved in the figures directory
 
@@ -198,34 +190,33 @@ def plot_full_dist_matrix(matrix_full, annotate=True):
     # plot matrix
     ax.matshow(matrix_full, cmap=plt.cm.Blues)
 
-    if annotate == True:
-        # length of timeseries (including NA)
-        n = matrix_full.shape[1]
+    # length of timeseries (including NA)
+    n = matrix_full.shape[1]
 
-        # length of distance profile
-        n_dp = matrix_full.shape[0]
+    # length of distance profile
+    n_dp = matrix_full.shape[0]
 
-        # adjust axes and ticks
-        xticks = np.arange(0, n, 1)
-        ax.set_xticks(xticks)
+    # adjust axes and ticks
+    xticks = np.arange(0, n, 1)
+    ax.set_xticks(xticks)
 
-        # set ticks in order to beging with 1 instead of 0
-        xticks_labels = xticks + 1
-        ax.set_xticklabels(xticks_labels)
+    # set ticks in order to beging with 1 instead of 0
+    xticks_labels = xticks + 1
+    ax.set_xticklabels(xticks_labels)
 
-        # adjust axes and ticks
-        yticks = np.arange(0, n_dp, 1)
-        ax.set_yticks(yticks)
+    # adjust axes and ticks
+    yticks = np.arange(0, n_dp, 1)
+    ax.set_yticks(yticks)
 
-        # set ticks in order to beging with 1 instead of 0
-        yticks_labels = yticks + 1
-        ax.set_yticklabels(yticks_labels)
+    # set ticks in order to beging with 1 instead of 0
+    yticks_labels = yticks + 1
+    ax.set_yticklabels(yticks_labels)
 
-        # add numbers annotations
-        for i in range(n):
-            for j in range(n_dp):
-                c = round(matrix_full[j, i], 1)
-                ax.text(i, j, str(c), va='center', ha='center')
+    # add numbers annotations
+    for i in range(n):
+        for j in range(n_dp):
+            c = round(matrix_full[j, i], 1)
+            ax.text(i, j, str(c), va='center', ha='center')
 
     # plt.show()
     plt.savefig('./figures/MP-basic-naive-matrix.png', dpi=300)

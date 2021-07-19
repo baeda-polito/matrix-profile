@@ -88,11 +88,15 @@ pattern_1nn <-  plot_window(
   seq_nn =  full_df$pi1[sequence_index]
 )
 
+
+
+
+
+
 #######
 #######try to find sense among sequences
 
 annotated <- NULL
-data <- data$Power_total
 for (i in 1:length(data) ) {
   id <- i
   w <-  96
@@ -136,12 +140,10 @@ for (i in 1:length(data) ) {
   #   geom_line(aes(x=index,y=values,color = Nearest))
   
   
-  valoreee <- (last(df$Tij_en)-last(df$Tij_1nn_en) )/last(df$Tij_en)
-  
-  
-  # if (valoreee<0) {
-  #   valoreee=NA
-  # }
+  valoreee <- last(df$Tij_en)-last(df$Tij_1nn_en) 
+  if (valoreee<0) {
+    valoreee=NA
+  }
   # +
   #   last(df$Tij_en)-last(df$Tij_2nn_en) +
   #   last(df$Tij_en)-last(df$Tij_3nn_en)
@@ -153,9 +155,10 @@ annotated <- as.data.frame(annotated)
 
 annotated$index <- as.integer(rownames(annotated))
 
-ggplot()+ 
-  geom_line(data = annotated, aes(x=index,y=annotated))+
-  geom_line(data = full_df, aes(x=index,y=mp1/1000))+
+ggplot()+
+  geom_line(data = annotated, aes(x=index,y=annotated)) +
+
+geom_line(data = full_df1, aes(x = index, y = values, color = type))+
   theme_bw() +
   labs(x = NULL, y = "Distance") + 
   theme(legend.position = "top")
