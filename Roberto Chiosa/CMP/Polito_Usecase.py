@@ -314,22 +314,22 @@ ax[0, 1].set_title("Anomaly vs weekday")
 ax[0, 2].set_title("Anomaly vs weekend")
 
 mp_cached = mp.matrix_profile()
-for i, anomaly_index in enumerate(itertools.islice(highest_value_idxs(mp_cached, 44), num_anomalies_to_show)):
+for i, anomaly_index in enumerate(itertools.islice(highest_value_idxs(mp_cached, m), num_anomalies_to_show)):
     # Anomalies can be split over 2 days here
-    day_index = anomaly_index // 48
-    day_shift = anomaly_index % 48
+    day_index = anomaly_index // 96
+    day_shift = anomaly_index % 96
     anomaly_range_x1 = range(0, day_shift)
-    anomaly_range_y1 = range(day_index * 48, day_index * 48 + day_shift)
-    anomaly_range_x2 = range(day_shift, min(day_shift + m, 48))
-    anomaly_range_y2 = range(day_index * 48 + day_shift, day_index * 48 + day_shift + len(anomaly_range_x2))
-    anomaly_range_x3 = range(0, day_shift - (48 - m))
-    anomaly_range_y3 = range(day_index * 48 + day_shift + len(anomaly_range_x2),
-                             (day_index + 1) * 48 + anomaly_range_x3.stop - anomaly_range_x3.start)
-    anomaly_range_x4 = range(day_shift - (48 - m), 48)
-    anomaly_range_y4 = range((day_index + 1) * 48 + len(anomaly_range_x3), (day_index + 2) * 48)
+    anomaly_range_y1 = range(day_index * 96, day_index * 96 + day_shift)
+    anomaly_range_x2 = range(day_shift, min(day_shift + m, 96))
+    anomaly_range_y2 = range(day_index * 96 + day_shift, day_index * 96 + day_shift + len(anomaly_range_x2))
+    anomaly_range_x3 = range(0, day_shift - (96 - m))
+    anomaly_range_y3 = range(day_index * 96 + day_shift + len(anomaly_range_x2),
+                             (day_index + 1) * 96 + anomaly_range_x3.stop - anomaly_range_x3.start)
+    anomaly_range_x4 = range(day_shift - (96 - m), 96)
+    anomaly_range_y4 = range((day_index + 1) * 96 + len(anomaly_range_x3), (day_index + 2) * 96)
 
     date1 = data.index[anomaly_index]
-    date2 = data.index[anomaly_index + 48]
+    date2 = data.index[anomaly_index + 96]
 
     if date1.dayofweek in (5, 6):
         ls1, ls3 = (":", "-")
@@ -342,29 +342,29 @@ for i, anomaly_index in enumerate(itertools.islice(highest_value_idxs(mp_cached,
     else:
         ls2, ls4 = ("-", ":")
 
-    ax[i, 0].plot(data.values.reshape((-1, 48)).T, c="gray", alpha=0.05)
+    ax[i, 0].plot(data.values.reshape((-1, 96)).T, c="gray", alpha=0.05)
     ax[i, 0].plot(anomaly_range_x2, data.values[anomaly_range_y2], c="red")
     ax[i, 0].plot(anomaly_range_x3, data.values[anomaly_range_y3], c="red")
 
-    ax[i, 1].plot(data.values.reshape((-1, 48))[weekdays].T, c="gray", alpha=0.05)
+    ax[i, 1].plot(data.values.reshape((-1, 96))[weekdays].T, c="gray", alpha=0.05)
     ax[i, 1].plot(anomaly_range_x2, data.values[anomaly_range_y2], c="red", linestyle=ls1)
     ax[i, 1].plot(anomaly_range_x3, data.values[anomaly_range_y3], c="red", linestyle=ls2)
 
-    ax[i, 2].plot(data.values.reshape((-1, 48))[weekends].T, c="gray", alpha=0.05)
+    ax[i, 2].plot(data.values.reshape((-1, 96))[weekends].T, c="gray", alpha=0.05)
     ax[i, 2].plot(anomaly_range_x2, data.values[anomaly_range_y2], c="red", linestyle=ls3)
     ax[i, 2].plot(anomaly_range_x3, data.values[anomaly_range_y3], c="red", linestyle=ls4)
 
-    ax[i, 0].text(0, 30000, "MP-Anomaly " + str(i + 1))
-    ax[i, date_col].text(0, 30000, date1.day_name() + " " + str(date1)[:16])
+    ax[i, 0].text(0, 650, "MP-Anomaly " + str(i + 1))
+    ax[i, date_col].text(0, 650, date1.day_name() + " " + str(date1)[:16])
 
-ax[0, 0].set_xticks(range(0, 49, 12))
-ticklabels = ["{hour}:00".format(hour=(x // 2)) for x in range(0, 49, 12)]
+ax[0, 0].set_xticks(range(0, 97, 24))
+ticklabels = ["{hour}:00".format(hour=(x // 4)) for x in range(0, 97, 24)]
 ticklabels[-1] = ""
 ax[0, 0].set_xticklabels(ticklabels)
 
 # plt.tight_layout()
 
-ax[num_anomalies_to_show // 2, 0].set_ylabel("Passengers")
+ax[num_anomalies_to_show // 2, 0].set_ylabel("Power[kW]")
 ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
 
-plt.savefig("NYTaxi_Usecase/ny_taxi_mp_anomalies.pdf", dpi=300, bbox_inches='tight')
+plt.savefig("Polito_Usecase/polito_mp_anomalies.pdf", dpi=300, bbox_inches='tight')
