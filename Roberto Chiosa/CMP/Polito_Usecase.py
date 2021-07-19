@@ -1,3 +1,4 @@
+import holidays
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -151,6 +152,7 @@ sunday_dates = data.index[::96].values[sundays]
 cmp_weekday_score = np.nansum(weekday_cmp, axis=1) / np.count_nonzero(weekdays)
 cmp_saturday_score = np.nansum(saturday_cmp, axis=1) / np.count_nonzero(saturdays)
 cmp_sunday_score = np.nansum(sunday_cmp, axis=1) / np.count_nonzero(sundays)
+
 
 # Merge the scores for all types of day into one array
 cmp_ad_score = np.zeros(len(cmp.distance_matrix))

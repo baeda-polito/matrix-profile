@@ -30,6 +30,7 @@ df_py <- df_univariate %>%
   dplyr::select(timestamp, value)
 
 
+
 # create a fill dataframe
 start <- df_py$timestamp[1]
 interval <- 15
@@ -51,13 +52,30 @@ df_py <- df_py[1:14496,]
 
 write.csv(df_py, file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/CMP/Polito_Usecase/polito.csv", row.names = FALSE)
 
+hol <- c(
+  "2015-01-01", # New Year's Day	National holiday
+  "2015-01-02", # New Year's Day	National holiday
+  "2015-01-03", # New Year's Day	National holiday
+  "2015-01-04", # New Year's Day	National holiday
+  "2015-01-05", # New Year's Day	National holiday
+  "2015-01-06", # Epiphany	National holiday
+  "2015-04-04", # Easter Saturday	National holiday
+  "2015-04-05", # Easter Sunday	National holiday
+  "2015-04-06", # Easter Monday	National holiday
+  "2015-04-25", # Liberation Day	National holiday
+  "2015-05-01" # Labor Day / May Day	National holiday
+)
 # holiday annotation
 df_py_holiday <- df_univariate %>%
   mutate(
     timestamp = as.Date(CET),
-    Holiday = as.logical( as.integer(Holiday)-1 )
+    week_day = lubridate::wday(timestamp, week_start = getOption("lubridate.week.start", 1)),
+    holiday_bool = as.logical( as.integer(Holiday)-1 ),
+    holiday_bool = ifelse( timestamp %in% as.Date(hol), TRUE, holiday_bool), # add not counted holidays
+    saturday_bool = if_else( !holiday_bool & week_day == 6, TRUE, FALSE),
+    workingday_bool = if_else( !holiday_bool & week_day != 6 & week_day != 7, TRUE, FALSE),
   ) %>%
-  dplyr::select(timestamp, Holiday) %>%
+  dplyr::select(timestamp, holiday_bool, saturday_bool, workingday_bool) %>%
   unique()
 
 
@@ -71,6 +89,7 @@ ttt <- data.frame(timestamp = seq(from=start, by=1, to=end))
 
 df_py_holiday <- merge.data.frame(ttt, df_py_holiday, all.x =  T)
 df_py_holiday <- df_py_holiday[1:151,]
+
 
 write.csv(df_py_holiday, file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/CMP/Polito_Usecase/polito_holiday.csv", row.names = FALSE)
 
