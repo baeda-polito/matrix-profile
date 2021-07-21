@@ -12,9 +12,12 @@ from distancematrix.consumer import MatrixProfileLR, ContextualMatrixProfile
 from distancematrix.consumer.contextmanager import GeneralStaticManager
 from distancematrix.insights import highest_value_idxs
 
+path_to_data = 'Polito_Usecase/data/'
+path_to_figures = 'Polito_Usecase/figures/'
+
 ########################################################################################
 # load dataset
-data = pd.read_csv("Polito_Usecase/polito.csv", index_col='timestamp', parse_dates=True)
+data = pd.read_csv(path_to_data + "polito.csv", index_col='timestamp', parse_dates=True)
 
 # print dataset main characteristics
 print(' POLITO CASE STUDY\n',
@@ -31,18 +34,21 @@ print(' POLITO CASE STUDY\n',
 dpi_resolution = 300
 obs_per_day = 96
 obs_per_hour = 4
-
 # Visualise the data
-plt.figure(figsize=(10, 3))
+plt.figure(figsize=(10, 4))
 plt.subplot(2, 1, 1)
-plt.title("Total Power (complete)")
+plt.title("Total Electrical Load (complete)")
 plt.plot(data)
 plt.ylabel("Power [kW]")
+plt.gca().set_ylim([0,850])
+plt.gca().set_yticks ([0,200,400,600,800])
 
 plt.subplot(2, 1, 2)
-plt.title("Total Power (first two weeks)")
+plt.title("Total Electrical Load (first two weeks)")
 plt.plot(data.iloc[:4 * 24 * 7 * 2])
 plt.ylabel("Power [kW]")
+plt.gca().set_ylim([0,850])
+plt.gca().set_yticks ([0,200,400,600,800])
 
 plt.gca().xaxis.set_major_locator(mdates.DayLocator([1, 8, 15]))
 plt.gca().xaxis.set_minor_locator(mdates.DayLocator())
@@ -51,7 +57,7 @@ plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
 plt.grid(b=True, axis="x", which='both', color='black', linestyle=':')
 
 position_x = 6  # position of day labels on x axis
-position_y = 620  # position of day labels on y axis
+position_y = 750  # position of day labels on y axis
 
 # add day labels on plot
 for i in range(14):
@@ -61,7 +67,7 @@ for i in range(14):
 plt.tight_layout()
 
 # save figure to plot directories
-plt.savefig("Polito_Usecase/polito.png", dpi=dpi_resolution, bbox_inches='tight')
+plt.savefig(path_to_figures + "polito.png", dpi=dpi_resolution, bbox_inches='tight')
 
 ########################################################################################
 # Define configuration for the Contextual Matrix Profile calculation.
@@ -108,7 +114,7 @@ plt.gca().yaxis.set_major_locator(mticker.MultipleLocator(14))
 plt.gcf().autofmt_xdate()
 cbar.set_label("Distance")
 
-plt.savefig("Polito_Usecase/polito_cmp.png", dpi=dpi_resolution, bbox_inches='tight')
+plt.savefig(path_to_figures + "polito_cmp.png", dpi=dpi_resolution, bbox_inches='tight')
 
 ########################################################################################
 # Plot of the Matrix Profile
@@ -117,7 +123,7 @@ plt.title("Matrix Profile: Not Normalized Euclidean Distance")
 plt.plot(data.index[:len(mp.matrix_profile())], mp.matrix_profile())
 plt.ylabel("Distance")
 plt.show()
-plt.savefig("Polito_Usecase/polito_mp.png", dpi=dpi_resolution, bbox_inches='tight')
+plt.savefig(path_to_figures + "polito_mp.png", dpi=dpi_resolution, bbox_inches='tight')
 
 ########################################################################################
 # Create boolean arrays to indicate whether each day is a weekday/weekend/saturday/sunday
@@ -128,8 +134,8 @@ sundays = np.array([d in range(6, 7) for d in data.index[::96].dayofweek])
 
 day_labels = data.index[::96]
 
-holiday = np.array(pd.read_csv("Polito_Usecase/polito_holiday.csv", index_col='timestamp', parse_dates=True).T)[0]
-not_holiday = np.array(1-holiday, dtype=bool)
+holiday = np.array(pd.read_csv(path_to_data + "polito_holiday.csv", index_col='timestamp', parse_dates=True).T)[0]
+not_holiday = np.array(1 - holiday, dtype=bool)
 
 # Create weekday/weekend only CMP
 weekday_cmp = cmp.distance_matrix[:, weekdays][weekdays, :]
@@ -152,7 +158,6 @@ sunday_dates = data.index[::96].values[sundays]
 cmp_weekday_score = np.nansum(weekday_cmp, axis=1) / np.count_nonzero(weekdays)
 cmp_saturday_score = np.nansum(saturday_cmp, axis=1) / np.count_nonzero(saturdays)
 cmp_sunday_score = np.nansum(sunday_cmp, axis=1) / np.count_nonzero(sundays)
-
 
 # Merge the scores for all types of day into one array
 cmp_ad_score = np.zeros(len(cmp.distance_matrix))
@@ -240,7 +245,7 @@ plt.ylabel("Anomaly Score")
 plt.axvline(8, ls=":", c="gray")
 # plt.xticks([0, 18, 50, 100, 150, 200])
 
-plt.savefig("Polito_Usecase/polito_cmp_detail.png", dpi=dpi_resolution, bbox_inches='tight')
+plt.savefig(path_to_figures + "polito_cmp_detail.png", dpi=dpi_resolution, bbox_inches='tight')
 
 ########################################################################################
 # Sort the anomaly scores for Matrix Profile in a similar way.
@@ -314,7 +319,7 @@ ax[0, 0].set_xticklabels(ticklabels)
 ax[num_anomalies_to_show // 2, 0].set_ylabel("Power [kW]")
 ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
 
-plt.savefig("Polito_Usecase/polito_cmp_anomalies.png", dpi=dpi_resolution, bbox_inches='tight')
+plt.savefig(path_to_figures + "polito_cmp_anomalies.png", dpi=dpi_resolution, bbox_inches='tight')
 
 # Visualise the top anomalies according to the MP
 num_anomalies_to_show = 8
@@ -379,4 +384,4 @@ ax[0, 0].set_xticklabels(ticklabels)
 ax[num_anomalies_to_show // 2, 0].set_ylabel("Power[kW]")
 ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
 
-plt.savefig("Polito_Usecase/polito_mp_anomalies.png", dpi=dpi_resolution, bbox_inches='tight')
+plt.savefig(path_to_figures + "polito_mp_anomalies.png", dpi=dpi_resolution, bbox_inches='tight')

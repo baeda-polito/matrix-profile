@@ -7,6 +7,10 @@ source(file = "00-setup.R") # load user functions
 # load dataset
 df <- energydataset::data_power_raw
 
+# full dataset from cabina C with subloads only power
+
+
+
 # fix dataset names
 df_univariate <- df %>%
   mutate(
