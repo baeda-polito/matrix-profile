@@ -7,7 +7,8 @@ import pandas as pd
 
 # import from the local module distancematrix
 from distancematrix.calculator import AnytimeCalculator
-from distancematrix.generator import ZNormEuclidean, Euclidean
+# from distancematrix.generator import ZNormEuclidean
+from distancematrix.generator import Euclidean
 from distancematrix.consumer import MatrixProfileLR, ContextualMatrixProfile
 from distancematrix.consumer.contextmanager import GeneralStaticManager
 
@@ -25,50 +26,57 @@ plt.rcParams.update({'font.size': fontsize})
 rc('text', usetex=True)
 
 
-def CMP_plot(cmp, palette="viridis", title=None, xlabel=None, legendlabel=None, extent=None):
+def CMP_plot(contextual_mp, palette="viridis", title=None, xlabel=None, legend_label=None, extent=None):
     """
     utils function used to plot the contextual matrix profile
 
-    :param cmp:
+    :param contextual_mp:
     :param extent:
     :param palette:
     :param title:
     :param xlabel:
-    :param legendlabel:
+    :param legend_label:
     :return:
     """
 
+    figure = plt.figure()
+    axis = plt.axes()
+
     if extent is not None:
         # no extent dates given
-        plt.imshow(cmp,
-                   cmap=palette,
-                   origin="lower",
-                   extent=extent
-                   )
+        im = plt.imshow(contextual_mp,
+                        cmap=palette,
+                        origin="lower",
+                        extent=extent
+                        )
         # Label layout
-        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-        plt.gca().yaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-        plt.gca().xaxis.set_major_locator(mticker.MultipleLocator(14))
-        plt.gca().yaxis.set_major_locator(mticker.MultipleLocator(14))
+        axis.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        axis.yaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        axis.xaxis.set_major_locator(mticker.MultipleLocator(14))
+        axis.yaxis.set_major_locator(mticker.MultipleLocator(14))
         plt.gcf().autofmt_xdate()
 
     else:
         # index as
-        plt.imshow(cmp,
-                   cmap=palette,
-                   origin="lower",
-                   vmin=np.min(cmp),
-                   vmax=np.max(cmp)
-                   )
+        im = plt.imshow(contextual_mp,
+                        cmap=palette,
+                        origin="lower",
+                        vmin=np.min(contextual_mp),
+                        vmax=np.max(contextual_mp)
+                        )
         plt.xlabel(xlabel)
-        ticks = list(range(0, len(cmp), int(len(cmp) / 5)))
+        ticks = list(range(0, len(contextual_mp), int(len(contextual_mp) / 5)))
         plt.xticks(ticks)
         plt.yticks(ticks)
 
-    cbar = plt.colorbar()
-
+    # Create an axes for colorbar. The position of the axes is calculated based on the position of ax.
+    # You can change 0.01 to adjust the distance between the main image and the colorbar.
+    # You can change 0.02 to adjust the width of the colorbar.
+    # This practice is universal for both subplots and GeoAxes.
     plt.title(title)
-    cbar.set_label(legendlabel)
+    cax = figure.add_axes([axis.get_position().x1 + 0.01, axis.get_position().y0, 0.02, axis.get_position().height])
+    cbar = plt.colorbar(im, cax=cax)  # Similar to fig.colorbar(im, cax = cax)
+    cbar.set_label(legend_label)
 
 
 ########################################################################################
@@ -141,7 +149,7 @@ contexts = GeneralStaticManager(
 
 calc = AnytimeCalculator(m, data.values.T)
 
-## Add generator
+# Add generator
 # - OPTION 1
 # distance_string = 'Znormalized Euclidean Distance'
 # calc.add_generator(0, ZNormEuclidean())
@@ -168,13 +176,12 @@ date_labels = mdates.date2num(data.index[::m].values)
 plt.figure(figsize=(10, 10))
 
 extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
-CMP_plot(cmp=cmp.distance_matrix,
+CMP_plot(contextual_mp=cmp.distance_matrix,
          palette=color_palette,
-         title='Contextual Matrix Profile\n' + distance_string + '\n',
-         legendlabel=distance_string,
+         title='Contextual Matrix Profile',
          extent=extents,
+         legend_label=distance_string
          )
-
 
 plt.savefig(path_to_figures + "polito_cmp1.png", dpi=dpi_resolution, bbox_inches='tight')
 
@@ -187,26 +194,53 @@ plt.savefig(path_to_figures + "polito_cmp1.png", dpi=dpi_resolution, bbox_inches
 # load data
 annotation_df = pd.read_csv(path_to_data + "polito_holiday.csv", index_col='timestamp', parse_dates=True)
 
-# define arrays
-holiday = np.array(annotation_df.T)[0]
-saturdays = np.array(annotation_df.T)[1]
-workingdays = np.array(annotation_df.T)[2]
-
 # set labels
 day_labels = data.index[::obs_per_day]
 
-# Create weekday/weekend only CMP
+# Create holiday only CMP
+holiday = np.array(annotation_df.T)[0]
 holiday_cmp = cmp.distance_matrix[:, holiday][holiday, :]
 holiday_cmp[holiday_cmp == np.inf] = 0
 holiday_dates = data.index[::obs_per_day].values[holiday]
+# plot CMP as matrix
+plt.figure(figsize=(7, 7))
+CMP_plot(contextual_mp=holiday_cmp,
+         palette=color_palette,
+         title="Power CMP (holiday only)",
+         xlabel="Holiday Index",
+         legend_label=distance_string
+         )
+plt.savefig(path_to_figures + "polito_holiday_cmp.png", dpi=dpi_resolution, bbox_inches='tight')
 
+# Create saturdays only CMP
+saturdays = np.array(annotation_df.T)[1]
 saturday_cmp = cmp.distance_matrix[:, saturdays][saturdays, :]
 saturday_cmp[saturday_cmp == np.inf] = 0
 saturday_dates = data.index[::obs_per_day].values[saturdays]
+# plot CMP as matrix
+plt.figure(figsize=(7, 7))
+CMP_plot(contextual_mp=saturday_cmp,
+         palette=color_palette,
+         title="Power CMP (Saturday only)",
+         xlabel="Saturday Index",
+         legend_label=distance_string
+         )
+plt.savefig(path_to_figures + "polito_saturday_cmp.png", dpi=dpi_resolution, bbox_inches='tight')
 
+# Create workingdays only CMP
+workingdays = np.array(annotation_df.T)[2]
 workingdays_cmp = cmp.distance_matrix[:, workingdays][workingdays, :]
 workingdays_cmp[workingdays_cmp == np.inf] = 0
 workingdays_dates = data.index[::obs_per_day].values[workingdays]
+# plot CMP as matrix
+plt.figure(figsize=(7, 7))
+CMP_plot(contextual_mp=workingdays_cmp,
+         palette=color_palette,
+         title="Power CMP (Working days  only)",
+         xlabel="Working days  Index",
+         legend_label=distance_string
+         )
+plt.savefig(path_to_figures + "polito_workingdays_cmp.png", dpi=dpi_resolution, bbox_inches='tight')
 
 # Calculate an anomaly score by summing the values (per type of day) across one axis and averaging
 cmp_holiday_score = np.nansum(holiday_cmp, axis=1) / np.count_nonzero(holiday)
@@ -246,34 +280,6 @@ plt.xticks(anomaly_ticks)
 
 plt.savefig(path_to_figures + "polito_aggregated_as.png", dpi=dpi_resolution, bbox_inches='tight')
 
-# Plot the CMP together
-plt.figure(figsize=(10, 4))
-
-plt.subplot(1, 3, 1)
-CMP_plot(cmp=holiday_cmp,
-         palette=color_palette,
-         title="Power CMP (holiday only)",
-         xlabel="Holiday Index",
-         legendlabel="Distance")
-
-plt.subplot(1, 3, 2)
-CMP_plot(cmp=saturday_cmp,
-         palette=color_palette,
-         title="Power CMP (Saturday only)",
-         xlabel="Saturday Index",
-         legendlabel="Distance")
-
-plt.subplot(1, 3, 3)
-CMP_plot(cmp=workingdays_cmp,
-         palette=color_palette,
-         title="Power CMP (Working days  only)",
-         xlabel="Working days  Index",
-         legendlabel="Distance")
-
-plt.tight_layout()
-
-plt.savefig(path_to_figures + "polito_cmp_detail1.png", dpi=dpi_resolution, bbox_inches='tight')
-
 ########################################################################################
 # Visualise the top anomalies according to the CMP
 fig, ax = plt.subplots(num_anomalies_to_show, 4, sharex=True, sharey=True, figsize=(10, 14),
@@ -289,21 +295,26 @@ for i in range(num_anomalies_to_show):
     anomaly_range = range(obs_per_day * anomaly_index, obs_per_day * (anomaly_index + 1))
     date = day_labels[anomaly_index]
 
-    if holiday[anomaly_index] == True:
+    ls1 = ":"
+    ls2 = ":"
+    ls3 = ":"
+    date_col = 0
+
+    if holiday[anomaly_index]:
         # we are on holiday
         ls1 = "-"
         ls2 = ":"
         ls3 = ":"
         date_col = 1
 
-    if saturdays[anomaly_index] == True:
+    if saturdays[anomaly_index]:
         # we are on saturdays
         ls1 = ":"
         ls2 = "-"
         ls3 = ":"
         date_col = 2
 
-    if workingdays[anomaly_index] == True:
+    if workingdays[anomaly_index]:
         # we are on weekdays
         ls1 = ":"
         ls2 = ":"
