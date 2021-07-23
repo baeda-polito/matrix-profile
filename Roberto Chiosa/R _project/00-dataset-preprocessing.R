@@ -38,6 +38,10 @@ df_py_holiday <- df %>%
   dplyr::select(timestamp, holiday_bool, saturday_bool, workingday_bool) %>%
   unique()
 
+
+colnames(df_py_holiday)[2] <- "Holiday"
+colnames(df_py_holiday)[3] <- "Saturday"
+colnames(df_py_holiday)[4] <- "Working Day"
 # 
 # # create a fill dataframe
 # start <- df_py_holiday$timestamp[1]

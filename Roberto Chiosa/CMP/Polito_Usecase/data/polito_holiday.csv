@@ -1,4 +1,4 @@
-"timestamp","holiday_bool","saturday_bool","workingday_bool"
+"timestamp","Holiday","Saturday","Working Day"
 2019-01-01,TRUE,FALSE,FALSE
 2019-01-02,TRUE,FALSE,FALSE
 2019-01-03,TRUE,FALSE,FALSE

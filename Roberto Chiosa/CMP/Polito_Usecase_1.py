@@ -268,13 +268,16 @@ for i in range(n_group):
     # Plot the anomaly scores and our considered threshold
     plt.figure(figsize=(7, 7))
     plt.title("Sorted Anomaly Scores (" + group_name + " only)")
-    plt.plot(cmp_ad_score[ad_order])
 
+    last_value = np.where(cmp_ad_score[ad_order] == min(cmp_ad_score[ad_order]))[0][0]
+    cmp_ad_score_plot = cmp_ad_score[ad_order][0:last_value]
+    plt.plot(cmp_ad_score_plot)
     plt.ylabel("Anomaly Score")
     plt.axvline(num_anomalies_to_show, ls=":", c="gray")
-    anomaly_ticks = list(range(0, len(cmp_ad_score), int(len(cmp_ad_score) / 5)))
+    anomaly_ticks = list(range(0, len(cmp_ad_score_plot), int(len(cmp_ad_score_plot) / 5)))
     anomaly_ticks.append(num_anomalies_to_show)
     plt.xticks(anomaly_ticks)
+    # plt.show()
     plt.savefig(path_to_figures + group_name + "/polito_anomaly_score.png", dpi=dpi_resolution, bbox_inches='tight')
 
     # Visualise the top anomalies according to the CMP
