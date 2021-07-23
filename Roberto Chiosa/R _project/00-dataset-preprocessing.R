@@ -3,57 +3,57 @@ cat("\014")                 # clears the console
 rm(list = ls())             # remove all variables of the workspace
 source(file = "00-setup.R") # load user functions
 
-df_power <- read.csv('/Users/robi/Dropbox (Politecnico Di Torino Studenti)/aSAX/df_power.csv', sep = ',') %>%
+
+df <- read.csv('/Users/robi/Desktop/matrix_profile/Simone Deho/df_cabinaC_2019_labeled.csv', sep = ',') 
+
+tt <- df %>%
+  select(Date, Holiday, Day_Description) %>%
+  unique()
+  
+
+
+df_py <- df %>%
   mutate(
-    Date_Time = as.POSIXct(Date_Time , format = "%Y-%m-%d %H:%M:%S" , tz = "GMT"),
-    Date = as.Date(Date_Time),
-    Time = as.factor(Time),
-    ToU = as.factor(FasciaAEEG),
-    Holiday = if_else(festivo == "S", TRUE, FALSE)
+    timestamp = Date_Time,
+    value = Total_Power
   ) %>%
-  dplyr::arrange(Date_Time) %>%
-  dplyr::select(-c("festivo", "FasciaAEEG"))
-
-df_meteo <- read.csv('/Users/robi/Dropbox (Politecnico Di Torino Studenti)/aSAX/df_clima.csv', sep = ',') %>%
-  mutate(
-    Date_Time = as.POSIXct(Date_Time , format = "%Y-%m-%d %H:%M:%S" , tz = "GMT"),
-    T_air = TempARIA,
-    H_global = RadGLOBale
-  ) %>%
-  dplyr::arrange(Date_Time) %>%
-  dplyr::select("Date_Time", "T_air", "H_global")
-
-# extract colnames in order of magnitude to sort df
-tmp <- df_power %>%
-  select(is.numeric) %>% # select only numeric
-  select( -min_dec, -Day_Type) %>%
-  summarise(across(everything(), list(mean = mean))) %>% # summarise mean
-  t() %>%
-  as.data.frame() %>%
-  arrange(desc(V1))
-
-
-# create a fill dataframe
-start <- df_power$Date_Time[1]
-interval <- 15
-
-end <- start + as.difftime(length(unique(df_power$Date)), units="days")
-
-ttt <- data.frame(Date_Time = seq(from=start, by=interval*60, to=end))
-
-
-df_py <- merge.data.frame(ttt, df_power, all.x =  T)
-
-df_py <- merge.data.frame(df_py, df_meteo, all.x =  T)
-
+  dplyr::select(timestamp, value)
 
 summary(df_py)
 
+write.csv(df_py, file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/CMP/Polito_Usecase/data/polito.csv", row.names = FALSE)
 
-df_py <- df_py %>%
-  select(colnames(df_py)[1:5], "T_air", "H_global", gsub("_mean", "", rownames(tmp)))
-  
 
-write.csv(df_py, "./data/df_cabinaC_full.csv")
+as.integer(as.factor(df$Holiday))
+# holiday annotation
+df_py_holiday <- df %>%
+  mutate(
+    timestamp = as.Date(Date_Time),
+    week_day = lubridate::wday(timestamp, week_start = getOption("lubridate.week.start", 1)),
+    holiday_bool = as.logical( as.integer(as.factor(df$Holiday))-1 ),
+    #holiday_bool = ifelse( timestamp %in% as.Date(hol), TRUE, holiday_bool), # add not counted holidays
+    saturday_bool = if_else( !holiday_bool & week_day == 6, TRUE, FALSE),
+    workingday_bool = if_else( !holiday_bool & week_day != 6 & week_day != 7, TRUE, FALSE),
+  ) %>%
+  dplyr::select(timestamp, holiday_bool, saturday_bool, workingday_bool) %>%
+  unique()
+
+# 
+# # create a fill dataframe
+# start <- df_py_holiday$timestamp[1]
+# interval <- 60*24
+# 
+# end <- start + as.difftime(151, units="days")
+# 
+# ttt <- data.frame(timestamp = seq(from=start, by=1, to=end))
+# 
+# df_py_holiday <- merge.data.frame(ttt, df_py_holiday, all.x =  T)
+# df_py_holiday <- df_py_holiday[1:151,]
+
+
+write.csv(df_py_holiday, file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/CMP/Polito_Usecase/data/polito_holiday.csv", row.names = FALSE)
+
+
+
 
             
