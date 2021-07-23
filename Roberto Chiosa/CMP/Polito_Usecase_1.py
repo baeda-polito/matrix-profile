@@ -14,7 +14,7 @@ from distancematrix.consumer import MatrixProfileLR, ContextualMatrixProfile
 from distancematrix.consumer.contextmanager import GeneralStaticManager
 
 from matplotlib import rc  # font plot
-from kneed import KneeLocator  # find knee of curve
+# from kneed import KneeLocator  # find knee of curve
 
 # useful paths
 path_to_data = 'Polito_Usecase/data/'
@@ -29,7 +29,17 @@ rc('font', **{'family': 'serif', 'serif': ['Georgia']})
 plt.rcParams.update({'font.size': fontsize})
 
 
-# rc('text', usetex=False)
+def anomaly_score_calc(group_matrix, group_array):
+    """
+        utils function used to calculate anomaly score
+        :param group_matrix:
+        :param group_array:
+        :return:
+        """
+
+    # Calculate an anomaly score by summing the values (per type of day) across one axis and averaging
+    cmp_group_score_array = np.nansum(group_matrix, axis=1) / np.count_nonzero(group_array)
+    return cmp_group_score_array
 
 
 def CMP_plot(contextual_mp,
@@ -107,6 +117,7 @@ print(' POLITO CASE STUDY\n',
       'Electrical Load dataset from Substation C\n',
       '- From\t', data.index[0], '\n',
       '- To\t', data.index[len(data) - 1], '\n',
+      '-', len(data.index[::obs_per_day]), '\tdays\n',
       '-', len(data), 'observations every 15 min\n',
       '-', obs_per_day, '\t observations per day\n',
       '-', obs_per_hour, '\t observations per hour\n'
@@ -235,12 +246,11 @@ for i in range(n_group):
     group_cmp[group_cmp == np.inf] = 0
     group_dates = data.index[::obs_per_day].values[group]
 
-
-    # Calculate an anomaly score by summing the values (per type of day) across one axis and averaging
-    cmp_group_score = np.nansum(group_cmp, axis=1) / np.count_nonzero(group)
+    # Calculate an anomaly score
+    cmp_group_score = anomaly_score_calc(group_cmp, group)
 
     # Merge the scores for all types of day into one array
-    cmp_ad_score = np.zeros(len(cmp.distance_matrix))*np.nan
+    cmp_ad_score = np.zeros(len(cmp.distance_matrix)) * np.nan
     cmp_ad_score[group] = cmp_group_score
     # Ordering of all days, from most to least anomalous
     ad_order = np.argsort(cmp_ad_score)[::-1]
@@ -281,7 +291,9 @@ for i in range(n_group):
     plt.savefig(path_to_figures + group_name + "/polito_anomaly_score.png", dpi=dpi_resolution, bbox_inches='tight')
 
     # Visualise the top anomalies according to the CMP
-    fig, ax = plt.subplots(num_anomalies_to_show, 2, sharex=True, sharey=True, figsize=(10, 14),
+    fig, ax = plt.subplots(num_anomalies_to_show, 2,
+                           sharex='all',
+                           figsize=(10, 14),
                            gridspec_kw={'wspace': 0., 'hspace': 0.})
 
     ax[0, 0].set_title("Anomaly vs all")
