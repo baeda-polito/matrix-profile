@@ -187,6 +187,23 @@ m = obs_per_day - obs_per_hour * m_context
 contexts = GeneralStaticManager(
     [range(x * obs_per_day, (x * obs_per_day) + obs_per_hour * m_context) for x in range(len(data) // obs_per_day)])
 
+
+# # context time window length (hours)
+# m_context = 2
+#
+# # time window length 96 observations - 4 observation/hour * 2 hours = 88 observations = 22 hours
+# m = obs_per_day - obs_per_hour * m_context
+#
+# # Each context starts between 0 and 2 AM (m_context = 2 hours), and lasts 22 hours (m = 88 observations)
+# context_from = 0
+# context_to = context_from + m_context*obs_per_hour
+#
+# contexts = GeneralStaticManager(
+#     [range(x * obs_per_day + context_from, (x * obs_per_day) + context_from + context_to) for x in range(len(data) // obs_per_day)]
+# )
+
+
+
 calc = AnytimeCalculator(m, data.values.T)
 
 # Add generator
@@ -318,6 +335,8 @@ for i in range(n_group):
         date = day_labels[anomaly_index]
 
         line_style = "-"
+
+        ax[i, 0].plot(range(_6am, _8am + m), daily_data[weekends, :][day, _6am: _8am + m], c=c)
 
         ax[j, 0].plot(data.values.reshape((-1, obs_per_day)).T, c="gray", alpha=0.07)
         ax[j, 0].plot(data.values[anomaly_range], c="red", linestyle=line_style)
