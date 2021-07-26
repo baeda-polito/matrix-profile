@@ -44,3 +44,6 @@ axs[0].grid()
 axs[1].grid()
 plt.show()
 fig.savefig('MP_euclidean.png')
+
+
+
