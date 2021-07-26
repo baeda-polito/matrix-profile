@@ -41,6 +41,19 @@ def anomaly_score_calc(group_matrix, group_array):
     cmp_group_score_array = np.nansum(group_matrix, axis=1) / np.count_nonzero(group_array)
     return cmp_group_score_array
 
+def nan_diag(matrix):
+    """
+    Fills the diagonal of the passed square matrix with nans.
+    """
+
+    h, w = matrix.shape
+
+    if h != w:
+        raise RuntimeError("Matrix is not square")
+
+    matrix = matrix.copy()
+    matrix[range(h), range(w)] = np.nan
+    return matrix
 
 def CMP_plot(contextual_mp,
              palette="viridis",
@@ -70,7 +83,7 @@ def CMP_plot(contextual_mp,
 
     if extent is not None:
         # no extent dates given
-        im = plt.imshow(contextual_mp,
+        im = plt.imshow(nan_diag(contextual_mp),
                         cmap=palette,
                         origin="lower",
                         extent=extent
@@ -84,7 +97,7 @@ def CMP_plot(contextual_mp,
 
     else:
         # index as
-        im = plt.imshow(contextual_mp,
+        im = plt.imshow(nan_diag(contextual_mp),
                         cmap=palette,
                         origin="lower",
                         vmin=np.min(contextual_mp),
