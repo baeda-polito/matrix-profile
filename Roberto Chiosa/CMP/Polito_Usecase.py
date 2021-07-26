@@ -1,23 +1,45 @@
-import holidays
+# import from default libraries and packages
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
 import pandas as pd
-import itertools
+import os
+import math
 
+# import from the local module distancematrix
 from distancematrix.calculator import AnytimeCalculator
-from distancematrix.generator import ZNormEuclidean, Euclidean
+# from distancematrix.generator import ZNormEuclidean
+from distancematrix.generator import Euclidean
 from distancematrix.consumer import MatrixProfileLR, ContextualMatrixProfile
 from distancematrix.consumer.contextmanager import GeneralStaticManager
-from distancematrix.insights import highest_value_idxs
 
+from matplotlib import rc  # font plot
+from kneed import KneeLocator  # find knee of curve
+from utils_functions import roundup, anomaly_score_calc, CMP_plot
+
+# useful paths
 path_to_data = 'Polito_Usecase/data/'
 path_to_figures = 'Polito_Usecase/figures/'
+color_palette = 'viridis'
+
+# figures variables
+dpi_resolution = 300
+fontsize = 10
+
+# plt.style.use("seaborn-paper")
+rc('font', **{'family': 'serif', 'serif': ['Georgia']})
+plt.rcParams.update({'font.size': fontsize})
 
 ########################################################################################
 # load dataset
 data = pd.read_csv(path_to_data + "polito.csv", index_col='timestamp', parse_dates=True)
+obs_per_day = 96
+obs_per_hour = 4
+
+min_power = 0  # minimum value of power
+max_power = 850  # max(data.values) # maximum value of power
+ticks_power = list(range(min_power, max_power, roundup(max_power / 6, digit=100)))
 
 # print dataset main characteristics
 print(' POLITO CASE STUDY\n',
@@ -25,30 +47,29 @@ print(' POLITO CASE STUDY\n',
       'Electrical Load dataset from Substation C\n',
       '- From\t', data.index[0], '\n',
       '- To\t', data.index[len(data) - 1], '\n',
-      '-', len(data), 'observations every 15 min\n',
-      '- 96 \t observations per day\n',
-      '- 4 \t observations per hour\n'
+      '-', len(data.index[::obs_per_day]), '\tdays\n',
+      '- 1 \tobservations every 15 min\n',
+      '-', obs_per_day, '\tobservations per day\n',
+      '-', obs_per_hour, '\tobservations per hour\n',
+      '-', len(data), 'observations\n'
       )
 
-# useful variables
-dpi_resolution = 300
-obs_per_day = 96
-obs_per_hour = 4
 # Visualise the data
 plt.figure(figsize=(10, 4))
+
 plt.subplot(2, 1, 1)
 plt.title("Total Electrical Load (complete)")
 plt.plot(data)
 plt.ylabel("Power [kW]")
-plt.gca().set_ylim([0,850])
-plt.gca().set_yticks ([0,200,400,600,800])
+plt.gca().set_ylim([min_power, max_power])
+plt.gca().set_yticks(ticks_power)
 
 plt.subplot(2, 1, 2)
 plt.title("Total Electrical Load (first two weeks)")
 plt.plot(data.iloc[:4 * 24 * 7 * 2])
 plt.ylabel("Power [kW]")
-plt.gca().set_ylim([0,850])
-plt.gca().set_yticks ([0,200,400,600,800])
+plt.gca().set_ylim([min_power, max_power])
+plt.gca().set_yticks(ticks_power)
 
 plt.gca().xaxis.set_major_locator(mdates.DayLocator([1, 8, 15]))
 plt.gca().xaxis.set_minor_locator(mdates.DayLocator())
@@ -61,7 +82,7 @@ position_y = 750  # position of day labels on y axis
 
 # add day labels on plot
 for i in range(14):
-    timestamp = data.index[position_x + i * 96]
+    timestamp = data.index[position_x + i * obs_per_day]
     plt.text(timestamp, position_y, timestamp.day_name()[:3])
 
 plt.tight_layout()
@@ -72,18 +93,50 @@ plt.savefig(path_to_figures + "polito.png", dpi=dpi_resolution, bbox_inches='tig
 ########################################################################################
 # Define configuration for the Contextual Matrix Profile calculation.
 
-# time window length
-m = 96 - 4 * 2  # 22 hours
+# CONTEXT 1
+# We want to find all the subsequences that start from 00:00 to 02:00 (2 hours) and covers the whole day
+# In order to avoid overlapping we define the window length as the whole day of observation minus the context length.
+# - Beginning of the context 00:00 AM [hours]
+context_start = 0
+# - End of the context 02:00 AM [hours]
+context_end = 2
+# - Context time window length 2 [hours]
+m_context = context_end - context_start
+# - Time window length [observations]
+# m = 96 [observations] - 4 [observation/hour] * 2 [hours] = 88 [observations] = 22 [hours]
+m = obs_per_day - obs_per_hour * m_context
+# m = obs_per_hour*5
+# context string to explain
+context_string = 'Subsequences of ' + str(int(m / obs_per_hour)) + ' h that starts between ' + str(
+    context_start) + ':00 and ' + str(context_end) + ':00'
+print('Context: ' + context_string)
+# context string for names
+context_string_small = 'ctx_' + str(int(m / obs_per_hour)) + 'h_from' + str(
+    context_start) + '_to' + str(context_end)
+# if figures directory doesnt exists create and save into it
+if not os.path.exists(path_to_figures + context_string_small):
+    os.makedirs(path_to_figures + context_string_small)
 
-# Each context starts between 0 and 2 AM, and lasts 22 hours
-contexts = GeneralStaticManager([range(x * 96, (x * 96) + 4 * 2) for x in range(len(data) // 96)])
+# Context Definition:
+contexts = GeneralStaticManager([
+    range(
+        # FROM  [observations]  = x * 96 [observations] + 0 [hour] * 4 [observation/hour]
+        (x * obs_per_day) + context_start * obs_per_hour,
+        # TO    [observations]  = x * 96 [observations] + (0 [hour] + 2 [hour]) * 4 [observation/hour]
+        (x * obs_per_day) + (context_start + m_context) * obs_per_hour)
+    for x in range(len(data) // obs_per_day)
+])
 
+########################################################################################
+# Calculate Contextual Matrix Profile
 calc = AnytimeCalculator(m, data.values.T)
 
-## Add generator as Znormalized Euclidean Distance (original)
+# Add generator
+# - OPTION 1
+# distance_string = 'Znormalized Euclidean Distance'
 # calc.add_generator(0, ZNormEuclidean())
-
-# Add generator as Znormalized Euclidean Distance
+# - OPTION 2
+distance_string = 'Not Normalized Euclidean Distance'
 calc.add_generator(0, Euclidean())
 
 # We want to calculate CMP initialize element
@@ -93,295 +146,154 @@ cmp = calc.add_consumer([0], ContextualMatrixProfile(contexts))
 mp = calc.add_consumer([0], MatrixProfileLR())
 
 # Calculate Matrix Profile and Contextual Matrix Profile
-calc.calculate_columns()
+calc.calculate_columns(print_progress=True)
 
-########################################################################################
-# Visualise the CMP
-# Note the very subtle color difference before and after 2014-08-31
-date_labels = mdates.date2num(data.index[::48 * 2].values)
+# calculate the date labels to define the extent of figure
+date_labels = mdates.date2num(data.index[::m].values)
 
+# plot CMP as matrix
 plt.figure(figsize=(10, 10))
+
 extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
-plt.imshow(cmp.distance_matrix, extent=extents, cmap="viridis", origin="lower")
-cbar = plt.colorbar()
-plt.title("Contextual Matrix Profile\nNot Normalized Euclidean Distance\n")
+CMP_plot(contextual_mp=cmp.distance_matrix,
+         palette=color_palette,
+         title='Contextual Matrix Profile',
+         extent=extents,
+         legend_label=distance_string,
+         date_ticks=14 * 2
+         )
 
-# Label layout
-plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-plt.gca().yaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-plt.gca().xaxis.set_major_locator(mticker.MultipleLocator(14))
-plt.gca().yaxis.set_major_locator(mticker.MultipleLocator(14))
-plt.gcf().autofmt_xdate()
-cbar.set_label("Distance")
-
-plt.savefig(path_to_figures + "polito_cmp.png", dpi=dpi_resolution, bbox_inches='tight')
-
-########################################################################################
-# Plot of the Matrix Profile
-plt.figure(figsize=(15, 3))
-plt.title("Matrix Profile: Not Normalized Euclidean Distance")
-plt.plot(data.index[:len(mp.matrix_profile())], mp.matrix_profile())
-plt.ylabel("Distance")
-plt.show()
-plt.savefig(path_to_figures + "polito_mp.png", dpi=dpi_resolution, bbox_inches='tight')
+plt.savefig(path_to_figures + context_string_small + os.sep + "polito_cmp1.png",
+            dpi=dpi_resolution,
+            bbox_inches='tight')
 
 ########################################################################################
 # Create boolean arrays to indicate whether each day is a weekday/weekend/saturday/sunday
-weekdays = np.array([d in range(0, 5) for d in data.index[::96].dayofweek])
-weekends = np.array([d in range(5, 7) for d in data.index[::96].dayofweek])
-saturdays = np.array([d in range(5, 6) for d in data.index[::96].dayofweek])
-sundays = np.array([d in range(6, 7) for d in data.index[::96].dayofweek])
+# - holiday (calendar holidays and academic calendar closures)
+# - saturdays (not holidays not working days)
+# - workingdays (not holiday and not saturdays)
 
-day_labels = data.index[::96]
+# load data
+annotation_df = pd.read_csv(path_to_data + "polito_holiday.csv", index_col='timestamp', parse_dates=True)
 
-holiday = np.array(pd.read_csv(path_to_data + "polito_holiday.csv", index_col='timestamp', parse_dates=True).T)[0]
-not_holiday = np.array(1 - holiday, dtype=bool)
+# set labels
+day_labels = data.index[::obs_per_day]
 
-# Create weekday/weekend only CMP
-weekday_cmp = cmp.distance_matrix[:, weekdays][weekdays, :]
-weekday_cmp[weekday_cmp == np.inf] = 0
-weekday_dates = data.index[::96].values[weekdays]
+# get number of groups
+n_group = annotation_df.shape[1]
 
-weekend_cmp = cmp.distance_matrix[:, weekends][weekends, :]
-weekend_cmp[weekend_cmp == np.inf] = 0
-weekend_dates = data.index[::96].values[weekends]
+for i in range(n_group):
+    # get group name from dataframe
+    group_name = annotation_df.columns[i]
 
-saturday_cmp = cmp.distance_matrix[:, saturdays][saturdays, :]
-saturday_cmp[saturday_cmp == np.inf] = 0
-saturday_dates = data.index[::96].values[saturdays]
+    # if figures directory doesnt exists create and save into it
+    if not os.path.exists(path_to_figures + context_string_small + os.sep + group_name):
+        os.makedirs(path_to_figures + context_string_small + os.sep + group_name)
 
-sunday_cmp = cmp.distance_matrix[:, sundays][sundays, :]
-sunday_cmp[sunday_cmp == np.inf] = 0
-sunday_dates = data.index[::96].values[sundays]
+    # greate empty group vector
+    group = np.array(annotation_df.T)[i]
+    # get cmp from previously computed cmp
+    group_cmp = cmp.distance_matrix[:, group][group, :]
+    # substitute inf with zeros
+    group_cmp[group_cmp == np.inf] = 0
+    # get dates
+    group_dates = data.index[::obs_per_day].values[group]
 
-# Calculate an anomaly score by summing the values (per type of day) across one axis
-cmp_weekday_score = np.nansum(weekday_cmp, axis=1) / np.count_nonzero(weekdays)
-cmp_saturday_score = np.nansum(saturday_cmp, axis=1) / np.count_nonzero(saturdays)
-cmp_sunday_score = np.nansum(sunday_cmp, axis=1) / np.count_nonzero(sundays)
+    # plot CMP as matrix
+    plt.figure(figsize=(7, 7))
 
-# Merge the scores for all types of day into one array
-cmp_ad_score = np.zeros(len(cmp.distance_matrix))
-cmp_ad_score[saturdays] = cmp_saturday_score
-cmp_ad_score[sundays] = cmp_sunday_score
-cmp_ad_score[weekdays] = cmp_weekday_score
+    CMP_plot(contextual_mp=group_cmp,
+             palette=color_palette,
+             title="Power CMP (" + group_name + " only)",
+             xlabel=group_name + " Index",
+             legend_label=distance_string
+             )
+    plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_cmp.png",
+                dpi=dpi_resolution,
+                bbox_inches='tight')
 
-# Ordering of all days, from most to least anomalous
-ad_order = np.argsort(cmp_ad_score)[::-1]
+    # Plot the anomaly scores and our considered threshold
+    plt.figure(figsize=(7, 7))
+    plt.title("Sorted Anomaly Scores (" + group_name + " only)")
 
-# Plot the anomaly scores and our considered threshold
-plt.figure(figsize=(15, 3))
-plt.title("Sorted Anomaly Scores")
-plt.plot(cmp_ad_score[ad_order])
-plt.ylabel("Anomaly Score")
+    # Calculate an anomaly score
+    cmp_group_score = anomaly_score_calc(group_cmp, group)
+    # Initialize ana anomaly score empty vector
+    cmp_ad_score = np.zeros(len(cmp.distance_matrix)) * np.nan
+    # add to the empty array those referring to the group
+    cmp_ad_score[group] = cmp_group_score
+    # Ordering of all days, from most to least anomalous
+    ad_order = np.argsort(cmp_ad_score)[::-1]
+    # move na at the end of the vector
+    ad_order = np.roll(ad_order, -np.count_nonzero(np.isnan(cmp_ad_score)))
+    # save the position of the last available number before NA
+    last_value = np.where(cmp_ad_score[ad_order] == min(cmp_ad_score[ad_order]))[0][0]
+    # create a vector to plot correctly the graph
+    cmp_ad_score_plot = cmp_ad_score[ad_order][0:last_value]
 
-plt.axvline(8, ls=":", c="gray")
-plt.xticks([0, 10, 20, 50, 100, 150])
-plt.show()
+    # set number of aomalies to show as the elbow of the curve
+    x_ad = np.array(range(0, len(cmp_ad_score_plot)))
+    y_ad = cmp_ad_score_plot
+    kn = KneeLocator(x_ad, y_ad, curve='convex', direction='decreasing')
+    num_anomalies_to_show = kn.knee
+    # num_anomalies_to_show = 5
 
-# Plot the above figures together
+    plt.plot(cmp_ad_score_plot)
+    plt.ylabel("Anomaly Score")
+    plt.axvline(num_anomalies_to_show, ls=":", c="gray")
+    anomaly_ticks = list(range(0, len(cmp_ad_score_plot), int(len(cmp_ad_score_plot) / 5)))
+    anomaly_ticks.append(num_anomalies_to_show)
+    plt.xticks(anomaly_ticks)
+    plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomaly_score.png",
+                dpi=dpi_resolution,
+                bbox_inches='tight')
 
-# to get a common scale use the following
-max_cmp_val = np.max([
-    np.max(weekday_cmp),
-    np.max(saturday_cmp),
-    np.max(sunday_cmp)
-])
-min_cmp_val = np.min([
-    np.min(weekday_cmp),
-    np.min(saturday_cmp),
-    np.min(sunday_cmp)
-])
+    # Visualise the top anomalies according to the CMP
+    fig, ax = plt.subplots(num_anomalies_to_show, 2,
+                           sharex='all',
+                           sharey='all',
+                           figsize=(10, 14),
+                           gridspec_kw={'wspace': 0., 'hspace': 0.})
 
-plt.figure(figsize=(17, 2.5))
-plt.subplot(1, 4, 1)
-date_labels = mdates.date2num(weekday_dates)
-extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
-plt.imshow(weekday_cmp,
-           cmap="viridis",
-           origin="lower",
-           vmin=np.min(weekday_cmp),
-           vmax=np.max(weekday_cmp),
-           )
-cbar = plt.colorbar()
-plt.xlabel("Weekday Index")
-# plt.yticks([0, 50, 100, 150])
-plt.title("Power CMP (weekdays only)")
-cbar.set_label("Distance")
+    ax[0, 0].set_title("Anomaly vs all")
+    ax[0, 1].set_title("Anomaly vs " + group_name)
 
-plt.subplot(1, 4, 2)
-date_labels = mdates.date2num(saturday_dates)
-extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
-plt.imshow(saturday_cmp,
-           cmap="viridis",
-           origin="lower",
-           vmin=np.min(saturday_cmp),
-           vmax=np.max(saturday_cmp),
-           )
-cbar = plt.colorbar()
-plt.xlabel("Saturday Index")
-# plt.yticks([0, 10, 20, 30])
-plt.title("Power CMP (Saturday only)")
-cbar.set_label("Distance")
+    for j in range(num_anomalies_to_show):
+        anomaly_index = ad_order[j]
+        anomaly_range = range(obs_per_day * anomaly_index, obs_per_day * (anomaly_index + 1))
+        date = day_labels[anomaly_index]
 
-plt.subplot(1, 4, 3)
-date_labels = mdates.date2num(sunday_dates)
-extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
-plt.imshow(sunday_cmp, cmap="viridis",
-           origin="lower",
-           vmin=np.min(sunday_cmp),
-           vmax=np.max(sunday_cmp),
-           )
-cbar = plt.colorbar()
-plt.xlabel("Sunday Index")
-# plt.yticks([0, 10, 20])
-plt.title("Power CMP (Sunday only)")
-cbar.set_label("Distance")
+        line_style = "-"
 
-plt.subplot(1, 4, 4)
-plt.title("Sorted Anomaly Scores")
-plt.plot(cmp_ad_score[ad_order])
-plt.ylabel("Anomaly Score")
+        ax[j, 0].plot(data.values.reshape((-1, obs_per_day)).T, c="gray", alpha=0.07)
+        ax[j, 0].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
+                      data.values[anomaly_range][context_start * obs_per_hour:(context_end * obs_per_hour + m)],
+                      c="red", linestyle=line_style)
+        ax[j, 0].plot(data.values[anomaly_range], c="red", linestyle=":")
+        ax[j, 0].set_ylim([min_power, max_power])
+        ax[j, 0].set_yticks(ticks_power)
 
-plt.axvline(8, ls=":", c="gray")
-# plt.xticks([0, 18, 50, 100, 150, 200])
+        ax[j, 1].plot(data.values.reshape((-1, obs_per_day))[group].T, c="gray", alpha=0.07)
+        ax[j, 1].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
+                      data.values[anomaly_range][context_start * obs_per_hour:(context_end * obs_per_hour + m)],
+                      c="red", linestyle=line_style)
+        ax[j, 1].plot(data.values[anomaly_range], c="red", linestyle=":")
+        ax[j, 0].set_ylim([min_power, max_power])
+        ax[j, 0].set_yticks(ticks_power)
 
-plt.savefig(path_to_figures + "polito_cmp_detail.png", dpi=dpi_resolution, bbox_inches='tight')
+        ax[j, 0].text(0, position_y, "CMP-Anomaly " + str(j + 1))
+        ax[j, 1].text(0, position_y, date.day_name() + " " + str(date)[:10])
 
-########################################################################################
-# Sort the anomaly scores for Matrix Profile in a similar way.
-# First, gather the indices of the top values of the MP, where each index is
-# at least 44 (22 hours) apart from any previous index
-mp_ad_order = list(highest_value_idxs(mp.matrix_profile(), m))
+    ax[0, 0].set_xticks(range(0, 97, 24))
+    ticklabels = ["{hour}:00".format(hour=(x // obs_per_hour)) for x in range(0, 97, 24)]
+    # ticklabels[-1] = ""
+    ax[0, 0].set_xticklabels(ticklabels)
 
-plt.figure(figsize=(15, 3))
-plt.plot(mp.matrix_profile()[mp_ad_order])
+    plt.tight_layout()
 
-plt.title("Sorted Anomaly Scores (MP)")
-plt.ylabel("Anomaly Score")
+    ax[num_anomalies_to_show // 2, 0].set_ylabel("Power [kW]")
+    ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
 
-# plt.axvline(5, ls=":", c="gray")
-# plt.axvline(11, ls=":", c="gray")
-plt.axvline(16, ls=":", c="gray")
-# plt.xticks([0, 16, 50, 100, 150, 200])
-
-# Display the top anomalies according to the MP.
-# Again, we output more than the 16 anomalies we consider in the paper.
-print("Top anomalies according to MP")
-
-for i, idx in enumerate(itertools.islice(highest_value_idxs(mp.matrix_profile(), 44), 25)):
-    date = data.index[idx]
-    print(i, date.day_name(), date, "\t", np.round(mp.matrix_profile()[idx], 2))
-
-########################################################################################
-# Visualise the top anomalies according to the CMP
-num_anomalies_to_show = 8
-
-fig, ax = plt.subplots(num_anomalies_to_show, 3, sharex=True, sharey=True, figsize=(10, 14),
-                       gridspec_kw={'wspace': 0., 'hspace': 0.})
-
-ax[0, 0].set_title("Anomaly vs all")
-ax[0, 1].set_title("Anomaly vs weekday")
-ax[0, 2].set_title("Anomaly vs weekend")
-
-for i in range(num_anomalies_to_show):
-    anomaly_index = ad_order[i]
-    anomaly_range = range(96 * anomaly_index, 96 * (anomaly_index + 1))
-    date = day_labels[anomaly_index]
-
-    if date.dayofweek in (5, 6):
-        ls1 = ":"
-        ls2 = "-"
-        date_col = 2
-    else:
-        ls1 = "-"
-        ls2 = ":"
-        date_col = 1
-
-    ax[i, 0].plot(data.values.reshape((-1, 96)).T, c="gray", alpha=0.07)
-    ax[i, 0].plot(data.values[anomaly_range], c="red")
-
-    ax[i, 1].plot(data.values.reshape((-1, 96))[weekdays].T, c="gray", alpha=0.07)
-    ax[i, 1].plot(data.values[anomaly_range], c="red", linestyle=ls1)
-
-    ax[i, 2].plot(data.values.reshape((-1, 96))[weekends].T, c="gray", alpha=0.07)
-    ax[i, 2].plot(data.values[anomaly_range], c="red", linestyle=ls2)
-
-    ax[i, 0].text(0, 650, "CMP-Anomaly " + str(i + 1))
-    ax[i, date_col].text(0, 650, date.day_name() + " " + str(date)[:10])
-
-ax[0, 0].set_xticks(range(0, 97, 24))
-ticklabels = ["{hour}:00".format(hour=(x // 4)) for x in range(0, 97, 24)]
-ticklabels[-1] = ""
-ax[0, 0].set_xticklabels(ticklabels)
-
-# plt.tight_layout()
-
-ax[num_anomalies_to_show // 2, 0].set_ylabel("Power [kW]")
-ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
-
-plt.savefig(path_to_figures + "polito_cmp_anomalies.png", dpi=dpi_resolution, bbox_inches='tight')
-
-# Visualise the top anomalies according to the MP
-num_anomalies_to_show = 8
-
-fig, ax = plt.subplots(num_anomalies_to_show, 3, sharex=True, sharey=True, figsize=(10, 14),
-                       gridspec_kw={'wspace': 0., 'hspace': 0.})
-ax[0, 0].set_title("Anomaly vs all")
-ax[0, 1].set_title("Anomaly vs weekday")
-ax[0, 2].set_title("Anomaly vs weekend")
-
-mp_cached = mp.matrix_profile()
-for i, anomaly_index in enumerate(itertools.islice(highest_value_idxs(mp_cached, m), num_anomalies_to_show)):
-    # Anomalies can be split over 2 days here
-    day_index = anomaly_index // 96
-    day_shift = anomaly_index % 96
-    anomaly_range_x1 = range(0, day_shift)
-    anomaly_range_y1 = range(day_index * 96, day_index * 96 + day_shift)
-    anomaly_range_x2 = range(day_shift, min(day_shift + m, 96))
-    anomaly_range_y2 = range(day_index * 96 + day_shift, day_index * 96 + day_shift + len(anomaly_range_x2))
-    anomaly_range_x3 = range(0, day_shift - (96 - m))
-    anomaly_range_y3 = range(day_index * 96 + day_shift + len(anomaly_range_x2),
-                             (day_index + 1) * 96 + anomaly_range_x3.stop - anomaly_range_x3.start)
-    anomaly_range_x4 = range(day_shift - (96 - m), 96)
-    anomaly_range_y4 = range((day_index + 1) * 96 + len(anomaly_range_x3), (day_index + 2) * 96)
-
-    date1 = data.index[anomaly_index]
-    date2 = data.index[anomaly_index + 96]
-
-    if date1.dayofweek in (5, 6):
-        ls1, ls3 = (":", "-")
-        date_col = 2
-    else:
-        ls1, ls3 = ("-", ":")
-        date_col = 1
-    if date2.dayofweek in (5, 6):
-        ls2, ls4 = (":", "-")
-    else:
-        ls2, ls4 = ("-", ":")
-
-    ax[i, 0].plot(data.values.reshape((-1, 96)).T, c="gray", alpha=0.05)
-    ax[i, 0].plot(anomaly_range_x2, data.values[anomaly_range_y2], c="red")
-    ax[i, 0].plot(anomaly_range_x3, data.values[anomaly_range_y3], c="red")
-
-    ax[i, 1].plot(data.values.reshape((-1, 96))[weekdays].T, c="gray", alpha=0.05)
-    ax[i, 1].plot(anomaly_range_x2, data.values[anomaly_range_y2], c="red", linestyle=ls1)
-    ax[i, 1].plot(anomaly_range_x3, data.values[anomaly_range_y3], c="red", linestyle=ls2)
-
-    ax[i, 2].plot(data.values.reshape((-1, 96))[weekends].T, c="gray", alpha=0.05)
-    ax[i, 2].plot(anomaly_range_x2, data.values[anomaly_range_y2], c="red", linestyle=ls3)
-    ax[i, 2].plot(anomaly_range_x3, data.values[anomaly_range_y3], c="red", linestyle=ls4)
-
-    ax[i, 0].text(0, 650, "MP-Anomaly " + str(i + 1))
-    ax[i, date_col].text(0, 650, date1.day_name() + " " + str(date1)[:16])
-
-ax[0, 0].set_xticks(range(0, 97, 24))
-ticklabels = ["{hour}:00".format(hour=(x // 4)) for x in range(0, 97, 24)]
-ticklabels[-1] = ""
-ax[0, 0].set_xticklabels(ticklabels)
-
-# plt.tight_layout()
-
-ax[num_anomalies_to_show // 2, 0].set_ylabel("Power[kW]")
-ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
-
-plt.savefig(path_to_figures + "polito_mp_anomalies.png", dpi=dpi_resolution, bbox_inches='tight')
+    plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomalies.png",
+                dpi=dpi_resolution,
+                bbox_inches='tight')
