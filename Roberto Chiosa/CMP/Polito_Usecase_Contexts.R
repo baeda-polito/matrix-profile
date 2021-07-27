@@ -7,6 +7,8 @@ library(lubridate)
 library(rpart)
 library(partykit)
 
+#### togli festivi
+
 # try to define daily context in unsupervided way through CART
 df <- read.csv('./Polito_Usecase/data/polito.csv', sep = ',') %>%
   dplyr::mutate(timestamp = as.POSIXct(timestamp, "%Y-%m-%d %H:%M:%S", tz = "GMT"), # occhio al cambio ora
@@ -19,8 +21,8 @@ ct <- rpart::rpart(value ~ time_dec,                                            
                    data = df,                                                               # data to be used
                    control = rpart::rpart.control(minbucket = 60*2.5/15*length(unique(df$Date)),  # 120 min 15 minutes sampling*number of days
                                                   cp = 0 ,                                          # nessun vincolo sul cp permette lo svoluppo completo dell'albero
-                                                  xval = (length(df) - 1 ),                        # !!!!!!! ATTENZIONE non dovrebbe essere dim()[1] ?? k-fold leave one out LOOCV dim
-                                                  #xval = 10,                        # !!!!!!! ATTENZIONE non dovrebbe essere dim()[1] ?? k-fold leave one out LOOCV dim
+                                                  # xval = (length(df) - 1 ),                        # !!!!!!! ATTENZIONE non dovrebbe essere dim()[1] ?? k-fold leave one out LOOCV dim
+                                                  xval = 30,                        # !!!!!!! ATTENZIONE non dovrebbe essere dim()[1] ?? k-fold leave one out LOOCV dim
                                                   maxdepth = 10)) 
 
 # minsplit:     Set the minimum number of observations in the node before the algorithm perform a split
@@ -29,22 +31,22 @@ ct <- rpart::rpart(value ~ time_dec,                                            
 
 
 # stampa complexity parameter
-# dev.new()
-# png(file = "./Polito_Usecase/figures/cart_contexts_cp.png", bg = "white", width = 500, height = 300)    
+dev.new()
+png(file = "./Polito_Usecase/figures/cart_contexts_cp.png", bg = "white", width = 500, height = 300)    
 plotcp(ct, lty = 2, col = "red", upper = "size")
 # dev.off()
 
 # stampa albero
-# dev.new() 
-# png(file = "./Polito_Usecase/figures/cart_contexts.png", bg = "white", width = 700, height = 400)  
+dev.new() 
+png(file = "./Polito_Usecase/figures/cart_contexts.png", bg = "white", width = 700, height = 400)  
 ct1 <- partykit::as.party(ct)
 names(ct1$data) <- c("Total Power", "Hour") # change labels to plot
 plot(ct1, tnex = 2.5,  gp = gpar(fontsize = 12))
-# dev.off()
+dev.off()
 
 
 context_limits <- ct$splits[,4]                 # prende dall'albero gli split
-context_limits <- spl[order(context_limits)]    # ordina gli split
+context_limits <- context_limits[order(context_limits)]    # ordina gli split
 context_limits <- c(0,context_limits,24)        # aggiunge 0 e 24
 names(context_limits) <- NULL                   # removes names from context
 context_limits <- sort(context_limits)          # limits of context decimal

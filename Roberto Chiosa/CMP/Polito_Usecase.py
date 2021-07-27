@@ -88,16 +88,15 @@ plt.tight_layout()
 # save figure to plot directories
 plt.savefig(path_to_figures + "polito.png", dpi=dpi_resolution, bbox_inches='tight')
 
-
 ########################################################################################
 # Define configuration for the Contextual Matrix Profile calculation.
 time_window = pd.read_csv(path_to_data + "time_window.csv")
 
 # CONTEXT: DATA DRIVEN
-m = time_window["observations"][1] # data driven
+m = time_window["observations"][1]  # data driven
 m_context = 2
-context_end = int(hour_to_dec(time_window["from"][2]))
-context_start = context_end-m_context
+context_end = int(hour_to_dec(time_window["from"][1]))  # [hours]
+context_start = context_end - m_context
 
 # # CONTEXT: USER DEFINED
 # # We want to find all the subsequences that start from 00:00 to 02:00 (2 hours) and covers the whole day
@@ -251,8 +250,8 @@ for i in range(n_group):
     num_anomalies_to_show = kn.knee
 
     # limit the number of anomalies
-    if num_anomalies_to_show > 10:
-        num_anomalies_to_show = 10
+    #if num_anomalies_to_show > 10:
+    #    num_anomalies_to_show = 10
 
     plt.plot(cmp_ad_score_plot)
     plt.ylabel("Anomaly Score")
