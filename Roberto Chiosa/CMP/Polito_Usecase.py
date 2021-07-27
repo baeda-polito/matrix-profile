@@ -41,6 +41,9 @@ min_power = 0  # minimum value of power
 max_power = 850  # max(data.values) # maximum value of power
 ticks_power = list(range(min_power, max_power, roundup(max_power / 6, digit=100)))
 
+position_x = 6  # position of day labels on x axis
+position_y = 750  # position of day labels on y axis
+
 # print dataset main characteristics
 print(' POLITO CASE STUDY\n',
       '*********************\n',
@@ -77,9 +80,6 @@ plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
 
 plt.grid(b=True, axis="x", which='both', color='black', linestyle=':')
 
-position_x = 6  # position of day labels on x axis
-position_y = 750  # position of day labels on y axis
-
 # add day labels on plot
 for i in range(14):
     timestamp = data.index[position_x + i * obs_per_day]
@@ -90,29 +90,58 @@ plt.tight_layout()
 # save figure to plot directories
 plt.savefig(path_to_figures + "polito.png", dpi=dpi_resolution, bbox_inches='tight')
 
+
 ########################################################################################
 # Define configuration for the Contextual Matrix Profile calculation.
 
-# CONTEXT 1
-# We want to find all the subsequences that start from 00:00 to 02:00 (2 hours) and covers the whole day
-# In order to avoid overlapping we define the window length as the whole day of observation minus the context length.
-# - Beginning of the context 00:00 AM [hours]
-context_start = 0
-# - End of the context 02:00 AM [hours]
-context_end = 2
-# - Context time window length 2 [hours]
-m_context = context_end - context_start
-# - Time window length [observations]
-# m = 96 [observations] - 4 [observation/hour] * 2 [hours] = 88 [observations] = 22 [hours]
-m = obs_per_day - obs_per_hour * m_context
-# m = obs_per_hour*5
+def hour_to_dec(hour):
+    (H, M) = hour.split(':')
+    result = int(H) + int(M) / 60
+    return result
+
+
+def dec_to_hour(hour):
+    H, M = divmod(hour * 60, 60)
+    result = "%02d:%02d" % (H, M)
+    return result
+
+
+time_window = pd.read_csv(path_to_data + "time_window.csv")
+
+# CONTEXT DATA DRIVEN
+m = time_window["observations"][1] # data driven
+m_context = 2
+context_end = int(hour_to_dec(time_window["from"][2]))
+context_start = context_end-m_context
+
+
+# # CONTEXT 1
+# # We want to find all the subsequences that start from 00:00 to 02:00 (2 hours) and covers the whole day
+# # In order to avoid overlapping we define the window length as the whole day of observation minus the context length.
+#
+# # - Beginning of the context 00:00 AM [hours]
+# context_start = 17
+#
+# # - End of the context 02:00 AM [hours]
+# context_end = 19
+#
+# # - Context time window length 2 [hours]
+# m_context = context_end - context_start  # 2
+#
+# # - Time window length [observations]
+# # m = 96 [observations] - 4 [observation/hour] * 2 [hours] = 88 [observations] = 22 [hours]
+# # m = obs_per_day - obs_per_hour * m_context
+# m = 20 # with guess
+
 # context string to explain
-context_string = 'Subsequences of ' + str(int(m / obs_per_hour)) + ' h that starts between ' + str(
-    context_start) + ':00 and ' + str(context_end) + ':00'
+context_string = 'Subsequences of ' + dec_to_hour(m / obs_per_hour) + ' h that starts between ' + dec_to_hour(
+    context_start) + ' and ' + dec_to_hour(context_end)
 print('Context: ' + context_string)
+
 # context string for names
-context_string_small = 'ctx_' + str(int(m / obs_per_hour)) + 'h_from' + str(
-    context_start) + '_to' + str(context_end)
+context_string_small = 'ctx_from' + dec_to_hour(
+    context_start) + '_to' + dec_to_hour(context_end) + "_m" + dec_to_hour(m / obs_per_hour)
+
 # if figures directory doesnt exists create and save into it
 if not os.path.exists(path_to_figures + context_string_small):
     os.makedirs(path_to_figures + context_string_small)
@@ -236,7 +265,10 @@ for i in range(n_group):
     y_ad = cmp_ad_score_plot
     kn = KneeLocator(x_ad, y_ad, curve='convex', direction='decreasing')
     num_anomalies_to_show = kn.knee
-    # num_anomalies_to_show = 5
+
+    # limit the number of anomalies
+    if num_anomalies_to_show > 10:
+        num_anomalies_to_show = 10
 
     plt.plot(cmp_ad_score_plot)
     plt.ylabel("Anomaly Score")
