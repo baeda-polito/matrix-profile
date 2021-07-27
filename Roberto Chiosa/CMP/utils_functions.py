@@ -6,16 +6,41 @@ import matplotlib.ticker as mticker
 import math
 
 
+def hour_to_dec(hour):
+    """ transforms float hours from HH:MM string format to float with decimal places
+    :param hour:
+    :return:
+    """
+    (H, M) = hour.split(':')
+    result = int(H) + int(M) / 60
+    return result
+
+
+def dec_to_hour(hour):
+    """ transforms float hours with decimal places into HH:MM string format
+    :param hour:
+    :return:
+    """
+
+    H, M = divmod(hour * 60, 60)
+    result = "%02d:%02d" % (H, M)
+    return result
+
+
 def roundup(x, digit=1):
+    """ rounds number too upper decimal
+    :param x:
+    :param digit:
+    :return:
+    """
     return int(math.ceil(x / digit)) * digit
 
 
 def anomaly_score_calc(group_matrix, group_array):
-    """ utils function used to calculate anomaly score
-
-        :param group_matrix:
-        :param group_array:
-        :return:
+    """utils function used to calculate anomaly score
+    :param group_matrix:
+    :param group_array:
+    :return:
     """
 
     # Calculate an anomaly score by summing the values (per type of day) across one axis and averaging
@@ -24,7 +49,9 @@ def anomaly_score_calc(group_matrix, group_array):
 
 
 def nan_diag(matrix):
-    """ Fills the diagonal of the passed square matrix with nans.
+    """Fills the diagonal of the passed square matrix with nans.
+    :param matrix:
+    :return:
     """
 
     h, w = matrix.shape
@@ -49,11 +76,11 @@ def CMP_plot(contextual_mp,
     """ utils function used to plot the contextual matrix profile
 
     :param contextual_mp:
-    :param extent:
     :param palette:
     :param title:
     :param xlabel:
     :param legend_label:
+    :param extent:
     :param date_ticks:
     :param index_ticks:
     :return:

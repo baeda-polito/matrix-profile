@@ -2,10 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import matplotlib.ticker as mticker
 import pandas as pd
 import os
-import math
 
 # import from the local module distancematrix
 from distancematrix.calculator import AnytimeCalculator
@@ -16,7 +14,7 @@ from distancematrix.consumer.contextmanager import GeneralStaticManager
 
 from matplotlib import rc  # font plot
 from kneed import KneeLocator  # find knee of curve
-from utils_functions import roundup, anomaly_score_calc, CMP_plot
+from utils_functions import roundup, anomaly_score_calc, CMP_plot, hour_to_dec, dec_to_hour
 
 # useful paths
 path_to_data = 'Polito_Usecase/data/'
@@ -93,29 +91,15 @@ plt.savefig(path_to_figures + "polito.png", dpi=dpi_resolution, bbox_inches='tig
 
 ########################################################################################
 # Define configuration for the Contextual Matrix Profile calculation.
-
-def hour_to_dec(hour):
-    (H, M) = hour.split(':')
-    result = int(H) + int(M) / 60
-    return result
-
-
-def dec_to_hour(hour):
-    H, M = divmod(hour * 60, 60)
-    result = "%02d:%02d" % (H, M)
-    return result
-
-
 time_window = pd.read_csv(path_to_data + "time_window.csv")
 
-# CONTEXT DATA DRIVEN
+# CONTEXT: DATA DRIVEN
 m = time_window["observations"][1] # data driven
 m_context = 2
 context_end = int(hour_to_dec(time_window["from"][2]))
 context_start = context_end-m_context
 
-
-# # CONTEXT 1
+# # CONTEXT: USER DEFINED
 # # We want to find all the subsequences that start from 00:00 to 02:00 (2 hours) and covers the whole day
 # # In order to avoid overlapping we define the window length as the whole day of observation minus the context length.
 #
