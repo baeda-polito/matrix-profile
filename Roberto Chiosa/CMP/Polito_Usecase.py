@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
 import os
+import datetime
 
 # import from the local module distancematrix
 from distancematrix.calculator import AnytimeCalculator
@@ -16,6 +17,8 @@ from matplotlib import rc  # font plot
 from kneed import KneeLocator  # find knee of curve
 from utils_functions import roundup, anomaly_score_calc, CMP_plot, hour_to_dec, dec_to_hour, nan_diag
 
+begin_time = datetime.datetime.now()
+print('START: ' + str(begin_time))
 # useful paths
 path_to_data = 'Polito_Usecase/data/'
 path_to_figures = 'Polito_Usecase/figures/'
@@ -24,6 +27,10 @@ color_palette = 'viridis'
 # figures variables
 dpi_resolution = 300
 fontsize = 10
+line_style_context = "-"
+line_style_other = ":"
+line_color_context = "red"
+line_color_other = "gray"
 
 # plt.style.use("seaborn-paper")
 rc('font', **{'family': 'serif', 'serif': ['Georgia']})
@@ -36,7 +43,7 @@ obs_per_day = 96
 obs_per_hour = 4
 
 min_power = 0  # minimum value of power
-max_power = 850  # max(data.values) # maximum value of power
+max_power = 850  # roundup(max(data.values)[0], 10)  # maximum value of power
 ticks_power = list(range(min_power, max_power, roundup(max_power / 6, digit=100)))
 
 position_x = 6  # position of day labels on x axis
@@ -45,7 +52,7 @@ position_y = 750  # position of day labels on y axis
 # print dataset main characteristics
 print(' POLITO CASE STUDY\n',
       '*********************\n',
-      'Electrical Load dataset from Substation C\n',
+      'DATA: Electrical Load dataset from Substation C\n',
       '- From\t', data.index[0], '\n',
       '- To\t', data.index[len(data) - 1], '\n',
       '-', len(data.index[::obs_per_day]), '\tdays\n',
@@ -87,16 +94,25 @@ plt.tight_layout()
 
 # save figure to plot directories
 plt.savefig(path_to_figures + "polito.png", dpi=dpi_resolution, bbox_inches='tight')
+plt.close()
 
 ########################################################################################
 # Define configuration for the Contextual Matrix Profile calculation.
 time_window = pd.read_csv(path_to_data + "time_window.csv")
-
+u=4
+# for u in range(len(time_window)):
 # CONTEXT: DATA DRIVEN
-m = time_window["observations"][1]  # data driven
-m_context = 2
-context_end = int(hour_to_dec(time_window["from"][1]))  # [hours]
-context_start = context_end - m_context
+if u == 0:
+    # autodefine context if it is the beginning
+    m_context = 2
+    context_start = 0
+    context_end = context_start + m_context # [hours]
+    m = (int(hour_to_dec(time_window["from"][1]))-m_context)*obs_per_hour
+else:
+    m = time_window["observations"][u]  # data driven
+    m_context = 2
+    context_end = int(hour_to_dec(time_window["from"][u]))  # [hours]
+    context_start = context_end - m_context
 
 # # CONTEXT: USER DEFINED
 # # We want to find all the subsequences that start from 00:00 to 02:00 (2 hours) and covers the whole day
@@ -119,7 +135,7 @@ context_start = context_end - m_context
 # context string to explain
 context_string = 'Subsequences of ' + dec_to_hour(m / obs_per_hour) + ' h that starts between ' + dec_to_hour(
     context_start) + ' and ' + dec_to_hour(context_end)
-print('Context: ' + context_string)
+print('*********************\n','CONTEXT: ' + context_string)
 
 # context string for names
 context_string_small = 'ctx_from' + dec_to_hour(
@@ -159,7 +175,7 @@ mp = calc.add_consumer([0], MatrixProfileLR())
 
 # Calculate Matrix Profile and Contextual Matrix Profile
 calc.calculate_columns(print_progress=True)
-
+print("\n")
 # calculate the date labels to define the extent of figure
 date_labels = mdates.date2num(data.index[::m].values)
 
@@ -179,9 +195,10 @@ CMP_plot(contextual_mp=cmp.distance_matrix,
          date_ticks=14 * 2
          )
 
-plt.savefig(path_to_figures + context_string_small + os.sep + "polito_cmp1.png",
+plt.savefig(path_to_figures + context_string_small + os.sep + "cmp_context.png",
             dpi=dpi_resolution,
             bbox_inches='tight')
+plt.close()
 
 ########################################################################################
 # Create boolean arrays to indicate whether each day is a weekday/weekend/saturday/sunday
@@ -197,8 +214,11 @@ day_labels = data.index[::obs_per_day]
 
 # get number of groups
 n_group = annotation_df.shape[1]
-i=3
+
 for i in range(n_group):
+    # time when computation starts
+    begin_time_group = datetime.datetime.now()
+
     # get group name from dataframe
     group_name = annotation_df.columns[i]
 
@@ -215,8 +235,8 @@ for i in range(n_group):
     # get dates
     group_dates = data.index[::obs_per_day].values[group]
 
-    # save for R plot
-    np.savetxt(path_to_data + 'plot_cmp_'+group_name+'.csv', nan_diag(group_cmp), delimiter=",")
+    # save cmp for R plot
+    np.savetxt(path_to_data + 'plot_cmp_' + group_name + '.csv', nan_diag(group_cmp), delimiter=",")
 
     # plot CMP as matrix
     plt.figure(figsize=(7, 7))
@@ -230,6 +250,7 @@ for i in range(n_group):
     plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_cmp.png",
                 dpi=dpi_resolution,
                 bbox_inches='tight')
+    plt.close()
 
     # Plot the anomaly scores and our considered threshold
     plt.figure(figsize=(7, 7))
@@ -257,8 +278,10 @@ for i in range(n_group):
     num_anomalies_to_show = kn.knee
 
     # limit the number of anomalies
-    #if num_anomalies_to_show > 10:
-    #    num_anomalies_to_show = 10
+    if num_anomalies_to_show > 20:
+        num_anomalies_to_show = 20
+    if num_anomalies_to_show < 2:
+        num_anomalies_to_show = 2
 
     plt.plot(cmp_ad_score_plot)
     plt.ylabel("Anomaly Score")
@@ -269,12 +292,13 @@ for i in range(n_group):
     plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomaly_score.png",
                 dpi=dpi_resolution,
                 bbox_inches='tight')
+    plt.close()
 
     # Visualise the top anomalies according to the CMP
     fig, ax = plt.subplots(num_anomalies_to_show, 2,
                            sharex='all',
                            sharey='all',
-                           figsize=(10, 14),
+                           figsize=(10, 14 / 8 * num_anomalies_to_show),
                            gridspec_kw={'wspace': 0., 'hspace': 0.})
 
     ax[0, 0].set_title("Anomaly vs all")
@@ -285,21 +309,29 @@ for i in range(n_group):
         anomaly_range = range(obs_per_day * anomaly_index, obs_per_day * (anomaly_index + 1))
         date = day_labels[anomaly_index]
 
-        line_style = "-"
-
-        ax[j, 0].plot(data.values.reshape((-1, obs_per_day)).T, c="gray", alpha=0.07)
+        ax[j, 0].plot(data.values.reshape((-1, obs_per_day)).T,
+                      c=line_color_other,
+                      alpha=0.07)
         ax[j, 0].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
-                      data.values[anomaly_range][context_start * obs_per_hour:(context_end * obs_per_hour + m)],
-                      c="red", linestyle=line_style)
-        ax[j, 0].plot(data.values[anomaly_range], c="red", linestyle=":")
+                      data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
+                      c=line_color_context,
+                      linestyle=line_style_context)
+        ax[j, 0].plot(data.values[anomaly_range],
+                      c=line_color_context,
+                      linestyle=line_style_other)
         ax[j, 0].set_ylim([min_power, max_power])
         ax[j, 0].set_yticks(ticks_power)
 
-        ax[j, 1].plot(data.values.reshape((-1, obs_per_day))[group].T, c="gray", alpha=0.07)
+        ax[j, 1].plot(data.values.reshape((-1, obs_per_day))[group].T,
+                      c=line_color_other,
+                      alpha=0.07)
         ax[j, 1].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
-                      data.values[anomaly_range][context_start * obs_per_hour:(context_end * obs_per_hour + m)],
-                      c="red", linestyle=line_style)
-        ax[j, 1].plot(data.values[anomaly_range], c="red", linestyle=":")
+                      data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
+                      c=line_color_context,
+                      linestyle=line_style_context)
+        ax[j, 1].plot(data.values[anomaly_range],
+                      c=line_color_context,
+                      linestyle=line_style_other)
         ax[j, 0].set_ylim([min_power, max_power])
         ax[j, 0].set_yticks(ticks_power)
 
@@ -319,3 +351,10 @@ for i in range(n_group):
     plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomalies.png",
                 dpi=dpi_resolution,
                 bbox_inches='tight')
+    plt.close()
+    # print the execution time
+    print("- " + group_name + ' ' + str(datetime.datetime.now() - begin_time_group))
+
+# print the execution time
+print("END: " + str(datetime.datetime.now()))
+print("TOTAL " + str(datetime.datetime.now() - begin_time))
