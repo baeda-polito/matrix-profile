@@ -14,7 +14,7 @@ from distancematrix.consumer.contextmanager import GeneralStaticManager
 
 from matplotlib import rc  # font plot
 from kneed import KneeLocator  # find knee of curve
-from utils_functions import roundup, anomaly_score_calc, CMP_plot, hour_to_dec, dec_to_hour
+from utils_functions import roundup, anomaly_score_calc, CMP_plot, hour_to_dec, dec_to_hour, nan_diag
 
 # useful paths
 path_to_data = 'Polito_Usecase/data/'
@@ -164,6 +164,10 @@ calc.calculate_columns(print_progress=True)
 date_labels = mdates.date2num(data.index[::m].values)
 
 # plot CMP as matrix
+
+# save for R plot
+np.savetxt(path_to_data + 'plot_cmp_full.csv', nan_diag(cmp.distance_matrix), delimiter=",")
+
 plt.figure(figsize=(10, 10))
 
 extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
@@ -193,7 +197,7 @@ day_labels = data.index[::obs_per_day]
 
 # get number of groups
 n_group = annotation_df.shape[1]
-
+i=3
 for i in range(n_group):
     # get group name from dataframe
     group_name = annotation_df.columns[i]
@@ -210,6 +214,9 @@ for i in range(n_group):
     group_cmp[group_cmp == np.inf] = 0
     # get dates
     group_dates = data.index[::obs_per_day].values[group]
+
+    # save for R plot
+    np.savetxt(path_to_data + 'plot_cmp_'+group_name+'.csv', nan_diag(group_cmp), delimiter=",")
 
     # plot CMP as matrix
     plt.figure(figsize=(7, 7))
