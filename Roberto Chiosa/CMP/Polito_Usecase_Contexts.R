@@ -105,5 +105,4 @@ for (i in 1: (length(time_posixct_string)-1)) {
 time_window_df
 
 
-
 write.csv(time_window_df, file.path("Polito_Usecase", "data", "time_window.csv"))
