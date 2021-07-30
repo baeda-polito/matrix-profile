@@ -21,9 +21,8 @@ begin_time = datetime.datetime.now()
 print('START: ' + str(begin_time))
 # useful paths
 
-
-path_to_data = 'Polito_Usecase' + os.sep + 'data' + os.sep
-path_to_figures = 'Polito_Usecase' + os.sep + 'figures' + os.sep
+path_to_data = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'data' + os.sep
+path_to_figures = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'figures' + os.sep
 color_palette = 'viridis'
 
 # figures variables
