@@ -109,7 +109,7 @@ ggplot() +
     panel.grid.major = element_blank(),            # draws nothing, and assigns no space.
     panel.grid.minor = element_blank(),            # draws nothing, and assigns no space.
     plot.margin = unit(c(plot_margin,plot_margin,plot_margin,plot_margin), "cm")
-  ) +        # margin around entire plot
+  )         # margin around entire plot
   
   
   ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.png"), width = 9, height = 5.5, dpi = 200 )

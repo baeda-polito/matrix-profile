@@ -44,10 +44,8 @@ ct <- rpart::rpart(value ~ time_dec,                                            
 
 # stampa complexity parameter
 dev.new()
-
-
-
-png(file = file.path("Polito_Usecase", "figures", "cart_contexts_cp.png"), bg = "white", width = 500, height = 300)    
+png(file = file.path("Polito_Usecase", "figures", "cart_contexts_cp.png"), 
+    bg = "white", width = 500, height = 300)    
 plotcp(ct, lty = 2, col = "red", upper = "size", family = font_family)
 dev.off()
 

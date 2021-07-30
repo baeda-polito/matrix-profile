@@ -1,7 +1,7 @@
 # global variables
 # 
 
-
+windowsFonts("Georgia" = windowsFont("Georgia"))
 font_family <-  "Georgia"
 fontsize_large <- 12
 fontsize_medium <- 11

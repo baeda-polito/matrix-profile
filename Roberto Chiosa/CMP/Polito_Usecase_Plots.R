@@ -73,7 +73,7 @@ df_long %>%
     panel.grid.major = element_blank(),            # draws nothing, and assigns no space.
     panel.grid.minor = element_blank(),            # draws nothing, and assigns no space.
     plot.margin = unit(c(plot_margin,plot_margin,plot_margin,plot_margin), "cm")
-  ) +        # margin around entire plot
+  )         # margin around entire plot
   
   ggsave(filename = file.path("Polito_Usecase", "figures","R", "cmp_full.png"), width = 6, height = 5.5, dpi = 200 )
 
