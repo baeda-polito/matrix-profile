@@ -9,8 +9,6 @@ library(rpart)
 library(partykit)
 
 #### togli festivi
-
-
 # df <-  read.csv('/Users/robi/Desktop/matrix_profile/Simone Deho/df_cabinaC_2019_labeled.csv', sep = ',') %>%
 #   dplyr::mutate(timestamp = as.POSIXct(Date_Time, "%Y-%m-%d %H:%M:%S", tz = "GMT"), # occhio al cambio ora
 #                 value = Total_Power,
@@ -22,9 +20,8 @@ library(partykit)
 #   dplyr::select(timestamp, Date, time_dec, value)
 
 
-
 # try to define daily context in unsupervided way through CART
-df <- read.csv('./Polito_Usecase/data/polito.csv', sep = ',') %>%
+df <- read.csv(file.path("Polito_Usecase", "data", "polito.csv"), sep = ',') %>%
   dplyr::mutate(timestamp = as.POSIXct(timestamp, "%Y-%m-%d %H:%M:%S", tz = "GMT"), # occhio al cambio ora
                 Date = as.Date(timestamp),
                 time_dec = paste( hour(timestamp), minute(timestamp)*100/60, sep = "."),
@@ -47,13 +44,18 @@ ct <- rpart::rpart(value ~ time_dec,                                            
 
 # stampa complexity parameter
 dev.new()
-png(file = "./Polito_Usecase/figures/cart_contexts_cp.png", bg = "white", width = 500, height = 300)    
+
+
+
+png(file = file.path("Polito_Usecase", "figures", "cart_contexts_cp.png"), bg = "white", width = 500, height = 300)    
 plotcp(ct, lty = 2, col = "red", upper = "size", family = font_family)
 dev.off()
 
 # stampa albero
 dev.new() 
-png(file = "./Polito_Usecase/figures/cart_contexts.png", bg = "white", width = 700, height = 400)  
+
+
+png(file = file.path("Polito_Usecase", "figures", "cart_contexts.png"), bg = "white", width = 700, height = 400)  
 ct1 <- partykit::as.party(ct)
 names(ct1$data) <- c("Total Power", "Hour") # change labels to plot
 
@@ -104,4 +106,6 @@ for (i in 1: (length(time_posixct_string)-1)) {
 }
 time_window_df
 
-write.csv(time_window_df, "./Polito_Usecase/data/time_window.csv")
+
+
+write.csv(time_window_df, file.path("Polito_Usecase", "data", "time_window.csv"))

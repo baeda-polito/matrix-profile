@@ -13,12 +13,12 @@ library(scales)
 
 # try to define groups in unsupervided way through cluster
 
-df <-  read.csv('/Users/robi/Desktop/matrix_profile/Simone Deho/df_cabinaC_2019_labeled.csv', sep = ',') %>%
+df <-  read.csv(file.path(dirname(dirname(getwd())), "Simone Deho", "df_cabinaC_2019_labeled.csv"), sep = ',') %>%
   dplyr::select(Date, Day_Type, Holiday) %>%
   unique()
 
 # load dataset for cluster
-df1 <-  read.csv('/Users/robi/Desktop/matrix_profile/Simone Deho/df_cabinaC_2019_labeled.csv', sep = ',') %>%
+df1 <-  read.csv(file.path(dirname(dirname(getwd())), "Simone Deho", "df_cabinaC_2019_labeled.csv"), sep = ',') %>%
   dplyr::select(Date, Time, Total_Power)
 
 # spread on hours
@@ -38,7 +38,7 @@ hcl <- hclust(diss_matrix, method = "ward.D2")
 
 # plot dendogram
 dev.new()
-png(file = "./Polito_Usecase/figures/groups_dendogram.png", bg = "white", width = 900, height = 500)                   # to save automatically image in WD
+png(file = file.path("Polito_Usecase", "figures", "groups_dendogram.png"), bg = "white", width = 900, height = 500)                   # to save automatically image in WD
 plot(hcl, family = font_family)
 rect.hclust(hcl, k = n_clusters, border = "red")
 dev.off()
@@ -112,7 +112,7 @@ ggplot() +
   ) +        # margin around entire plot
   
   
-  ggsave(filename = "./Polito_Usecase/figures/groups_clusters.png", width = 9, height = 5.5, dpi = 200 )
+  ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.png"), width = 9, height = 5.5, dpi = 200 )
 
 dev.off()
 
@@ -129,7 +129,8 @@ dt <- data.table(
 df_py_holiday <- as.data.frame(dt) %>%
   mutate(across(is.numeric, as.logical))
 
-write.csv(df_py_holiday, file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/CMP/Polito_Usecase/data/polito_holiday.csv", row.names = FALSE)
+
+write.csv(df_py_holiday, file =  file.path("Polito_Usecase", "data", "polito_holiday.csv") , row.names = FALSE)
 
 
 

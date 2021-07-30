@@ -8,8 +8,12 @@ library(rpart)
 library(partykit)
 
 # try to define daily context in unsupervided way through CART
-# 
-df <-  read.csv('/Users/robi/Desktop/matrix_profile/Simone Deho/df_cabinaC_2019_labeled.csv', sep = ',') %>%
+
+
+
+
+
+df <-  read.csv(file.path(dirname(dirname(getwd())), "Simone Deho", "df_cabinaC_2019_labeled.csv"), sep = ',') %>%
   dplyr::select(Date, Day_Type, Total_Power, AirTemp, Holiday) %>%
   dplyr::mutate( 
     Date = as.Date(Date),
@@ -25,7 +29,7 @@ df <-  read.csv('/Users/robi/Desktop/matrix_profile/Simone Deho/df_cabinaC_2019_
     Day_Type = factor(Day_Type, ordered = F)       
   )
 
-df_tmp <-  read.csv('/Users/robi/Desktop/matrix_profile/Simone Deho/df_cabinaC_2019_labeled.csv', sep = ',') %>%
+df_tmp <-  read.csv(file.path(dirname(dirname(getwd())), "Simone Deho", "df_cabinaC_2019_labeled.csv"), sep = ',') %>%
   dplyr::select(Date, Holiday) %>%
   dplyr::mutate( 
     Date = as.Date(Date),
@@ -52,13 +56,14 @@ ct <- rpart::rpart(Energy ~ Day_Type + AirTemp + Holiday,                       
 
 # stampa complexity parameter
 dev.new()
-png(file = "./Polito_Usecase/figures/cart_groups_cp.png", bg = "white", width = 500, height = 300)    
+
+png(file = file.path("Polito_Usecase", "figures", "cart_groups_cp.png"), bg = "white", width = 500, height = 300)    
 plotcp(ct, lty = 2, col = "red", upper = "size")
 dev.off()
 
 # stampa albero
 dev.new() 
-png(file = "./Polito_Usecase/figures/cart_groups.png", bg = "white", width = 700, height = 400)  
+png(file = file.path("Polito_Usecase", "figures", "cart_groups.png"), bg = "white", width = 700, height = 400)  
 ct1 <- partykit::as.party(ct)
 #names(ct1$data) <- c("Total Power", "Temp") # change labels to plot
 plot(ct1, tnex = 2.5,  gp = gpar(fontsize = 8))
@@ -77,7 +82,7 @@ one_hot()
 df_py_holiday <- as.data.frame(dt) %>%
   mutate(across(is.numeric, as.logical))
 
-write.csv(df_py_holiday, file = "/Users/robi/Desktop/matrix_profile/Roberto Chiosa/CMP/Polito_Usecase/data/polito_holiday.csv", row.names = FALSE)
+write.csv(df_py_holiday, file = file.path("Polito_Usecase", "data", "polito_holiday.csv"), row.names = FALSE)
 
 
 

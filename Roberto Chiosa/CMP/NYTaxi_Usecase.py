@@ -27,7 +27,7 @@ from distancematrix.math_tricks import sliding_mean_std
 from distancematrix.insights import highest_value_idxs
 
 # Data can be downloaded at https://github.com/numenta/NAB/tree/master/data/realKnownCause
-data = pd.read_csv("NYTaxi_Usecase/nyc_taxi.csv", index_col='timestamp', parse_dates=True)
+data = pd.read_csv("NYTaxi_Usecase" + os.sep + "nyc_taxi.csv", index_col='timestamp', parse_dates=True)
 
 # Visualise the data
 plt.figure(figsize=(10, 3))
@@ -52,7 +52,7 @@ for i in range(14):
     plt.text(timestamp, 25000, timestamp.day_name()[:3])
 plt.tight_layout()
 
-plt.savefig("NYTaxi_Usecase/ny_taxi.pdf", dpi=300, bbox_inches='tight')
+plt.savefig("NYTaxi_Usecase" + os.sep + "ny_taxi.pdf", dpi=300, bbox_inches='tight')
 
 # Define configuration for the Contextual Matrix Profile calculation.
 
@@ -68,10 +68,8 @@ calc.add_generator(0, ZNormEuclidean())  # Znormalized Euclidean Distance
 cmp = calc.add_consumer([0], ContextualMatrixProfile(contexts))  # We want to calculate CMP
 mp = calc.add_consumer([0], MatrixProfileLR())  # We want to calculate MP
 
-
 # Calculate Matrix Profile and Contextual Matrix Profile
 calc.calculate_columns()
-
 
 # Create boolean arrays to indicate whether each day is a weekday/weekend/saturday/sunday
 weekdays = np.array([d in range(0, 5) for d in data.index[::48].dayofweek])
@@ -102,7 +100,7 @@ plt.gca().yaxis.set_major_locator(mticker.MultipleLocator(14))
 plt.gcf().autofmt_xdate()
 cbar.set_label("Distance")
 
-plt.savefig("NYTaxi_Usecase/ny_taxi_cmp.pdf", dpi=300, bbox_inches='tight')
+plt.savefig("NYTaxi_Usecase" + os.sep + "ny_taxi_cmp.pdf", dpi=300, bbox_inches='tight')
 
 # Left: Visualise the same CMP, but highlight the subtle change before/after 2014-08-31
 # Right: Plot the hourly behavior for all days before/after that date
@@ -110,8 +108,8 @@ plt.savefig("NYTaxi_Usecase/ny_taxi_cmp.pdf", dpi=300, bbox_inches='tight')
 # Left plot
 date_labels = mdates.date2num(data.index[::48].values)
 
-plt.figure(figsize=(12,5))
-plt.subplot(1,2,1)
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
 
 extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
 plt.imshow(np.clip(cmp.distance_matrix, 0.4, 1.2), cmap="viridis", extent=extents, origin="lower")
@@ -126,15 +124,13 @@ plt.gca().yaxis.set_major_locator(mticker.MultipleLocator(28))
 plt.gcf().autofmt_xdate()
 cbar.set_label("Distance")
 
-
 # Right plot
-plt.subplot(1,2,2)
+plt.subplot(1, 2, 2)
 plt.title("Daily number of passengers")
 
 DAY_TO_SPLIT = 62
 split_date = str(data.index[::48][DAY_TO_SPLIT])[:10]
 print("Splitting on day", split_date)
-
 
 # List of colors suitable for the colorblind.
 colors = ['#377eb8', '#ff7f00', '#4daf4a',
@@ -146,12 +142,12 @@ c1 = colors[7]
 # Plot before
 for i in range(DAY_TO_SPLIT):
     if weekdays[i]:
-        plt.plot(data.values[i*48:(i+1)*48], alpha=0.1, c=c0, label="x")
+        plt.plot(data.values[i * 48:(i + 1) * 48], alpha=0.1, c=c0, label="x")
 
 # Plot after
-for x in range(DAY_TO_SPLIT,215):
+for x in range(DAY_TO_SPLIT, 215):
     if weekdays[x]:
-        plt.plot(data.values[x*48:(x+1)*48], alpha=0.05, c=c1, label="y")
+        plt.plot(data.values[x * 48:(x + 1) * 48], alpha=0.05, c=c1, label="y")
 
 custom_lines = [Line2D([0], [0], color=c0, lw=1),
                 Line2D([0], [0], color=c1, lw=1)]
@@ -164,8 +160,7 @@ plt.xticks(
     ["{hour}:00".format(hour=(x // 2)) for x in range(0, 49, 8)]
 )
 
-
-plt.savefig("NYTaxi_Usecase/ny_taxi_laborday.pdf", dpi=300, bbox_inches='tight')
+plt.savefig("NYTaxi_Usecase" + os.sep + "ny_taxi_laborday.pdf", dpi=300, bbox_inches='tight')
 
 # Create weekday/weekend only CMP
 weekday_cmp = cmp.distance_matrix[:, weekdays][weekdays, :]
@@ -187,7 +182,7 @@ sunday_dates = data.index[::48].values[sundays]
 # Visualisation of weekday only CMP
 date_labels = mdates.date2num(weekday_dates)
 
-plt.figure(figsize=(5,5))
+plt.figure(figsize=(5, 5))
 extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
 plt.imshow(weekday_cmp, cmap="viridis",
            origin="lower")
@@ -205,25 +200,25 @@ plt.title("Contextual Matrix Profile (weekdays only)")
 # The checkerboard pattern indicates that it might be useful to split Saturday and Sunday.
 date_labels = mdates.date2num(weekend_dates)
 
-plt.figure(figsize=(5,5))
+plt.figure(figsize=(5, 5))
 extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
 plt.imshow(weekend_cmp, cmap="viridis",
            origin="lower",
-          vmin=0,
-          vmax=7.5)
+           vmin=0,
+           vmax=7.5)
 cbar = plt.colorbar()
 plt.title("Contextual Matrix Profile (weekends only)")
 
 # Visualisation of CMP for Saturday and Sunday separately
-plt.figure(figsize=(10,5))
+plt.figure(figsize=(10, 5))
 plt.subplot(1, 2, 1)
 
 date_labels = mdates.date2num(saturday_dates)
 extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
 plt.imshow(saturday_cmp, cmap="viridis",
            origin="lower",
-          vmin=0,
-          vmax=7.5)
+           vmin=0,
+           vmax=7.5)
 cbar = plt.colorbar()
 plt.title("CMP (Saturdays only)")
 
@@ -233,8 +228,8 @@ date_labels = mdates.date2num(sunday_dates)
 extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
 plt.imshow(sunday_cmp, cmap="viridis",
            origin="lower",
-          vmin=0,
-          vmax=7.5)
+           vmin=0,
+           vmax=7.5)
 cbar = plt.colorbar()
 plt.title("CMP (Sundays only)")
 
@@ -252,16 +247,14 @@ cmp_ad_score[weekdays] = cmp_weekday_score
 # Ordering of all days, from most to least anomalous
 ad_order = np.argsort(cmp_ad_score)[::-1]
 
-
 # Plot the anomaly scores and our considered threshold
-plt.figure(figsize=(15,3))
+plt.figure(figsize=(15, 3))
 plt.title("Sorted Anomaly Scores")
 plt.plot(cmp_ad_score[ad_order])
 plt.ylabel("Anomaly Score")
 
 plt.axvline(18, ls=":", c="gray")
 plt.xticks([0, 18, 50, 100, 150, 200])
-
 
 # Plot the above figures together
 
@@ -276,87 +269,80 @@ min_cmp_val = np.min([
     np.min(sunday_cmp)
 ])
 
-plt.figure(figsize=(17,2.5))
-plt.subplot(1,4,1)
+plt.figure(figsize=(17, 2.5))
+plt.subplot(1, 4, 1)
 date_labels = mdates.date2num(weekday_dates)
 extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
 plt.imshow(weekday_cmp, cmap="viridis",
            origin="lower",
            vmin=min_cmp_val,
            vmax=max_cmp_val,
-          )
+           )
 cbar = plt.colorbar()
 plt.xlabel("Weekday Index")
-plt.yticks([0,50,100,150])
+plt.yticks([0, 50, 100, 150])
 plt.title("Taxi CMP (weekdays only)")
 cbar.set_label("Distance")
 
-
-
-plt.subplot(1,4,2)
+plt.subplot(1, 4, 2)
 date_labels = mdates.date2num(saturday_dates)
 extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
 plt.imshow(saturday_cmp, cmap="viridis",
            origin="lower",
-          vmin=min_cmp_val,
+           vmin=min_cmp_val,
            vmax=max_cmp_val,
-          )
+           )
 cbar = plt.colorbar()
 plt.xlabel("Saturday Index")
-plt.yticks([0,10, 20, 30])
+plt.yticks([0, 10, 20, 30])
 plt.title("Taxi CMP (Saturday only)")
 cbar.set_label("Distance")
 
-
-plt.subplot(1,4,3)
+plt.subplot(1, 4, 3)
 date_labels = mdates.date2num(sunday_dates)
 extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
 plt.imshow(sunday_cmp, cmap="viridis",
            origin="lower",
-          vmin=min_cmp_val,
+           vmin=min_cmp_val,
            vmax=max_cmp_val,
-          )
+           )
 cbar = plt.colorbar()
 plt.xlabel("Sunday Index")
-plt.yticks([0,10, 20])
+plt.yticks([0, 10, 20])
 plt.title("Taxi CMP (Sunday only)")
 cbar.set_label("Distance")
 
-
-plt.subplot(1,4,4)
+plt.subplot(1, 4, 4)
 plt.title("Sorted Anomaly Scores")
 plt.plot(cmp_ad_score[ad_order])
 plt.ylabel("Anomaly Score")
 
-
 plt.axvline(18, ls=":", c="gray")
 plt.xticks([0, 18, 50, 100, 150, 200])
 
-
-plt.savefig("NYTaxi_Usecase/ny_taxi_cmp_detail.pdf", dpi=300, bbox_inches='tight')
+plt.savefig("NYTaxi_Usecase" + os.sep + "ny_taxi_cmp_detail.pdf", dpi=300, bbox_inches='tight')
 
 # Plot of the Matrix Profile
-plt.figure(figsize=(15,3))
+plt.figure(figsize=(15, 3))
 plt.title("Matrix Profile")
 plt.plot(data.index[:len(mp.matrix_profile())], mp.matrix_profile())
 plt.ylabel("Distance")
 
-plt.savefig("NYTaxi_Usecase/ny_taxi_mp.pdf", dpi=300, bbox_inches='tight')
-
+plt.savefig("NYTaxi_Usecase" + os.sep + "ny_taxi_mp.pdf", dpi=300, bbox_inches='tight')
 
 # Sort the anomaly scores for Matrix Profile in a similar way.
 # First, gather the indices of the top values of the MP, where each index is
 # at least 44 (22 hours) apart from any previous index
 mp_ad_order = list(highest_value_idxs(mp.matrix_profile(), 44))
 
-plt.figure(figsize=(15,3))
+plt.figure(figsize=(15, 3))
 plt.plot(mp.matrix_profile()[mp_ad_order])
 
 plt.title("Sorted Anomaly Scores (MP)")
 plt.ylabel("Anomaly Score")
 
-#plt.axvline(5, ls=":", c="gray")
-#plt.axvline(11, ls=":", c="gray")
+# plt.axvline(5, ls=":", c="gray")
+# plt.axvline(11, ls=":", c="gray")
 plt.axvline(16, ls=":", c="gray")
 plt.xticks([0, 16, 50, 100, 150, 200])
 
@@ -415,7 +401,7 @@ ax[0, 0].set_xticklabels(ticklabels)
 ax[num_anomalies_to_show // 2, 0].set_ylabel("Passengers")
 ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
 
-plt.savefig("NYTaxi_Usecase/ny_taxi_cmp_anomalies.pdf", dpi=300, bbox_inches='tight')
+plt.savefig("NYTaxi_Usecase" + os.sep + "ny_taxi_cmp_anomalies.pdf", dpi=300, bbox_inches='tight')
 
 # Visualise the top anomalies according to the MP
 num_anomalies_to_show = 16

@@ -11,10 +11,10 @@ library(scales)
 library(tidyverse)
 
 
-df <-  read.csv('./Polito_Usecase/data/plot_cmp_full.csv', sep = ',', header = F)
+df <-  read.csv(file.path("Polito_Usecase", "data", "plot_cmp_full.csv"), sep = ',', header = F)
 
-colnames(df) <- as.Date(read.csv('./Polito_Usecase/data/polito_holiday.csv', sep = ',', header = T)[,1])
-rownames(df) <- as.Date(read.csv('./Polito_Usecase/data/polito_holiday.csv', sep = ',', header = T)[,1])
+colnames(df) <- as.Date(read.csv(file.path("Polito_Usecase", "data", "polito_holiday.csv"), sep = ',', header = T)[,1])
+rownames(df) <- as.Date(read.csv(file.path("Polito_Usecase", "data", "polito_holiday.csv"), sep = ',', header = T)[,1])
 
 df_long <- df %>% 
   rownames_to_column("Date") %>%
@@ -75,7 +75,7 @@ df_long %>%
     plot.margin = unit(c(plot_margin,plot_margin,plot_margin,plot_margin), "cm")
   ) +        # margin around entire plot
   
-  ggsave(filename = "./Polito_Usecase/figures/R/cmp_full.png", width = 6, height = 5.5, dpi = 200 )
+  ggsave(filename = file.path("Polito_Usecase", "figures","R", "cmp_full.png"), width = 6, height = 5.5, dpi = 200 )
 
 dev.off()
 

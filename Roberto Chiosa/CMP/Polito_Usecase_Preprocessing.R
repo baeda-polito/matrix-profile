@@ -5,7 +5,7 @@ library(magrittr)
 library(dplyr)
 
 
-df <- read.csv('/Users/robi/Desktop/matrix_profile/Simone Deho/df_cabinaC_2019_labeled.csv', sep = ',') 
+df <- read.csv(file.path(dirname(dirname(getwd())), "Simone Deho", "df_cabinaC_2019_labeled.csv"), sep = ',') 
 
 tt <- df %>%
   select(Date, Holiday, Day_Description) %>%
@@ -22,7 +22,7 @@ df_py <- df %>%
 
 summary(df_py)
 
-write.csv(df_py, file = "./Polito_Usecase/data/polito.csv", row.names = FALSE)
+write.csv(df_py, file = file.path("Polito_Usecase", "data", "polito.csv"), row.names = FALSE)
 
 
 as.integer(as.factor(df$Holiday))
@@ -56,7 +56,7 @@ colnames(df_py_holiday)[4] <- "Working Day"
 # df_py_holiday <- df_py_holiday[1:151,]
 
 
-write.csv(df_py_holiday, file = "./Polito_Usecase/data/polito_holiday.csv", row.names = FALSE)
+write.csv(df_py_holiday, file = file.path("Polito_Usecase", "data", "polito_holiday.csv"), row.names = FALSE)
 
 
 

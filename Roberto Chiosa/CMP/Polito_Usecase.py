@@ -20,8 +20,10 @@ from utils_functions import roundup, anomaly_score_calc, CMP_plot, hour_to_dec, 
 begin_time = datetime.datetime.now()
 print('START: ' + str(begin_time))
 # useful paths
-path_to_data = 'Polito_Usecase/data/'
-path_to_figures = 'Polito_Usecase/figures/'
+
+
+path_to_data = 'Polito_Usecase' + os.sep + 'data' + os.sep
+path_to_figures = 'Polito_Usecase' + os.sep + 'figures' + os.sep
 color_palette = 'viridis'
 
 # figures variables
@@ -99,15 +101,15 @@ plt.close()
 ########################################################################################
 # Define configuration for the Contextual Matrix Profile calculation.
 time_window = pd.read_csv(path_to_data + "time_window.csv")
-u=4
+u = 4
 # for u in range(len(time_window)):
 # CONTEXT: DATA DRIVEN
 if u == 0:
     # autodefine context if it is the beginning
     m_context = 2
     context_start = 0
-    context_end = context_start + m_context # [hours]
-    m = (int(hour_to_dec(time_window["from"][1]))-m_context)*obs_per_hour
+    context_end = context_start + m_context  # [hours]
+    m = (int(hour_to_dec(time_window["from"][1])) - m_context) * obs_per_hour
 else:
     m = time_window["observations"][u]  # data driven
     m_context = 2
@@ -135,7 +137,7 @@ else:
 # context string to explain
 context_string = 'Subsequences of ' + dec_to_hour(m / obs_per_hour) + ' h that starts between ' + dec_to_hour(
     context_start) + ' and ' + dec_to_hour(context_end)
-print('*********************\n','CONTEXT: ' + context_string)
+print('*********************\n', 'CONTEXT: ' + context_string)
 
 # context string for names
 context_string_small = 'ctx_from' + dec_to_hour(
