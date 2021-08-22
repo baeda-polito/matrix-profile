@@ -1,24 +1,35 @@
 #  LOAD PACKAGES and FUNCTIONS ------------------------------------------------------------------
 cat("\014")                 # clears the console
 rm(list = ls())             # remove all variables of the workspace
+source("global_vars.R")
+
 library(magrittr)
 library(dplyr)
 library(lubridate)
 library(rpart)
 library(partykit)
+library(stringr)
+
+HM_to_mindec <- function(str){
+  string_splitted <- str_split(str, ":")
+  hour <- as.numeric( string_splitted[[1]][1])
+  minute <- as.numeric( string_splitted[[1]][2])/60
+  return(hour+minute)
+}
+
+# load dataset of sub daily context
+context_df <- read.csv(file.path("Polito_Usecase", "data", "time_window.csv"))
+
 
 # try to define daily context in unsupervided way through CART
-
-
-
-
-
 df <-  read.csv(file.path(dirname(dirname(getwd())), "Simone Deho", "df_cabinaC_2019_labeled.csv"), sep = ',') %>%
-  dplyr::select(Date, Day_Type, Total_Power, AirTemp, Holiday) %>%
   dplyr::mutate( 
     Date = as.Date(Date),
-    Holiday = as.factor(Holiday)
+    Holiday = as.factor(Holiday),
+    Context = ifelse(min_dec >= HM_to_mindec(context_df$from[2]) & min_dec <= HM_to_mindec(context_df$to[2]), 1, 0 )
     ) %>%
+  dplyr::select(Date, Day_Type, Total_Power, AirTemp, Holiday, Context) %>%
+  dplyr::filter(Context == 1) %>%
   dplyr::group_by(Date) %>%
   dplyr::summarise(
     Energy = sum(Total_Power),
@@ -56,14 +67,13 @@ ct <- rpart::rpart(Energy ~ Day_Type + AirTemp + Holiday,                       
 
 # stampa complexity parameter
 dev.new()
-
 png(file = file.path("Polito_Usecase", "figures", "cart_groups_cp.png"), bg = "white", width = 500, height = 300)    
 plotcp(ct, lty = 2, col = "red", upper = "size")
 dev.off()
 
 # stampa albero
 dev.new() 
-png(file = file.path("Polito_Usecase", "figures", "cart_groups.png"), bg = "white", width = 700, height = 400)  
+png(file = file.path("Polito_Usecase", "figures", "cart_groups.png"), bg = "white", width = 700, height = 400, res = dpi)  
 ct1 <- partykit::as.party(ct)
 #names(ct1$data) <- c("Total Power", "Temp") # change labels to plot
 plot(ct1, tnex = 2.5,  gp = gpar(fontsize = 8))

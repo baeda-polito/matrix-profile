@@ -29,12 +29,12 @@ df <- read.csv(file.path("Polito_Usecase", "data", "polito.csv"), sep = ',') %>%
   )
 
 
-ct <- rpart::rpart(value ~ time_dec,                                                    # target attribute based on training attributes
-                   data = df,                                                               # data to be used
+ct <- rpart::rpart(value ~ time_dec,     # target attribute based on training attributes
+                   data = df,            # data to be used
                    control = rpart::rpart.control(minbucket = 60*2.5/15*length(unique(df$Date)),  # 120 min 15 minutes sampling*number of days
-                                                  cp = 0 ,                                          # nessun vincolo sul cp permette lo svoluppo completo dell'albero
-                                                  # xval = (length(df) - 1 ),                        # !!!!!!! ATTENZIONE non dovrebbe essere dim()[1] ?? k-fold leave one out LOOCV dim
-                                                  xval = 100,                        # !!!!!!! ATTENZIONE non dovrebbe essere dim()[1] ?? k-fold leave one out LOOCV dim
+                                                  cp = 0 ,                                        # nessun vincolo sul cp permette lo svoluppo completo dell'albero
+                                                  # xval = (length(df) - 1 ),                     # !!!!!!! ATTENZIONE non dovrebbe essere dim()[1] ?? k-fold leave one out LOOCV dim
+                                                  xval = 100,                        
                                                   maxdepth = 10)) 
 
 # minsplit:     Set the minimum number of observations in the node before the algorithm perform a split
@@ -51,12 +51,9 @@ dev.off()
 
 # stampa albero
 dev.new() 
-
-
 png(file = file.path("Polito_Usecase", "figures", "cart_contexts.png"), bg = "white", width = 700, height = 400)  
 ct1 <- partykit::as.party(ct)
 names(ct1$data) <- c("Total Power", "Hour") # change labels to plot
-
 plot(ct1, tnex = 2.5,  
      terminal_panel = node_boxplot,
      tp_args = list(bg = "white", cex = 0.2, fill = "gray"),
@@ -100,9 +97,8 @@ for (i in 1: (length(time_posixct_string)-1)) {
   time_window_df$from[i] <- time_posixct_string[i]
   time_window_df$to[i] <- time_posixct_string[i+1]
   time_window_df$observations[i] <- (as.duration(time)[i+1]-as.duration(time)[i])/duration(minutes=15)
-  
 }
-time_window_df
 
+time_window_df
 
 write.csv(time_window_df, file.path("Polito_Usecase", "data", "time_window.csv"))

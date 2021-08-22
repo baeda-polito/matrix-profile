@@ -10,6 +10,7 @@ library(rpart)
 library(partykit)
 library(ggplot2)
 library(scales)
+library(NbClust)
 
 # try to define groups in unsupervided way through cluster
 
@@ -23,15 +24,24 @@ df1 <-  read.csv(file.path(dirname(dirname(getwd())), "Simone Deho", "df_cabinaC
 
 # spread on hours
 df2 <- tidyr::spread(df1, Time, Total_Power)    # mette sulle righe i giorni e colonne i 15 min orari
-# select only hours columns
-data <- df2[,2:97]
 
+# load dataset of sub daily context
+context_df <- read.csv(file.path("Polito_Usecase", "data", "time_window.csv"))
+
+# select only hours columns
+# data <- df2[,2:97] # all
+# try to cluster by context
+data <- df2[,2:context_df$observations[1]]
+data <- df2[,(context_df$observations[1]+1) : (context_df$observations[1]+1+context_df$observations[2]+1)]
 
 # caluclate dissimilarity matrix
 diss_matrix <- dist(data, method = "euclidean")      
 
 # define number of clusters
-n_clusters <-  6
+n_clusters <-  6 # supervised
+Nb_res <- NbClust(data, diss = diss_matrix, distance = NULL, min.nc = 2, max.nc = 8, method = "complete", index = "silhouette")
+n_clusters <- length(unique(Nb_res$Best.partition))
+
 
 # do cluster
 hcl <- hclust(diss_matrix, method = "ward.D2") 

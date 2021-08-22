@@ -1,10 +1,11 @@
+########################################################################################
 # import from default libraries and packages
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import pandas as pd
-import os
-import datetime
+import numpy as np  # general data manipulation
+import matplotlib.pyplot as plt  # plots
+import matplotlib.dates as mdates  # handle dates
+import pandas as pd  # dataframe handling
+import os  # operating system handling
+import datetime  # data
 
 # import from the local module distancematrix
 from distancematrix.calculator import AnytimeCalculator
@@ -17,22 +18,23 @@ from matplotlib import rc  # font plot
 from kneed import KneeLocator  # find knee of curve
 from utils_functions import roundup, anomaly_score_calc, CMP_plot, hour_to_dec, dec_to_hour, nan_diag
 
+########################################################################################
+# define a beglin time to evaluate execution time & performance
 begin_time = datetime.datetime.now()
 print('START: ' + str(begin_time))
-# useful paths
 
+# useful paths
 path_to_data = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'data' + os.sep
 path_to_figures = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'figures' + os.sep
-color_palette = 'viridis'
 
 # figures variables
+color_palette = 'viridis'
 dpi_resolution = 300
 fontsize = 10
 line_style_context = "-"
 line_style_other = ":"
 line_color_context = "red"
 line_color_other = "gray"
-
 # plt.style.use("seaborn-paper")
 rc('font', **{'family': 'serif', 'serif': ['Georgia']})
 plt.rcParams.update({'font.size': fontsize})
@@ -99,24 +101,28 @@ plt.close()
 
 ########################################################################################
 # Define configuration for the Contextual Matrix Profile calculation.
+# In this case the context has been defined in a data driven way
+# the loaded dataset derives from other analysis performed in R
 time_window = pd.read_csv(path_to_data + "time_window.csv")
 
 for u in range(len(time_window)):
-    # for u in range(len(time_window)):
-    # CONTEXT: DATA DRIVEN
+
+    ########################################################################################
+    # Context Definition
+    # 1) Data Driven Context
     if u == 0:
         # autodefine context if it is the beginning
-        m_context = 2
-        context_start = 0
+        m_context = 2  # [hours] time windown of the context (duration)
+        context_start = 0  # [hours]
         context_end = context_start + m_context  # [hours]
         m = (int(hour_to_dec(time_window["from"][1])) - m_context) * obs_per_hour
     else:
         m = time_window["observations"][u]  # data driven
-        m_context = 2
+        m_context = 2  # [hours] time windown of the context (duration)
         context_end = int(hour_to_dec(time_window["from"][u]))  # [hours]
-        context_start = context_end - m_context
+        context_start = context_end - m_context  # [hours]
 
-    # # CONTEXT: USER DEFINED
+    # 2) User Defined Context
     # # We want to find all the subsequences that start from 00:00 to 02:00 (2 hours) and covers the whole day
     # # In order to avoid overlapping we define the window length as the whole day of observation minus the context length.
     #
@@ -134,12 +140,12 @@ for u in range(len(time_window)):
     # # m = obs_per_day - obs_per_hour * m_context
     # m = 20 # with guess
 
-    # context string to explain
+    # print string to explain the created context in an intelligible way
     context_string = 'Subsequences of ' + dec_to_hour(m / obs_per_hour) + ' h that starts between ' + dec_to_hour(
         context_start) + ' and ' + dec_to_hour(context_end)
     print('*********************\n', 'CONTEXT: ' + context_string)
 
-    # context string for names
+    # contracted context string for names
     context_string_small = 'ctx_from' + dec_to_hour(
         context_start) + '_to' + dec_to_hour(context_end) + "_m" + dec_to_hour(m / obs_per_hour)
     # remove : to resolve path issues
@@ -180,14 +186,22 @@ for u in range(len(time_window)):
     # Calculate Matrix Profile and Contextual Matrix Profile
     calc.calculate_columns(print_progress=True)
     print("\n")
+
+    # save contextual matrix profile for R plot
+    # if data directory doesnt exists create and save into it
+    if not os.path.exists(path_to_data + context_string_small):
+        os.makedirs(path_to_data + context_string_small)
+    np.savetxt(path_to_data + context_string_small + os.sep + 'plot_cmp_full.csv',
+               nan_diag(cmp.distance_matrix),
+               delimiter=",")
+    np.savetxt(path_to_data + context_string_small + os.sep + 'plot_cmp_full.json',
+               nan_diag(cmp.distance_matrix),
+               delimiter=",")
+
     # calculate the date labels to define the extent of figure
     date_labels = mdates.date2num(data.index[::m].values)
 
     # plot CMP as matrix
-
-    # save for R plot
-    np.savetxt(path_to_data + 'plot_cmp_full.csv', nan_diag(cmp.distance_matrix), delimiter=",")
-
     plt.figure(figsize=(10, 10))
 
     extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
@@ -210,7 +224,7 @@ for u in range(len(time_window)):
     # - saturdays (not holidays not working days)
     # - workingdays (not holiday and not saturdays)
 
-    # load data
+    # load data this is a boolean dataframe created in R each column represents a group
     annotation_df = pd.read_csv(path_to_data + "polito_holiday.csv", index_col='timestamp', parse_dates=True)
 
     # set labels
