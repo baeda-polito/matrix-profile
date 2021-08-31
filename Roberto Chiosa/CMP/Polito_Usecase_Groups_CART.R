@@ -53,7 +53,7 @@ df1 <- merge.data.frame(df, df_tmp)
 ct <- rpart::rpart(Energy ~ Day_Type + AirTemp + Holiday,                                                    # target attribute based on training attributes
                    data = df1,                                                               # data to be used
                    control = rpart::rpart.control(
-                     minbucket = 35,  # 120 min 15 minutes sampling*number of days
+                     minbucket = 60,  # 120 min 15 minutes sampling*number of days
                      cp = 0 ,                                          # nessun vincolo sul cp permette lo svoluppo completo dell'albero
                      # xval = (length(df) - 1 ),                        # !!!!!!! ATTENZIONE non dovrebbe essere dim()[1] ?? k-fold leave one out LOOCV dim
                      xval = 30,                        # !!!!!!! ATTENZIONE non dovrebbe essere dim()[1] ?? k-fold leave one out LOOCV dim
@@ -73,7 +73,7 @@ dev.off()
 
 # stampa albero
 dev.new() 
-png(file = file.path("Polito_Usecase", "figures", "cart_groups.png"), bg = "white", width = 700, height = 400, res = dpi)  
+png(file = file.path("Polito_Usecase", "figures", "cart_groups.png"), bg = "white", width = 2000, height = 1400, res = dpi)  
 ct1 <- partykit::as.party(ct)
 #names(ct1$data) <- c("Total Power", "Temp") # change labels to plot
 plot(ct1, tnex = 2.5,  gp = gpar(fontsize = 8))

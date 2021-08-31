@@ -1,5 +1,6 @@
 ########################################################################################
 # import from default libraries and packages
+import math
 import numpy as np  # general data manipulation
 import matplotlib.pyplot as plt  # plots
 import matplotlib.dates as mdates  # handle dates
@@ -16,7 +17,7 @@ from distancematrix.consumer.contextmanager import GeneralStaticManager
 
 from matplotlib import rc  # font plot
 from kneed import KneeLocator  # find knee of curve
-from utils_functions import roundup, anomaly_score_calc, CMP_plot, hour_to_dec, dec_to_hour, nan_diag
+from utils_functions import roundup, anomaly_score_calc, CMP_plot, hour_to_dec, dec_to_hour, nan_diag, dec_to_obs
 
 ########################################################################################
 # define a beglin time to evaluate execution time & performance
@@ -96,7 +97,7 @@ for i in range(14):
 plt.tight_layout()
 
 # save figure to plot directories
-plt.savefig(path_to_figures + "polito.png", dpi=dpi_resolution, bbox_inches='tight')
+plt.savefig(path_to_figures + "dataset_lineplot.png", dpi=dpi_resolution, bbox_inches='tight')
 plt.close()
 
 ########################################################################################
@@ -105,6 +106,12 @@ plt.close()
 # the loaded dataset derives from other analysis performed in R
 time_window = pd.read_csv(path_to_data + "time_window.csv")
 
+# we define the context time window as half of the smallest time window identified by cart
+m_context = math.floor(
+    min(time_window["observations"]) / 2 / obs_per_hour)  # [hours] time window of the context (duration)
+# m_context = 2 # [hours] time window of the context (duration)
+
+
 for u in range(len(time_window)):
 
     ########################################################################################
@@ -112,19 +119,18 @@ for u in range(len(time_window)):
     # 1) Data Driven Context
     if u == 0:
         # autodefine context if it is the beginning
-        m_context = 2  # [hours] time windown of the context (duration)
         context_start = 0  # [hours]
         context_end = context_start + m_context  # [hours]
-        m = (int(hour_to_dec(time_window["from"][1])) - m_context) * obs_per_hour
+        m = int((hour_to_dec(time_window["from"][1]) - m_context) * obs_per_hour)  # [observations]
     else:
-        m = time_window["observations"][u]  # data driven
-        m_context = 2  # [hours] time windown of the context (duration)
-        context_end = int(hour_to_dec(time_window["from"][u]))  # [hours]
+        m = time_window["observations"][u]  # # [observations] data driven
+        context_end = hour_to_dec(time_window["from"][u])  # [hours]
         context_start = context_end - m_context  # [hours]
 
     # 2) User Defined Context
     # # We want to find all the subsequences that start from 00:00 to 02:00 (2 hours) and covers the whole day
-    # # In order to avoid overlapping we define the window length as the whole day of observation minus the context length.
+    # # In order to avoid overlapping we define the window length as the whole day of
+    # observation minus the context length.
     #
     # # - Beginning of the context 00:00 AM [hours]
     # context_start = 17
@@ -155,13 +161,28 @@ for u in range(len(time_window)):
     if not os.path.exists(path_to_figures + context_string_small):
         os.makedirs(path_to_figures + context_string_small)
 
+    # # Context Definition:
+    # # example FROM 00:00 to 02:00
+    # # - m_context = 2 [hours]
+    # # - obs_per_hour = 4 [observations/hour]
+    # # - context_start = 0 [hours]
+    # # - context_end = context_start + m_context = 0 [hours] + 2 [hours] = 2 [hours]
+    # contexts = GeneralStaticManager([
+    #     range(
+    #         # FROM  [observations]  = x * 96 [observations] + 0 [hour] * 4 [observation/hour]
+    #         (x * obs_per_day) + context_start * obs_per_hour,
+    #         # TO    [observations]  = x * 96 [observations] + (0 [hour] + 2 [hour]) * 4 [observation/hour]
+    #         (x * obs_per_day) + (context_start + m_context) * obs_per_hour)
+    #     for x in range(len(data) // obs_per_day)
+    # ])
+
     # Context Definition:
     contexts = GeneralStaticManager([
         range(
             # FROM  [observations]  = x * 96 [observations] + 0 [hour] * 4 [observation/hour]
-            (x * obs_per_day) + context_start * obs_per_hour,
+            (x * obs_per_day) + dec_to_obs(context_start, obs_per_hour),
             # TO    [observations]  = x * 96 [observations] + (0 [hour] + 2 [hour]) * 4 [observation/hour]
-            (x * obs_per_day) + (context_start + m_context) * obs_per_hour)
+            (x * obs_per_day) + dec_to_obs(context_end, obs_per_hour))
         for x in range(len(data) // obs_per_day)
     ])
 
@@ -254,7 +275,8 @@ for u in range(len(time_window)):
         group_dates = data.index[::obs_per_day].values[group]
 
         # save cmp for R plot
-        np.savetxt(path_to_data + 'plot_cmp_' + group_name + '.csv', nan_diag(group_cmp), delimiter=",")
+        np.savetxt(path_to_data + context_string_small + os.sep + 'plot_cmp_' + group_name + '.csv',
+                   nan_diag(group_cmp), delimiter=",")
 
         # plot CMP as matrix
         plt.figure(figsize=(7, 7))
@@ -296,8 +318,8 @@ for u in range(len(time_window)):
         num_anomalies_to_show = kn.knee
 
         # limit the number of anomalies
-        if num_anomalies_to_show > 20:
-            num_anomalies_to_show = 20
+        if num_anomalies_to_show > 5:
+            num_anomalies_to_show = 5
         if num_anomalies_to_show < 2:
             num_anomalies_to_show = 2
 
@@ -330,8 +352,13 @@ for u in range(len(time_window)):
             ax[j, 0].plot(data.values.reshape((-1, obs_per_day)).T,
                           c=line_color_other,
                           alpha=0.07)
-            ax[j, 0].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
-                          data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
+            # ax[j, 0].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
+            #               data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
+            #               c=line_color_context,
+            #               linestyle=line_style_context)
+            ax[j, 0].plot(range(dec_to_obs(context_start, obs_per_hour), (dec_to_obs(context_end, obs_per_hour) + m)),
+                          data.values[anomaly_range][
+                          dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
                           c=line_color_context,
                           linestyle=line_style_context)
             ax[j, 0].plot(data.values[anomaly_range],
@@ -343,8 +370,13 @@ for u in range(len(time_window)):
             ax[j, 1].plot(data.values.reshape((-1, obs_per_day))[group].T,
                           c=line_color_other,
                           alpha=0.07)
-            ax[j, 1].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
-                          data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
+            # ax[j, 1].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
+            #               data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
+            #               c=line_color_context,
+            #               linestyle=line_style_context)
+            ax[j, 1].plot(range(dec_to_obs(context_start, obs_per_hour), (dec_to_obs(context_end, obs_per_hour) + m)),
+                          data.values[anomaly_range][
+                          dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
                           c=line_color_context,
                           linestyle=line_style_context)
             ax[j, 1].plot(data.values[anomaly_range],

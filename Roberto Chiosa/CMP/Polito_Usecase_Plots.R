@@ -11,6 +11,11 @@ library(scales)
 library(tidyverse)
 
 
+########### carpet heatmap
+df <-  read.csv(file.path(dirname(dirname(getwd())), "Simone Deho", "df_cabinaC_2019_labeled.csv"), sep = ',')
+
+
+###########
 df <-  read.csv(file.path("Polito_Usecase", "data", "ctx_from04_00_to06_00_m02_30", "plot_cmp_full.csv"), sep = ',', header = F)
 
 colnames(df) <- as.Date(read.csv(file.path("Polito_Usecase", "data", "polito_holiday.csv"), sep = ',', header = T)[,1])
@@ -81,8 +86,8 @@ df_long %>%
     panel.grid.minor = element_blank(),            # draws nothing, and assigns no space.
     plot.margin = unit(c(plot_margin,plot_margin,plot_margin,plot_margin), "cm")
   )         # margin around entire plot
-  
-  ggsave(filename = file.path("Polito_Usecase", "figures","ctx_from04_00_to06_00_m02_30", "cmp_context_R.png"), width = 6, height = 5.5, dpi = dpi )
+
+ggsave(filename = file.path("Polito_Usecase", "figures","ctx_from04_00_to06_00_m02_30", "cmp_context_R.png"), width = 6, height = 5.5, dpi = dpi )
 
 dev.off()
 
