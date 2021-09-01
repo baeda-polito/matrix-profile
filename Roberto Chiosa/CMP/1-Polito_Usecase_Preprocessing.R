@@ -2,6 +2,8 @@
 cat("\014")                 # clears the console
 rm(list = ls())             # remove all variables of the workspace
 source("global_vars.R")
+source("utils_functions.R")
+
 library(ggplot2)
 library(dplyr)
 library(magrittr)

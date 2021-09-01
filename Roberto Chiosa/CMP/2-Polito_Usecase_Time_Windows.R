@@ -2,6 +2,8 @@
 cat("\014")                 # clears the console
 rm(list = ls())             # remove all variables of the workspace
 source("global_vars.R")
+source("utils_functions.R")
+
 library(magrittr)
 library(dplyr)
 library(lubridate)
@@ -15,8 +17,7 @@ df <-  read.csv('/Users/robi/Desktop/matrix_profile/Simone Deho/df_cabinaC_2019_
   dplyr::mutate(timestamp = as.POSIXct(Date_Time, "%Y-%m-%d %H:%M:%S", tz = "GMT"), # occhio al cambio ora
                 value = Total_Power,
                 Date = as.Date(timestamp),
-                time_dec = paste( hour(Date_Time), minute(Date_Time)*100/60, sep = "."),
-                time_dec = as.numeric(time_dec)
+                time_dec = hour_to_dec(Time)
   ) %>%
   dplyr::filter(Holiday != "Yes" & Day_Type != 6 & Day_Type != 7) %>%
   dplyr::select(timestamp, Date, time_dec, value, Time)
@@ -96,14 +97,22 @@ time_window_df
 
 write.csv(time_window_df, file.path("Polito_Usecase", "data", "time_window.csv"))
 
+# define the length of the context
+# we can define the length of the context in two ways
+# - supervised: set to 1
+# - get the smallest time window and divide in two
+
+m_context <- floor(min(time_window_df$observations)/4/2)
+m_context <- 1 # [hour]
+
+write.csv(data.frame(m_context = m_context), file = file.path("Polito_Usecase", "data", "m_context.csv"), row.names = FALSE)
+
 
 
 # number of time windows
 time_windows_n <- dim(time_window_df)[1]
 # define colors for time windows
 time_windows_palette <- RColorBrewer::brewer.pal(time_windows_n, "Set1")
-
-
 
 
 # I want to plot the time windows on the dataset

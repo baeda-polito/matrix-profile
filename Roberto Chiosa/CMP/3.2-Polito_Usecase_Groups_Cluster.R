@@ -29,29 +29,29 @@ df2 <- tidyr::spread(df1, Time, Total_Power)    # mette sulle righe i giorni e c
 context_df <- read.csv(file.path("Polito_Usecase", "data", "time_window.csv"))
 
 # select only hours columns
-# data <- df2[,2:97] # all
+data <- df2[,2:97] # all
 # try to cluster by context
-data <- df2[,2:context_df$observations[1]]
-data <- df2[,(context_df$observations[1]+1) : (context_df$observations[1]+1+context_df$observations[2]+1)]
+#data <- df2[,2:context_df$observations[1]]
+#data <- df2[,(context_df$observations[1]+1) : (context_df$observations[1]+1+context_df$observations[2]+1)]
 
 # caluclate dissimilarity matrix
 diss_matrix <- dist(data, method = "euclidean")      
 
 # define number of clusters
 n_clusters <-  6 # supervised
-Nb_res <- NbClust(data, diss = diss_matrix, distance = NULL, min.nc = 2, max.nc = 8, method = "complete", index = "silhouette")
-n_clusters <- length(unique(Nb_res$Best.partition))
+#Nb_res <- NbClust(data, diss = diss_matrix, distance = NULL, min.nc = 2, max.nc = 8, method = "complete", index = "silhouette")
+#n_clusters <- length(unique(Nb_res$Best.partition))
 
 
 # do cluster
 hcl <- hclust(diss_matrix, method = "ward.D2") 
 
 # plot dendogram
-dev.new()
-png(file = file.path("Polito_Usecase", "figures", "groups_dendogram.png"), bg = "white", width = 900, height = 500)                   # to save automatically image in WD
-plot(hcl, family = font_family)
-rect.hclust(hcl, k = n_clusters, border = "red")
-dev.off()
+# dev.new()
+# png(file = file.path("Polito_Usecase", "figures", "groups_dendogram.png"), bg = "white", width = 900, height = 500)                   # to save automatically image in WD
+# plot(hcl, family = font_family)
+# rect.hclust(hcl, k = n_clusters, border = "red")
+# dev.off()
 
 # add cluster id to total dataframe
 df2$cluster <- cutree(hcl, n_clusters) 
@@ -63,6 +63,8 @@ df2 <- merge.data.frame(df2, df)
 df2 <- mutate(df2, cluster = ifelse(Day_Type == 7, 1, cluster))
 # move saturday in 3
 df2 <- mutate(df2, cluster = ifelse(Day_Type == 6 & cluster != 1, 3, cluster))
+# merge clusters
+df2 <- mutate(df2, cluster = ifelse(cluster == 5 | cluster == 6, 4, cluster))
 # move 6 in 4
 # df2 <- mutate(df2, cluster = ifelse(cluster == 6, 4, cluster))
 # move 2 in 5
@@ -140,7 +142,7 @@ df_py_holiday <- as.data.frame(dt) %>%
   mutate(across(is.numeric, as.logical))
 
 
-write.csv(df_py_holiday, file =  file.path("Polito_Usecase", "data", "polito_holiday.csv") , row.names = FALSE)
+write.csv(df_py_holiday, file =  file.path("Polito_Usecase", "data", "group_cluster.csv") , row.names = FALSE)
 
 
 

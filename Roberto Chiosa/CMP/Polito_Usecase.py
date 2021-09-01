@@ -105,12 +105,7 @@ plt.close()
 # In this case the context has been defined in a data driven way
 # the loaded dataset derives from other analysis performed in R
 time_window = pd.read_csv(path_to_data + "time_window.csv")
-
-# we define the context time window as half of the smallest time window identified by cart
-m_context = math.floor(
-    min(time_window["observations"]) / 2 / obs_per_hour)  # [hours] time window of the context (duration)
-# m_context = 2 # [hours] time window of the context (duration)
-
+m_context = pd.read_csv(path_to_data + "m_context.csv")["m_context"][0]
 
 for u in range(len(time_window)):
 
@@ -121,7 +116,7 @@ for u in range(len(time_window)):
         # autodefine context if it is the beginning
         context_start = 0  # [hours]
         context_end = context_start + m_context  # [hours]
-        m = int((hour_to_dec(time_window["from"][1]) - m_context) * obs_per_hour)  # [observations]
+        m = int((hour_to_dec(time_window["to"][u]) - m_context) * obs_per_hour)  # [observations]
     else:
         m = time_window["observations"][u]  # # [observations] data driven
         context_end = hour_to_dec(time_window["from"][u])  # [hours]
@@ -149,7 +144,6 @@ for u in range(len(time_window)):
     # print string to explain the created context in an intelligible way
     context_string = 'Subsequences of ' + dec_to_hour(m / obs_per_hour) + ' h that starts between ' + dec_to_hour(
         context_start) + ' and ' + dec_to_hour(context_end)
-    print('*********************\n', 'CONTEXT: ' + context_string)
 
     # contracted context string for names
     context_string_small = 'ctx_from' + dec_to_hour(
@@ -157,9 +151,11 @@ for u in range(len(time_window)):
     # remove : to resolve path issues
     context_string_small = context_string_small.replace(":", "_")
 
+    print('*********************\n', 'CONTEXT: ' + context_string + " (" + context_string_small + ")")
+
     # if figures directory doesnt exists create and save into it
-    if not os.path.exists(path_to_figures + context_string_small):
-        os.makedirs(path_to_figures + context_string_small)
+    # if not os.path.exists(path_to_figures + context_string_small):
+    #    os.makedirs(path_to_figures + context_string_small)
 
     # # Context Definition:
     # # example FROM 00:00 to 02:00
@@ -210,8 +206,8 @@ for u in range(len(time_window)):
 
     # save contextual matrix profile for R plot
     # if data directory doesnt exists create and save into it
-    if not os.path.exists(path_to_data + context_string_small):
-        os.makedirs(path_to_data + context_string_small)
+    # if not os.path.exists(path_to_data + context_string_small):
+    #    os.makedirs(path_to_data + context_string_small)
     np.savetxt(path_to_data + context_string_small + os.sep + 'plot_cmp_full.csv',
                nan_diag(cmp.distance_matrix),
                delimiter=",")
@@ -246,7 +242,10 @@ for u in range(len(time_window)):
     # - workingdays (not holiday and not saturdays)
 
     # load data this is a boolean dataframe created in R each column represents a group
-    annotation_df = pd.read_csv(path_to_data + "polito_holiday.csv", index_col='timestamp', parse_dates=True)
+    # CART
+    # annotation_df = pd.read_csv(path_to_data + context_string_small + os.sep + "groups.csv", index_col='timestamp', parse_dates=True)
+    # CLUSTER
+    annotation_df = pd.read_csv(path_to_data + "group_cluster.csv", index_col='timestamp', parse_dates=True)
 
     # set labels
     day_labels = data.index[::obs_per_day]
