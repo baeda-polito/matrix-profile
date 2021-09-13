@@ -3,6 +3,11 @@ library(stringr)
 # str <- "00:00"
 # hour_to_dec(str)
 
+znorm <- function(data) {
+  res <-  (data - mean(data)) / sd(data) 
+  return(res)
+}
+
 hour_to_dec <- function(str){
  
   str <- as.list(str)  # convert input into string
