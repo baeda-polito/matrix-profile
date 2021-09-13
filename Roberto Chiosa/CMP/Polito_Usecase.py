@@ -1,6 +1,5 @@
 ########################################################################################
 # import from default libraries and packages
-import math
 import numpy as np  # general data manipulation
 import matplotlib.pyplot as plt  # plots
 import matplotlib.dates as mdates  # handle dates
@@ -279,7 +278,6 @@ for u in range(len(time_window)):
 
         # plot CMP as matrix
         plt.figure(figsize=(7, 7))
-
         CMP_plot(contextual_mp=group_cmp,
                  palette=color_palette,
                  title="Power CMP (" + group_name + " only)",
@@ -384,7 +382,7 @@ for u in range(len(time_window)):
             ax[j, 0].set_ylim([min_power, max_power])
             ax[j, 0].set_yticks(ticks_power)
 
-            ax[j, 0].text(0, position_y, "CMP-Anomaly " + str(j + 1))
+            ax[j, 0].text(0, position_y, "Anomaly " + str(j + 1))
             ax[j, 1].text(0, position_y, date.day_name() + " " + str(date)[:10])
 
         ax[0, 0].set_xticks(range(0, 97, 24))
@@ -395,7 +393,7 @@ for u in range(len(time_window)):
         plt.tight_layout()
 
         ax[num_anomalies_to_show // 2, 0].set_ylabel("Power [kW]")
-        ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
+        #ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
 
         plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomalies.png",
                     dpi=dpi_resolution,
