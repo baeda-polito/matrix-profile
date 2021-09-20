@@ -27,6 +27,21 @@ def dec_to_hour(hour):
     return result
 
 
+def dec_to_obs(hour, obs_per_hour):
+    """ transforms float hours with decimal places into HH:MM string format
+    :param hour in decimal form
+    :param obs_per_hour observation per hour in int
+    :return:
+    """
+
+    H, M = divmod(hour * 60, 60)
+
+    # 6.30 -> H = 6, M = 30
+    # 6[hours]*4[observations/hour] + 30[minutes]*1/15[observations/minutes] = 25 [observations]
+    result = int(H * obs_per_hour + M / 15)
+    return result
+
+
 def roundup(x, digit=1):
     """ rounds number too upper decimal
     :param x:

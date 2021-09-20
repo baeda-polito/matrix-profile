@@ -1,10 +1,11 @@
+########################################################################################
 # import from default libraries and packages
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import pandas as pd
-import os
-import datetime
+import numpy as np  # general data manipulation
+import matplotlib.pyplot as plt  # plots
+import matplotlib.dates as mdates  # handle dates
+import pandas as pd  # dataframe handling
+import os  # operating system handling
+import datetime  # data
 
 # import from the local module distancematrix
 from distancematrix.calculator import AnytimeCalculator
@@ -15,24 +16,25 @@ from distancematrix.consumer.contextmanager import GeneralStaticManager
 
 from matplotlib import rc  # font plot
 from kneed import KneeLocator  # find knee of curve
-from utils_functions import roundup, anomaly_score_calc, CMP_plot, hour_to_dec, dec_to_hour, nan_diag
+from utils_functions import roundup, anomaly_score_calc, CMP_plot, hour_to_dec, dec_to_hour, nan_diag, dec_to_obs
 
+########################################################################################
+# define a beglin time to evaluate execution time & performance
 begin_time = datetime.datetime.now()
 print('START: ' + str(begin_time))
-# useful paths
 
+# useful paths
 path_to_data = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'data' + os.sep
 path_to_figures = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'figures' + os.sep
-color_palette = 'viridis'
 
 # figures variables
+color_palette = 'viridis'
 dpi_resolution = 300
 fontsize = 10
 line_style_context = "-"
 line_style_other = ":"
 line_color_context = "red"
 line_color_other = "gray"
-
 # plt.style.use("seaborn-paper")
 rc('font', **{'family': 'serif', 'serif': ['Georgia']})
 plt.rcParams.update({'font.size': fontsize})
@@ -94,31 +96,35 @@ for i in range(14):
 plt.tight_layout()
 
 # save figure to plot directories
-plt.savefig(path_to_figures + "polito.png", dpi=dpi_resolution, bbox_inches='tight')
+plt.savefig(path_to_figures + "dataset_lineplot.png", dpi=dpi_resolution, bbox_inches='tight')
 plt.close()
 
 ########################################################################################
 # Define configuration for the Contextual Matrix Profile calculation.
+# In this case the context has been defined in a data driven way
+# the loaded dataset derives from other analysis performed in R
 time_window = pd.read_csv(path_to_data + "time_window.csv")
+m_context = pd.read_csv(path_to_data + "m_context.csv")["m_context"][0]
 
 for u in range(len(time_window)):
-    # for u in range(len(time_window)):
-    # CONTEXT: DATA DRIVEN
+
+    ########################################################################################
+    # Context Definition
+    # 1) Data Driven Context
     if u == 0:
         # autodefine context if it is the beginning
-        m_context = 2
-        context_start = 0
+        context_start = 0  # [hours]
         context_end = context_start + m_context  # [hours]
-        m = (int(hour_to_dec(time_window["from"][1])) - m_context) * obs_per_hour
+        m = int((hour_to_dec(time_window["to"][u]) - m_context) * obs_per_hour)  # [observations]
     else:
-        m = time_window["observations"][u]  # data driven
-        m_context = 2
-        context_end = int(hour_to_dec(time_window["from"][u]))  # [hours]
-        context_start = context_end - m_context
+        m = time_window["observations"][u]  # # [observations] data driven
+        context_end = hour_to_dec(time_window["from"][u])  # [hours]
+        context_start = context_end - m_context  # [hours]
 
-    # # CONTEXT: USER DEFINED
+    # 2) User Defined Context
     # # We want to find all the subsequences that start from 00:00 to 02:00 (2 hours) and covers the whole day
-    # # In order to avoid overlapping we define the window length as the whole day of observation minus the context length.
+    # # In order to avoid overlapping we define the window length as the whole day of
+    # observation minus the context length.
     #
     # # - Beginning of the context 00:00 AM [hours]
     # context_start = 17
@@ -134,28 +140,44 @@ for u in range(len(time_window)):
     # # m = obs_per_day - obs_per_hour * m_context
     # m = 20 # with guess
 
-    # context string to explain
+    # print string to explain the created context in an intelligible way
     context_string = 'Subsequences of ' + dec_to_hour(m / obs_per_hour) + ' h that starts between ' + dec_to_hour(
         context_start) + ' and ' + dec_to_hour(context_end)
-    print('*********************\n', 'CONTEXT: ' + context_string)
 
-    # context string for names
+    # contracted context string for names
     context_string_small = 'ctx_from' + dec_to_hour(
         context_start) + '_to' + dec_to_hour(context_end) + "_m" + dec_to_hour(m / obs_per_hour)
     # remove : to resolve path issues
     context_string_small = context_string_small.replace(":", "_")
 
+    print('*********************\n', 'CONTEXT: ' + context_string + " (" + context_string_small + ")")
+
     # if figures directory doesnt exists create and save into it
-    if not os.path.exists(path_to_figures + context_string_small):
-        os.makedirs(path_to_figures + context_string_small)
+    # if not os.path.exists(path_to_figures + context_string_small):
+    #    os.makedirs(path_to_figures + context_string_small)
+
+    # # Context Definition:
+    # # example FROM 00:00 to 02:00
+    # # - m_context = 2 [hours]
+    # # - obs_per_hour = 4 [observations/hour]
+    # # - context_start = 0 [hours]
+    # # - context_end = context_start + m_context = 0 [hours] + 2 [hours] = 2 [hours]
+    # contexts = GeneralStaticManager([
+    #     range(
+    #         # FROM  [observations]  = x * 96 [observations] + 0 [hour] * 4 [observation/hour]
+    #         (x * obs_per_day) + context_start * obs_per_hour,
+    #         # TO    [observations]  = x * 96 [observations] + (0 [hour] + 2 [hour]) * 4 [observation/hour]
+    #         (x * obs_per_day) + (context_start + m_context) * obs_per_hour)
+    #     for x in range(len(data) // obs_per_day)
+    # ])
 
     # Context Definition:
     contexts = GeneralStaticManager([
         range(
             # FROM  [observations]  = x * 96 [observations] + 0 [hour] * 4 [observation/hour]
-            (x * obs_per_day) + context_start * obs_per_hour,
+            (x * obs_per_day) + dec_to_obs(context_start, obs_per_hour),
             # TO    [observations]  = x * 96 [observations] + (0 [hour] + 2 [hour]) * 4 [observation/hour]
-            (x * obs_per_day) + (context_start + m_context) * obs_per_hour)
+            (x * obs_per_day) + dec_to_obs(context_end, obs_per_hour))
         for x in range(len(data) // obs_per_day)
     ])
 
@@ -180,14 +202,22 @@ for u in range(len(time_window)):
     # Calculate Matrix Profile and Contextual Matrix Profile
     calc.calculate_columns(print_progress=True)
     print("\n")
+
+    # save contextual matrix profile for R plot
+    # if data directory doesnt exists create and save into it
+    # if not os.path.exists(path_to_data + context_string_small):
+    #    os.makedirs(path_to_data + context_string_small)
+    np.savetxt(path_to_data + context_string_small + os.sep + 'plot_cmp_full.csv',
+               nan_diag(cmp.distance_matrix),
+               delimiter=",")
+    np.savetxt(path_to_data + context_string_small + os.sep + 'plot_cmp_full.json',
+               nan_diag(cmp.distance_matrix),
+               delimiter=",")
+
     # calculate the date labels to define the extent of figure
     date_labels = mdates.date2num(data.index[::m].values)
 
     # plot CMP as matrix
-
-    # save for R plot
-    np.savetxt(path_to_data + 'plot_cmp_full.csv', nan_diag(cmp.distance_matrix), delimiter=",")
-
     plt.figure(figsize=(10, 10))
 
     extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
@@ -210,8 +240,11 @@ for u in range(len(time_window)):
     # - saturdays (not holidays not working days)
     # - workingdays (not holiday and not saturdays)
 
-    # load data
-    annotation_df = pd.read_csv(path_to_data + "polito_holiday.csv", index_col='timestamp', parse_dates=True)
+    # load data this is a boolean dataframe created in R each column represents a group
+    # CART
+    # annotation_df = pd.read_csv(path_to_data + context_string_small + os.sep + "groups.csv", index_col='timestamp', parse_dates=True)
+    # CLUSTER
+    annotation_df = pd.read_csv(path_to_data + "group_cluster.csv", index_col='timestamp', parse_dates=True)
 
     # set labels
     day_labels = data.index[::obs_per_day]
@@ -240,11 +273,11 @@ for u in range(len(time_window)):
         group_dates = data.index[::obs_per_day].values[group]
 
         # save cmp for R plot
-        np.savetxt(path_to_data + 'plot_cmp_' + group_name + '.csv', nan_diag(group_cmp), delimiter=",")
+        np.savetxt(path_to_data + context_string_small + os.sep + 'plot_cmp_' + group_name + '.csv',
+                   nan_diag(group_cmp), delimiter=",")
 
         # plot CMP as matrix
         plt.figure(figsize=(7, 7))
-
         CMP_plot(contextual_mp=group_cmp,
                  palette=color_palette,
                  title="Power CMP (" + group_name + " only)",
@@ -282,8 +315,8 @@ for u in range(len(time_window)):
         num_anomalies_to_show = kn.knee
 
         # limit the number of anomalies
-        if num_anomalies_to_show > 20:
-            num_anomalies_to_show = 20
+        if num_anomalies_to_show > 5:
+            num_anomalies_to_show = 5
         if num_anomalies_to_show < 2:
             num_anomalies_to_show = 2
 
@@ -316,8 +349,13 @@ for u in range(len(time_window)):
             ax[j, 0].plot(data.values.reshape((-1, obs_per_day)).T,
                           c=line_color_other,
                           alpha=0.07)
-            ax[j, 0].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
-                          data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
+            # ax[j, 0].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
+            #               data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
+            #               c=line_color_context,
+            #               linestyle=line_style_context)
+            ax[j, 0].plot(range(dec_to_obs(context_start, obs_per_hour), (dec_to_obs(context_end, obs_per_hour) + m)),
+                          data.values[anomaly_range][
+                          dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
                           c=line_color_context,
                           linestyle=line_style_context)
             ax[j, 0].plot(data.values[anomaly_range],
@@ -329,8 +367,13 @@ for u in range(len(time_window)):
             ax[j, 1].plot(data.values.reshape((-1, obs_per_day))[group].T,
                           c=line_color_other,
                           alpha=0.07)
-            ax[j, 1].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
-                          data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
+            # ax[j, 1].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
+            #               data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
+            #               c=line_color_context,
+            #               linestyle=line_style_context)
+            ax[j, 1].plot(range(dec_to_obs(context_start, obs_per_hour), (dec_to_obs(context_end, obs_per_hour) + m)),
+                          data.values[anomaly_range][
+                          dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
                           c=line_color_context,
                           linestyle=line_style_context)
             ax[j, 1].plot(data.values[anomaly_range],
@@ -339,7 +382,7 @@ for u in range(len(time_window)):
             ax[j, 0].set_ylim([min_power, max_power])
             ax[j, 0].set_yticks(ticks_power)
 
-            ax[j, 0].text(0, position_y, "CMP-Anomaly " + str(j + 1))
+            ax[j, 0].text(0, position_y, "Anomaly " + str(j + 1))
             ax[j, 1].text(0, position_y, date.day_name() + " " + str(date)[:10])
 
         ax[0, 0].set_xticks(range(0, 97, 24))
@@ -350,7 +393,7 @@ for u in range(len(time_window)):
         plt.tight_layout()
 
         ax[num_anomalies_to_show // 2, 0].set_ylabel("Power [kW]")
-        ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
+        #ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
 
         plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomalies.png",
                     dpi=dpi_resolution,
