@@ -79,6 +79,7 @@ ax[0,0].set_ylim(300,1500)
 plt.tight_layout()
 
 # plt.savefig("ventilation.pdf", dpi=300, bbox_inches='tight')
+
 plt.show()
 
 # Setup calculation of Matrix Profile and Contextual Matrix Profile for all datasets.
@@ -102,7 +103,7 @@ cmps_evening = []
 mps = []
 
 for i in range(3):
-    calc = AnytimeCalculator(m, data[i].values)
+    calc = AnytimeCalculator(m, data[i].values.T)
     calcs.append(calc)
 
     calc.add_generator(0, FilterGenerator(ZNormEuclidean()))  # Use ZNormed Euclidean as distance metric
@@ -137,7 +138,7 @@ def nan_diag(matrix):
 
 # Plot all CMPs
 fig, ax = plt.subplots(3,3, figsize=(16,15), sharex=True, sharey=True)
-fig.autofmt_xdate()
+fig.autofmt_xdate()  #The autofmt_xdate() method figure module of matplotlib library is used to rotate them and right align them.
 
 date_labels = mdates.date2num(data_days)
 extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
