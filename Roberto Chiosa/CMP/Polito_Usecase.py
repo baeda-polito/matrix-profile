@@ -36,7 +36,7 @@ line_style_other = ":"
 line_color_context = "red"
 line_color_other = "gray"
 # plt.style.use("seaborn-paper")
-rc('font', **{'family': 'serif', 'serif': ['Georgia']})
+rc('font', **{'family': 'sans-serif', 'sans-serif': ['Poppins']})
 plt.rcParams.update({'font.size': fontsize})
 
 ########################################################################################
@@ -289,10 +289,6 @@ for u in range(len(time_window)):
                     bbox_inches='tight')
         plt.close()
 
-        # Plot the anomaly scores and our considered threshold
-        plt.figure(figsize=(7, 7))
-        plt.title("Sorted Anomaly Scores (" + group_name + " only)")
-
         # Calculate an anomaly score
         cmp_group_score = anomaly_score_calc(group_cmp, group)
         # Initialize ana anomaly score empty vector
@@ -308,6 +304,7 @@ for u in range(len(time_window)):
         # create a vector to plot correctly the graph
         cmp_ad_score_plot = cmp_ad_score[ad_order][0:last_value]
 
+
         # set number of aomalies to show as the elbow of the curve
         x_ad = np.array(range(0, len(cmp_ad_score_plot)))
         y_ad = cmp_ad_score_plot
@@ -315,17 +312,29 @@ for u in range(len(time_window)):
         num_anomalies_to_show = kn.knee
 
         # limit the number of anomalies
-        if num_anomalies_to_show > 5:
-            num_anomalies_to_show = 5
-        if num_anomalies_to_show < 2:
-            num_anomalies_to_show = 2
+        if num_anomalies_to_show > 10:
+            num_anomalies_to_show = 10
 
-        plt.plot(cmp_ad_score_plot)
-        plt.ylabel("Anomaly Score")
-        plt.axvline(num_anomalies_to_show, ls=":", c="gray")
+        # Plot the anomaly scores and our considered threshold
+
+        fig, ax = plt.subplots(1, 2,
+                               sharey='all',
+                               figsize=(10, 7),
+                               gridspec_kw={'width_ratios': [3, 1]})
+
+        ax[0].set_title("Sorted Anomaly Scores (" + group_name + " only)")
+        ax[0].plot(cmp_ad_score_plot)
+        ax[0].set_ylabel("Anomaly Score")
+        ax[0].axvline(num_anomalies_to_show, ls=":", c="gray")
         anomaly_ticks = list(range(0, len(cmp_ad_score_plot), int(len(cmp_ad_score_plot) / 5)))
         anomaly_ticks.append(num_anomalies_to_show)
-        plt.xticks(anomaly_ticks)
+        ax[0].set_xticks(anomaly_ticks)
+
+        ax[1].set_title("Boxplot")
+        ax[1].boxplot(cmp_ad_score_plot, widths=0.8)
+
+        plt.tight_layout()
+
         plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomaly_score.png",
                     dpi=dpi_resolution,
                     bbox_inches='tight')
