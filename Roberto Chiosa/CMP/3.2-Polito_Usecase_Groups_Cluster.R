@@ -99,7 +99,7 @@ ggplot() +
   scale_x_datetime(expand = c(0,0), labels = date_format("%H:%M" , tz = "GMT"), breaks = date_breaks("4 hour")) +
   scale_y_continuous(limits = c(0,ceiling(max(df1_plot$Total_Power)/100)*100), expand = c(0,0)) +
   theme_bw() +
-  facet_wrap(~cluster_label) +
+  facet_wrap(~cluster_label, nrow= 1) +
   labs(title = "Daily Profile Cluster Results",
        subtitle = "Identification of 6 similarity groups for CMP analysis",
        x = "" , y = "Power [kW]")+
@@ -124,7 +124,8 @@ ggplot() +
   )         # margin around entire plot
   
   
-  ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.png"), width = 9, height = 5.5, dpi = 200 )
+  # VERTICAL ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.png"), width = 9, height = 5.5, dpi = 200 )
+ ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.png"), width = 12, height = 4, dpi = dpi )
 
 dev.off()
 
