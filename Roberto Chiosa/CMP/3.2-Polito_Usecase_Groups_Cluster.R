@@ -3,7 +3,7 @@ cat("\014")                 # clears the console
 rm(list = ls())             # remove all variables of the workspace
 source("global_vars.R")
 
-library(magrittr)
+import::from(magrittr, "%>%")
 library(dplyr)
 library(lubridate)
 library(rpart)
@@ -39,19 +39,19 @@ diss_matrix <- dist(data, method = "euclidean")
 
 # define number of clusters
 n_clusters <-  6 # supervised
-#Nb_res <- NbClust(data, diss = diss_matrix, distance = NULL, min.nc = 2, max.nc = 8, method = "complete", index = "silhouette")
-#n_clusters <- length(unique(Nb_res$Best.partition))
+# Nb_res <- NbClust(data, diss = diss_matrix, distance = NULL, min.nc = 2, max.nc = 8, method = "ward.D2", index = "all")
+# n_clusters <- length(unique(Nb_res$Best.partition))
 
 
 # do cluster
 hcl <- hclust(diss_matrix, method = "ward.D2") 
 
 # plot dendogram
-# dev.new()
-# png(file = file.path("Polito_Usecase", "figures", "groups_dendogram.png"), bg = "white", width = 900, height = 500)                   # to save automatically image in WD
-# plot(hcl, family = font_family)
-# rect.hclust(hcl, k = n_clusters, border = "red")
-# dev.off()
+dev.new()
+png(file = file.path("Polito_Usecase", "figures", "groups_dendogram.png"), bg = "white", width = 900, height = 500)                   # to save automatically image in WD
+plot(hcl, family = font_family)
+rect.hclust(hcl, k = 4, border = "red")
+dev.off()
 
 # add cluster id to total dataframe
 df2$cluster <- cutree(hcl, n_clusters) 
@@ -100,9 +100,12 @@ ggplot() +
   scale_y_continuous(limits = c(0,ceiling(max(df1_plot$Total_Power)/100)*100), expand = c(0,0)) +
   theme_bw() +
   facet_wrap(~cluster_label, nrow= 1) +
-  labs(title = "Daily Profile Cluster Results",
-       subtitle = "Identification of 6 similarity groups for CMP analysis",
-       x = "" , y = "Power [kW]")+
+  labs(
+    #title = "Daily Profile Cluster Results",
+    #subtitle = "Identification of 6 similarity groups for CMP analysis",
+    x = "" , 
+    y = "Power [kW]"
+  )+
   ggplot2::theme(
     text=element_text(family=font_family),
     plot.title = element_text(hjust = 0.5, size = fontsize_large, margin = margin(t = 0, r = 0, b = 0, l = 0), ),
@@ -122,10 +125,10 @@ ggplot() +
     panel.grid.minor = element_blank(),            # draws nothing, and assigns no space.
     plot.margin = unit(c(plot_margin,plot_margin,plot_margin,plot_margin), "cm")
   )         # margin around entire plot
-  
-  
-  # VERTICAL ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.png"), width = 9, height = 5.5, dpi = 200 )
- ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.png"), width = 12, height = 4, dpi = dpi )
+
+
+# VERTICAL ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.png"), width = 9, height = 5.5, dpi = 200 )
+ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.png"), width = 12, height = 4, dpi = dpi )
 
 dev.off()
 
