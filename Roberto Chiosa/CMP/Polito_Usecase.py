@@ -106,6 +106,8 @@ plt.close()
 time_window = pd.read_csv(path_to_data + "time_window.csv")
 m_context = pd.read_csv(path_to_data + "m_context.csv")["m_context"][0]
 
+# define output file
+
 for u in range(len(time_window)):
 
     ########################################################################################
@@ -246,6 +248,8 @@ for u in range(len(time_window)):
     # CLUSTER
     annotation_df = pd.read_csv(path_to_data + "group_cluster.csv", index_col='timestamp', parse_dates=True)
 
+    df_output = annotation_df
+
     # set labels
     day_labels = data.index[::obs_per_day]
 
@@ -253,11 +257,15 @@ for u in range(len(time_window)):
     n_group = annotation_df.shape[1]
 
     for i in range(n_group):
+
         # time when computation starts
         begin_time_group = datetime.datetime.now()
 
         # get group name from dataframe
         group_name = annotation_df.columns[i]
+
+        # add column of context of group in df_oytput
+        df_output[group_name+"."+context_string_small] = [False for i in range(len(df_output))]
 
         # if figures directory doesnt exists create and save into it
         if not os.path.exists(path_to_figures + context_string_small + os.sep + group_name):
@@ -304,7 +312,6 @@ for u in range(len(time_window)):
         # create a vector to plot correctly the graph
         cmp_ad_score_plot = cmp_ad_score[ad_order][0:last_value]
 
-
         # set number of aomalies to show as the elbow of the curve
         x_ad = np.array(range(0, len(cmp_ad_score_plot)))
         y_ad = cmp_ad_score_plot
@@ -316,7 +323,6 @@ for u in range(len(time_window)):
             num_anomalies_to_show = 10
 
         # Plot the anomaly scores and our considered threshold
-
         fig, ax = plt.subplots(1, 2,
                                sharey='all',
                                figsize=(10, 7),
@@ -394,6 +400,10 @@ for u in range(len(time_window)):
             ax[j, 0].text(0, position_y, "Anomaly " + str(j + 1))
             ax[j, 1].text(0, position_y, date.day_name() + " " + str(date)[:10])
 
+            # update output dataframe
+            df_output.loc[df_output.index.values == np.datetime64(date),
+                        group_name+"."+context_string_small ] = True
+
         ax[0, 0].set_xticks(range(0, 97, 24))
         ticklabels = ["{hour}:00".format(hour=(x // obs_per_hour)) for x in range(0, 97, 24)]
         # ticklabels[-1] = ""
@@ -410,6 +420,9 @@ for u in range(len(time_window)):
         plt.close()
         # print the execution time
         print("- " + group_name + ' ' + str(datetime.datetime.now() - begin_time_group))
+
+        df_output.to_csv(path_to_data + context_string_small + os.sep + group_name+"_"+context_string_small + '.csv')
+
 
 # print the execution time
 print("END: " + str(datetime.datetime.now()))
