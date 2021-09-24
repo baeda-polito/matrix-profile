@@ -107,6 +107,7 @@ time_window = pd.read_csv(path_to_data + "time_window.csv")
 m_context = pd.read_csv(path_to_data + "m_context.csv")["m_context"][0]
 
 # define output file
+df_output_all = pd.DataFrame()
 
 for u in range(len(time_window)):
 
@@ -247,9 +248,7 @@ for u in range(len(time_window)):
     # annotation_df = pd.read_csv(path_to_data + context_string_small + os.sep + "groups.csv", index_col='timestamp', parse_dates=True)
     # CLUSTER
     annotation_df = pd.read_csv(path_to_data + "group_cluster.csv", index_col='timestamp', parse_dates=True)
-
-    df_output = annotation_df
-
+    df_output_context = annotation_df
     # set labels
     day_labels = data.index[::obs_per_day]
 
@@ -265,7 +264,8 @@ for u in range(len(time_window)):
         group_name = annotation_df.columns[i]
 
         # add column of context of group in df_oytput
-        df_output[group_name+"."+context_string_small] = [False for i in range(len(df_output))]
+
+        df_output_context[group_name + "." + context_string_small] = [False for i in range(len(df_output_context))]
 
         # if figures directory doesnt exists create and save into it
         if not os.path.exists(path_to_figures + context_string_small + os.sep + group_name):
@@ -365,6 +365,10 @@ for u in range(len(time_window)):
             anomaly_range = range(obs_per_day * anomaly_index, obs_per_day * (anomaly_index + 1))
             date = day_labels[anomaly_index]
 
+            # update output dataframe
+            df_output_context.loc[df_output_context.index.values == np.datetime64(date),
+                                  group_name + "." + context_string_small] = True
+
             ax[j, 0].plot(data.values.reshape((-1, obs_per_day)).T,
                           c=line_color_other,
                           alpha=0.07)
@@ -404,9 +408,7 @@ for u in range(len(time_window)):
             ax[j, 0].text(0, position_y, "Anomaly " + str(j + 1))
             ax[j, 1].text(0, position_y, date.day_name() + " " + str(date)[:10])
 
-            # update output dataframe
-            df_output.loc[df_output.index.values == np.datetime64(date),
-                        group_name+"."+context_string_small ] = True
+
 
         ax[0, 0].set_xticks(range(0, 97, 24))
         ticklabels = ["{hour}:00".format(hour=(x // obs_per_hour)) for x in range(0, 97, 24)]
@@ -425,7 +427,16 @@ for u in range(len(time_window)):
         # print the execution time
         print("- " + group_name + ' ' + str(datetime.datetime.now() - begin_time_group))
 
-        df_output.to_csv(path_to_data + context_string_small + os.sep + group_name+"_"+context_string_small + '.csv')
+    # at the end of loop on groups save dataframe corresponding to given context
+    if df_output_all.empty:
+        df_output_all = df_output_context
+    else:
+        df_output_all = pd.concat([df_output_all, df_output_context], axis = 1)
+
+# at the end of loop on context save dataframe of results
+df_output_all.to_csv(path_to_data + "anomaly_results.csv")
+
+
 
 
 # print the execution time
