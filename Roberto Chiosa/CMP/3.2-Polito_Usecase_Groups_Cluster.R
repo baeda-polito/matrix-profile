@@ -87,9 +87,7 @@ centr_plot <- merge.data.frame(centr, counted) %>%
   mutate(cluster_label = paste("Cluster ", cluster, " (", n," profiles)", sep = ""),
          cluster_label = as.factor(cluster_label))
 
-
-dev.new()
-ggplot() +
+plot <- ggplot() +
   geom_line(data = df1_plot, 
             aes(x = as.POSIXct(Time, format = "%H:%M:%S" , tz = "GMT") , y = Total_Power, group = Date) , 
             color = "gray", alpha = 0.3, size = 0.7) +
@@ -127,10 +125,43 @@ ggplot() +
   )         # margin around entire plot
 
 
+dev.new()
+plot
 # VERTICAL ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.png"), width = 9, height = 5.5, dpi = 200 )
 ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.png"), width = 12, height = 4, dpi = dpi )
 
 dev.off()
+
+
+
+dev.new()
+plot + theme_void() +
+  ggplot2::theme(
+    text = element_blank(),
+    # plot.title = element_text(hjust = 0.5, size = fontsize_large, margin = margin(t = 0, r = 0, b = 0, l = 0), ),
+    # plot.subtitle = element_text(hjust = 0.5, size = fontsize_small, margin = margin(t = 5, r = 5, b = 10, l = 10)),
+    # # legend
+    legend.position = "none",                     # legend position on the top of the graph
+    # # strip.text = element_text(size = 17), # facet wrap title fontsize
+    # # AXIS X
+    # #axis.title.x = element_text(size = fontsize_medium, margin = margin(t = 20, r = 20, b = 0, l = 0)),
+    # axis.text.x = element_text(size = fontsize_small, margin = margin(t = 5, r = 5, b = 5, l = 5), angle = 0, vjust=.3),
+    # # AXIS Y
+    # #axis.title.y = element_text(size = fontsize_medium,margin = margin(t = 20, r = 20, b = 0, l = 0)),
+    # axis.text.y = element_text(size = fontsize_small, margin = margin(t = 5, r = 5, b = 5, l = 5), angle = 0, vjust=.3),
+    # # background
+    # panel.background = element_rect(fill = "gray99"),# background of plotting area, drawn underneath plot
+    # panel.grid.major = element_blank(),            # draws nothing, and assigns no space.
+    # panel.grid.minor = element_blank(),            # draws nothing, and assigns no space.
+    # plot.margin = unit(c(plot_margin,plot_margin,plot_margin,plot_margin), "cm")
+  )         # margin around entire plot
+
+
+ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters_4cmp.png"),
+       width = 20, height = 3, dpi = dpi ,  bg = background_fill)
+
+dev.off()
+
 
 
 library(mltools)
