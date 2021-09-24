@@ -14,6 +14,7 @@ import time
 import itertools
 import stumpy
 import sys
+import scipy.stats as stats
 
 from distancematrix.calculator import AnytimeCalculator
 from distancematrix.generator.euclidean import Euclidean
@@ -38,8 +39,9 @@ axis_font = {'fontname':'Arial', 'size':'10'}
 
 path_data='/Users/simonevitale/Desktop/matrix-profile/Simone Deho/'
 path_data_cluster='/Users/simonevitale/Desktop/matrix-profile/Roberto Chiosa/CMP/Polito_Usecase/data/'
+path_figure='/Users/simonevitale/Desktop/matrix-profile/Simone Vitale/Contextual_Series_Analysis/figure_mean/ '
 data = pd.read_csv(path_data + "df_cabinaC_2019_labeled.csv",usecols=['Date_Time','Total_Power'], index_col='Date_Time', parse_dates= True)
-cluster_df=pd.read_csv(path_data_cluster+'polito_holiday.csv', index_col='timestamp', parse_dates=True)
+cluster_df=pd.read_csv(path_data_cluster+'polito_cluster.csv', index_col='timestamp', parse_dates=True)
 
 # List of daily dates
 data_days = data.index[::4*24]  #The index (row labels) of the DataFrame.
@@ -90,11 +92,11 @@ def nan_diag(matrix):
 matrix=[]
 
 # Saving the reference of the standard output
-original_stdout = sys.stdout
+original_stdout = sys.stdout # Save a reference to the original standard output
 with open('cntxt_1_mean_of_distances.txt', 'w') as f: #print on a file
- sys.stdout = f
+ sys.stdout = f # Change the standard output to the file we created.
 
- for ii in range(1,7):
+ for ii in range(1,5):
   # Create cluster_i only CMP
   cluster= cluster_df['Cluster_'+str(ii)]
   cluster_cmp = cmp_1[0].distance_matrix[:, cluster][cluster, :]
@@ -116,6 +118,8 @@ with open('cntxt_1_mean_of_distances.txt', 'w') as f: #print on a file
   for label in (ax.get_xticklabels() + ax.get_yticklabels()):
       label.set_fontname('Arial')
       label.set_fontsize(14)
+
+  plt.savefig(path_figure+"CMP_cntxt_1_cluster_"+str(ii)+".png", dpi=300, bbox_inches='tight')
   plt.show()
 
   # Calculate an anomaly score
@@ -147,6 +151,7 @@ with open('cntxt_1_mean_of_distances.txt', 'w') as f: #print on a file
   anomaly_ticks = list(range(0, len(cmp_ad_score_plot), int(len(cmp_ad_score_plot) / 5)))
   anomaly_ticks.append(num_anomalies_to_show)
   plt.xticks(anomaly_ticks)
+  plt.savefig(path_figure+"Anomaly_Score_"+str(ii)+".png", dpi=300, bbox_inches='tight')
   plt.show()
 
   print("Top anomalies according to CMP_cluster_%d" %ii)
@@ -192,6 +197,18 @@ with open('cntxt_1_mean_of_distances.txt', 'w') as f: #print on a file
   ax[num_anomalies_to_show // 2, 0].set_ylabel("Power[kW]")
   ax[num_anomalies_to_show - 1, 0].set_xlabel("Time of day")
 
-  # plt.savefig("ny_taxi_cmp_anomalies.pdf", dpi=300, bbox_inches='tight')
+  plt.savefig(path_figure+"CMP_anomaly_cluster"+str(ii)+".png", dpi=300, bbox_inches='tight')
   plt.show()
+
+sys.stdout = original_stdout # Reset the standard output to its original value
 f.close()
+
+"""
+#PROVA
+"""
+aa=np.array([])
+cluster_1= cluster_df['Cluster_1']
+cluster_cmp = cmp_1[0].distance_matrix[:, cluster_1][cluster_1, :]
+for ii in range(cluster_cmp[0].size):
+ nan_rows = cluster_cmp[ii][~np.isnan(cluster_cmp[ii])]
+ aa=np.append(aa,nan_rows)

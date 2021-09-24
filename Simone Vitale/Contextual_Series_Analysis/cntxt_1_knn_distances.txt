@@ -37,38 +37,26 @@ Top anomalies according to CMP_cluster_3
 
 Top anomalies according to CMP_cluster_4 
 
-0 Tuesday 2019-07-16 	 1.17
-1 Friday 2019-07-12 	 1.04
-2 Thursday 2019-07-11 	 1.0
-
-
-
-
-
-Top anomalies according to CMP_cluster_5 
-
-0 Monday 2019-07-15 	 0.83
-1 Thursday 2019-09-12 	 0.78
-2 Monday 2019-04-08 	 0.77
-3 Monday 2019-04-01 	 0.74
-4 Friday 2019-09-20 	 0.73
-5 Wednesday 2019-08-07 	 0.71
-6 Tuesday 2019-07-30 	 0.7
-7 Wednesday 2019-11-13 	 0.69
-
-
-
-
-
-Top anomalies according to CMP_cluster_6 
-
-0 Friday 2019-07-05 	 43.35
-1 Monday 2019-07-01 	 42.82
-2 Tuesday 2019-07-02 	 38.89
-3 Wednesday 2019-06-26 	 33.98
-4 Monday 2019-07-08 	 33.27
-5 Wednesday 2019-07-03 	 26.11
-6 Wednesday 2019-07-10 	 25.22
+0 Friday 2019-07-26 	 0.66
+1 Tuesday 2019-07-02 	 0.63
+2 Monday 2019-07-08 	 0.62
+3 Friday 2019-06-28 	 0.62
+4 Wednesday 2019-07-03 	 0.62
+5 Monday 2019-07-22 	 0.62
+6 Thursday 2019-07-25 	 0.59
+7 Tuesday 2019-06-25 	 0.57
+8 Thursday 2019-06-27 	 0.56
+9 Tuesday 2019-07-23 	 0.56
+10 Thursday 2019-07-11 	 0.53
+11 Wednesday 2019-07-24 	 0.53
+12 Wednesday 2019-07-10 	 0.51
+13 Thursday 2019-05-09 	 0.51
+14 Tuesday 2019-07-09 	 0.51
+15 Monday 2019-04-08 	 0.51
+16 Friday 2019-09-20 	 0.5
+17 Tuesday 2019-07-16 	 0.5
+18 Wednesday 2019-06-26 	 0.5
+19 Friday 2019-07-12 	 0.49
 
 
 

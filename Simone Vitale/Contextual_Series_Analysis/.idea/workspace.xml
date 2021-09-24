@@ -2,13 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="eb0c832b-c253-4e1d-8a2e-c29e6f3bbbbc" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/.idea/CMP.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/.idea/CMP.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase/figures/cart_contexts.png" beforeDir="false" afterPath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase/figures/cart_contexts.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase/figures/groups_clusters.png" beforeDir="false" afterPath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase/figures/groups_clusters.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase/figures/groups_dendogram.png" beforeDir="false" afterPath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase/figures/groups_dendogram.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Ventilation_Usecases.py" beforeDir="false" afterPath="$PROJECT_DIR$/Ventilation_Usecases.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Polito_cntxt_1.py" beforeDir="false" afterPath="$PROJECT_DIR$/Polito_cntxt_1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Polito_cntxt_1_knn_distances.py" beforeDir="false" afterPath="$PROJECT_DIR$/Polito_cntxt_1_knn_distances.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cntx_00-02_cluster_1_knn" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cntxt_1_knn_distances.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cntxt_1_knn_distances.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cntxt_1_mean_of_distances.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cntxt_1_mean_of_distances.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,29 +46,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
-  <component name="RunManager" selected="Python.Polito_cntxt_1_knn_distances">
-    <configuration name="Polito_case" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Contextual_Series_Analysis" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Polito_case.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python.Polito_cntxt_1">
     <configuration name="Polito_cntxt_1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Contextual_Series_Analysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -202,13 +179,35 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="test_kNN" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Contextual_Series_Analysis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../Anomaly_Score" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../Anomaly_Score/test_kNN.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.Polito_cntxt_1" />
+        <item itemvalue="Python.test_kNN" />
         <item itemvalue="Python.Polito_cntxt_1_knn_distances" />
         <item itemvalue="Python.knn_func" />
-        <item itemvalue="Python.Polito_cntxt_1" />
         <item itemvalue="Python.Polito_cntxt_2" />
-        <item itemvalue="Python.Polito_case" />
       </list>
     </recent_temporary>
   </component>
@@ -260,6 +259,13 @@
       <workItem from="1632122701587" duration="2430000" />
       <workItem from="1632130407464" duration="2859000" />
       <workItem from="1632152864849" duration="83000" />
+      <workItem from="1632303155146" duration="26000" />
+      <workItem from="1632303323108" duration="5000" />
+      <workItem from="1632303363818" duration="9388000" />
+      <workItem from="1632386556531" duration="480000" />
+      <workItem from="1632392808748" duration="2738000" />
+      <workItem from="1632464870185" duration="236000" />
+      <workItem from="1632466733099" duration="2487000" />
     </task>
     <servers />
   </component>
