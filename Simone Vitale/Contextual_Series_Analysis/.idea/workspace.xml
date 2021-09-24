@@ -4,10 +4,6 @@
     <list default="true" id="eb0c832b-c253-4e1d-8a2e-c29e6f3bbbbc" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Polito_cntxt_1.py" beforeDir="false" afterPath="$PROJECT_DIR$/Polito_cntxt_1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Polito_cntxt_1_knn_distances.py" beforeDir="false" afterPath="$PROJECT_DIR$/Polito_cntxt_1_knn_distances.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cntx_00-02_cluster_1_knn" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cntxt_1_knn_distances.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cntxt_1_knn_distances.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cntxt_1_mean_of_distances.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cntxt_1_mean_of_distances.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,14 +42,11 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
-  <component name="RunManager" selected="Python.Polito_cntxt_1">
+  <component name="RunManager" selected="Python.QQ_anomaly">
     <configuration name="Polito_cntxt_1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Contextual_Series_Analysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -91,20 +84,17 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Polito_cntxt_2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="QQ_anomaly" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Contextual_Series_Analysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Polito_cntxt_2.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/QQ_anomaly.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -203,11 +193,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.QQ_anomaly" />
         <item itemvalue="Python.Polito_cntxt_1" />
         <item itemvalue="Python.test_kNN" />
         <item itemvalue="Python.Polito_cntxt_1_knn_distances" />
         <item itemvalue="Python.knn_func" />
-        <item itemvalue="Python.Polito_cntxt_2" />
       </list>
     </recent_temporary>
   </component>
@@ -266,6 +256,7 @@
       <workItem from="1632392808748" duration="2738000" />
       <workItem from="1632464870185" duration="236000" />
       <workItem from="1632466733099" duration="2487000" />
+      <workItem from="1632473458187" duration="3684000" />
     </task>
     <servers />
   </component>

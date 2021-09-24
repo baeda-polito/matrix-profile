@@ -15,6 +15,7 @@ import itertools
 import stumpy
 import sys
 import scipy.stats as stats
+import seaborn as sns
 
 from distancematrix.calculator import AnytimeCalculator
 from distancematrix.generator.euclidean import Euclidean
@@ -41,7 +42,7 @@ path_data='/Users/simonevitale/Desktop/matrix-profile/Simone Deho/'
 path_data_cluster='/Users/simonevitale/Desktop/matrix-profile/Roberto Chiosa/CMP/Polito_Usecase/data/'
 path_figure='/Users/simonevitale/Desktop/matrix-profile/Simone Vitale/Contextual_Series_Analysis/figure_mean/ '
 data = pd.read_csv(path_data + "df_cabinaC_2019_labeled.csv",usecols=['Date_Time','Total_Power'], index_col='Date_Time', parse_dates= True)
-cluster_df=pd.read_csv(path_data_cluster+'polito_cluster.csv', index_col='timestamp', parse_dates=True)
+cluster_df=pd.read_csv(path_data_cluster+'group_cluster.csv', index_col='timestamp', parse_dates=True)
 
 # List of daily dates
 data_days = data.index[::4*24]  #The index (row labels) of the DataFrame.
@@ -206,9 +207,15 @@ f.close()
 """
 #PROVA
 """
-aa=np.array([])
+median_columns=np.array([])
 cluster_1= cluster_df['Cluster_1']
 cluster_cmp = cmp_1[0].distance_matrix[:, cluster_1][cluster_1, :]
 for ii in range(cluster_cmp[0].size):
  nan_rows = cluster_cmp[ii][~np.isnan(cluster_cmp[ii])]
- aa=np.append(aa,nan_rows)
+ median_columns=np.append(median_columns,np.median(nan_rows))
+
+zscore=stats.zscore(median_columns)
+
+plt.plot(zscore)
+plt.show()
+
