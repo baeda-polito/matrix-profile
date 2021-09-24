@@ -299,6 +299,8 @@ for u in range(len(time_window)):
 
         # Calculate an anomaly score
         cmp_group_score = anomaly_score_calc(group_cmp, group)
+
+        ##########################
         # Initialize ana anomaly score empty vector
         cmp_ad_score = np.zeros(len(cmp.distance_matrix)) * np.nan
         # add to the empty array those referring to the group
@@ -345,6 +347,8 @@ for u in range(len(time_window)):
                     dpi=dpi_resolution,
                     bbox_inches='tight')
         plt.close()
+        ##########################
+
 
         # Visualise the top anomalies according to the CMP
         fig, ax = plt.subplots(num_anomalies_to_show, 2,

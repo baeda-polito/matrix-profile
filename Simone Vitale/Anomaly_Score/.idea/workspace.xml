@@ -2,13 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="03b1a02b-6a31-4b33-a39a-053361947a59" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/.idea/CMP.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/.idea/CMP.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase/figures/cart_contexts.png" beforeDir="false" afterPath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase/figures/cart_contexts.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase/figures/groups_clusters.png" beforeDir="false" afterPath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase/figures/groups_clusters.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase/figures/groups_dendogram.png" beforeDir="false" afterPath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase/figures/groups_dendogram.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Contextual_Series_Analysis/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Contextual_Series_Analysis/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Contextual_Series_Analysis/Ventilation_Usecases.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Contextual_Series_Analysis/Ventilation_Usecases.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/myplot" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/myplot_1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plot_cmp_Cluster_4.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plot_cmp_Cluster_5.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plot_cmp_Cluster_6.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Contextual_Series_Analysis/QQ_anomaly.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,6 +55,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunManager" selected="Python.test_kNN">
@@ -192,6 +195,9 @@
       <module name="Anomaly_Score" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -238,6 +244,7 @@
       <workItem from="1631535894646" duration="11574000" />
       <workItem from="1631694135612" duration="40568000" />
       <workItem from="1632126274455" duration="1728000" />
+      <workItem from="1632487980383" duration="2954000" />
     </task>
     <servers />
   </component>
