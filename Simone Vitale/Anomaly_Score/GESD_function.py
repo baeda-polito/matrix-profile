@@ -3,15 +3,9 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 
-% matplotlib inline
-
+'''
 y = np.random.random(100)
 x = np.arange(len(y))
-
-plt.scatter(x, y)
-plt.show()
-
-y
 
 plt.scatter(x, y)
 plt.xlabel('x')
@@ -24,6 +18,7 @@ y[44] = 14
 
 plt.scatter(x, y)
 plt.show()
+'''
 
 
 def test_stat(y, iteration):
@@ -83,9 +78,10 @@ def ESD_Test(input_series, alpha, max_outliers):
             return ['background-color: white'] * 3
 
     df.index = df.index + 1
+
     print('Number of outliers {}'.format(max_i))
 
-    return df.style.apply(highlight_max, axis=1)
+    return (df.style.apply(highlight_max, axis=1), max_i)
 
 
-ESD_Test(y, 0.05, 7)
+#ESD_Test(y, 0.05, 7)

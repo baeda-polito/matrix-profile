@@ -1,10 +1,10 @@
 ## import
 import os
-
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import os
+
+
 '''
 ## test method
 path_to_data = os.getcwd() + os.sep + 'data' + os.sep # get the path
@@ -121,7 +121,7 @@ def method2_function(group,group_cmp):
    # take the outliers
    column_2=outliers
 
- return(column_2, fig_1)
+   return(column_2, fig_1)
 
 ######################## METHOD_3_ELBOW ###########################
 def method3_function(group,group_cmp):
@@ -169,3 +169,36 @@ def method3_function(group,group_cmp):
     column_3=(outliers >= threshold)*1
 
     return (column_3, fig_2)
+
+######################## METHOD_4_GESED ###########################
+def method4_function(group,group_cmp):
+
+    import numpy as np
+    from GESD_function import ESD_Test
+
+    group = np.array(group).flatten()
+
+    dim=group_cmp[0].size
+    group_cmp = np.array(group_cmp)  # from list to array
+    group_cmp = group_cmp[~np.isnan(group_cmp)]# remove nan
+    group_cmp=np.reshape(group_cmp, (dim, dim-1))
+
+    columns_median = np.median(group_cmp, axis=0)  # get the median of the columns
+
+    GESD_df, n_outliers =ESD_Test(columns_median, 0.05, 10)
+
+    # create an array of medians according cluster on yearly period
+    outliers = np.zeros(group.size - 1)
+
+    jj = 0
+    for ii in range(group.size):
+        if group[ii] == 1 and jj < (len(group_cmp) - 1):
+            outliers[ii] = columns_median[jj]
+
+            jj = jj + 1
+
+    anomaly_day = np.sort(columns_median)[:-(n_outliers + 1):-1]
+    threshold = min(anomaly_day)
+    column_4 = (outliers >= threshold) * 1
+
+    return column_4
