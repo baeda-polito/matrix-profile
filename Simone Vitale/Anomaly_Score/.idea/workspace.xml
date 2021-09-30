@@ -2,15 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="03b1a02b-6a31-4b33-a39a-053361947a59" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../Roberto Chiosa/CMP/Polito_Usecase.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/myplot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/myplot_1" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/plot_cmp_Cluster_4.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/plot_cmp_Cluster_5.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/plot_cmp_Cluster_6.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Contextual_Series_Analysis/QQ_anomaly.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/method3.py" beforeDir="false" afterPath="$PROJECT_DIR$/method3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Contextual_Series_Analysis/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/../Contextual_Series_Analysis/.idea/.name" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Contextual_Series_Analysis/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Contextual_Series_Analysis/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +55,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
-  <component name="RunManager" selected="Python.test_kNN">
+  <component name="RunManager" selected="Python.method3">
     <configuration name="Polito_cntxt_1 copia" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Anomaly_Score" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -169,7 +166,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test_HBOS" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="method3" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Anomaly_Score" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -182,7 +179,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test_HBOS.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/method3.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -215,11 +212,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.method3" />
         <item itemvalue="Python.test_kNN" />
         <item itemvalue="Python.Polito_cntxt_1 copia" />
         <item itemvalue="Python.knn_func" />
         <item itemvalue="Python.Polito_cntxt_1" />
-        <item itemvalue="Python.test_HBOS" />
       </list>
     </recent_temporary>
   </component>
@@ -245,6 +242,13 @@
       <workItem from="1631694135612" duration="40568000" />
       <workItem from="1632126274455" duration="1728000" />
       <workItem from="1632487980383" duration="2954000" />
+      <workItem from="1632491901441" duration="6519000" />
+      <workItem from="1632675919929" duration="148000" />
+      <workItem from="1632729607229" duration="19841000" />
+      <workItem from="1632817823825" duration="10120000" />
+      <workItem from="1632902807665" duration="11396000" />
+      <workItem from="1632947623288" duration="30000" />
+      <workItem from="1632947709960" duration="3000" />
     </task>
     <servers />
   </component>
@@ -255,8 +259,10 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/main_py$method3.coverage" NAME="method3 Coverage Results" MODIFIED="1632765709639" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Anomaly_Score$test_HBOS.coverage" NAME="test_HBOS Coverage Results" MODIFIED="1630929994810" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Anomaly_Score$Polito_case.coverage" NAME="Polito_case Coverage Results" MODIFIED="1630936309839" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../Contextual_Series_Analysis" />
     <SUITE FILE_PATH="coverage/Anomaly_Score$Sales.coverage" NAME="Sales Coverage Results" MODIFIED="1627385603236" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/main_py$main.coverage" NAME="main Coverage Results" MODIFIED="1632764233248" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
