@@ -1,9 +1,8 @@
 ## import
-import os
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
-
+#import os
+#import matplotlib.pyplot as plt
+#import pandas as pd
+#import numpy as np
 
 '''
 ## test method
@@ -202,3 +201,26 @@ def method4_function(group,group_cmp):
     column_4 = (outliers >= threshold) * 1
 
     return column_4
+
+######################## METHOD_5_QQ-PLOT ###########################
+def method5_function(group,group_cmp):
+
+    import numpy as np
+    import pylab
+    import scipy.stats as stats
+    import matplotlib.pyplot as plt
+
+    group = np.array(group).flatten()
+
+    dim=group_cmp[0].size
+    group_cmp = np.array(group_cmp)  # from list to array
+    group_cmp = group_cmp[~np.isnan(group_cmp)]# remove nan
+    group_cmp=np.reshape(group_cmp, (dim, dim-1))
+
+    columns_median = np.median(group_cmp, axis=0)  # get the median of the columns
+
+    fig_3, ax=plt.subplots()
+    stats.probplot(columns_median, dist="norm", plot=plt)
+    plt.show()
+
+    return(fig_3)
