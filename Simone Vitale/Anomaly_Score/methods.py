@@ -1,8 +1,8 @@
 ## import
-#import os
-#import matplotlib.pyplot as plt
-#import pandas as pd
-#import numpy as np
+import os
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 
 '''
 ## test method
@@ -61,9 +61,10 @@ def method1_function(group,group_cmp):
     ax.axes.get_xaxis().set_visible(False)  # remove x-axis
     ax.set_title('Notched box plot')
 
-    outliers = [flier.get_ydata() for flier in bp["fliers"]]  # get the outliers
-
-    # create an array of medians according cluster on yearly period
+    outliers_both_whisker = [flier.get_ydata() for flier in bp["fliers"]]  # get the outliers
+    outliers_both_whisker=np.array(outliers_both_whisker)
+    outliers= outliers_both_whisker[outliers_both_whisker>np.median(columns_median)]
+        # create an array of medians according cluster on yearly period
     median_of_day = np.zeros(group.size-1)
     jj = 0
     for ii in range(group.size):
@@ -172,7 +173,9 @@ def method3_function(group,group_cmp):
 ######################## METHOD_4_GESED ###########################
 def method4_function(group,group_cmp):
 
+    import matplotlib.pyplot as plt
     import numpy as np
+    import scipy.stats as stats
     from GESD_function import ESD_Test
 
     group = np.array(group).flatten()
@@ -183,6 +186,10 @@ def method4_function(group,group_cmp):
     group_cmp=np.reshape(group_cmp, (dim, dim-1))
 
     columns_median = np.median(group_cmp, axis=0)  # get the median of the columns
+
+    fig_3, ax = plt.subplots()
+    stats.probplot(columns_median, dist="norm", plot=plt)
+    plt.show()
 
     GESD_df, n_outliers =ESD_Test(columns_median, 0.05, 10)
 
@@ -200,27 +207,4 @@ def method4_function(group,group_cmp):
     threshold = min(anomaly_day)
     column_4 = (outliers >= threshold) * 1
 
-    return column_4
-
-######################## METHOD_5_QQ-PLOT ###########################
-def method5_function(group,group_cmp):
-
-    import numpy as np
-    import pylab
-    import scipy.stats as stats
-    import matplotlib.pyplot as plt
-
-    group = np.array(group).flatten()
-
-    dim=group_cmp[0].size
-    group_cmp = np.array(group_cmp)  # from list to array
-    group_cmp = group_cmp[~np.isnan(group_cmp)]# remove nan
-    group_cmp=np.reshape(group_cmp, (dim, dim-1))
-
-    columns_median = np.median(group_cmp, axis=0)  # get the median of the columns
-
-    fig_3, ax=plt.subplots()
-    stats.probplot(columns_median, dist="norm", plot=plt)
-    plt.show()
-
-    return(fig_3)
+    return (column_4, fig_3)

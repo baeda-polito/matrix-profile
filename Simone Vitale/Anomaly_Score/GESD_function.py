@@ -33,9 +33,9 @@ def test_stat(y, iteration):
     return cal, max_ind
 
 
-def calculate_critical_value(size, alpha, iteration):
+def calculate_critical_value(size, alpha, iteration): # 1- alpha/(2*(A+1))  A=n-i  B=tp,n-i-1  i=1....r
     t_dist = stats.t.ppf(1 - alpha / (2 * size), size - 2)
-    numerator = (size - 1) * np.sqrt(np.square(t_dist))
+    numerator = (size - 1) * np.sqrt(np.square(t_dist))                   #A*B
     denominator = np.sqrt(size) * np.sqrt(size - 2 + np.square(t_dist))
     critical_value = numerator / denominator
     print("Critical Value(λ{}): {}".format(iteration, critical_value))
@@ -50,7 +50,7 @@ def check_values(R, C, inp, max_index, iteration):
 
 
 def ESD_Test(input_series, alpha, max_outliers):
-    stats = []
+    stats_1 = []
     critical_vals = []
     for iterations in range(1, max_outliers + 1):
         stat, max_index = test_stat(input_series, iterations)
@@ -58,7 +58,7 @@ def ESD_Test(input_series, alpha, max_outliers):
         check_values(stat, critical, input_series, max_index, iterations)
         input_series = np.delete(input_series, max_index)
         critical_vals.append(critical)
-        stats.append(stat)
+        stats_1.append(stat)
         if stat > critical:
             max_i = iterations
     print('H0:  there are no outliers in the data')
@@ -69,7 +69,7 @@ def ESD_Test(input_series, alpha, max_outliers):
     print('Ri: Test statistic')
     print('λi: Critical Value')
     print(' ')
-    df = pd.DataFrame({'i': range(1, max_outliers + 1), 'Ri': stats, 'λi': critical_vals})
+    df = pd.DataFrame({'i': range(1, max_outliers + 1), 'Ri': stats_1, 'λi': critical_vals})
 
     def highlight_max(x):
         if x.i == max_i:
