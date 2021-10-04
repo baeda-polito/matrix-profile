@@ -65,39 +65,39 @@ print(' POLITO CASE STUDY\n',
       '-', len(data), 'observations\n'
       )
 
-# Visualise the data
-plt.figure(figsize=(10, 4))
-
-plt.subplot(2, 1, 1)
-plt.title("Total Electrical Load (complete)")
-plt.plot(data)
-plt.ylabel("Power [kW]")
-plt.gca().set_ylim([min_power, max_power])
-plt.gca().set_yticks(ticks_power)
-
-plt.subplot(2, 1, 2)
-plt.title("Total Electrical Load (first two weeks)")
-plt.plot(data.iloc[:4 * 24 * 7 * 2])
-plt.ylabel("Power [kW]")
-plt.gca().set_ylim([min_power, max_power])
-plt.gca().set_yticks(ticks_power)
-
-plt.gca().xaxis.set_major_locator(mdates.DayLocator([1, 8, 15]))
-plt.gca().xaxis.set_minor_locator(mdates.DayLocator())
-plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
-
-plt.grid(b=True, axis="x", which='both', color='black', linestyle=':')
-
-# add day labels on plot
-for i in range(14):
-    timestamp = data.index[position_x + i * obs_per_day]
-    plt.text(timestamp, position_y, timestamp.day_name()[:3])
-
-plt.tight_layout()
-
-# save figure to plot directories
-plt.savefig(path_to_figures + "dataset_lineplot.png", dpi=dpi_resolution, bbox_inches='tight')
-plt.close()
+# # Visualise the data
+# plt.figure(figsize=(10, 4))
+#
+# plt.subplot(2, 1, 1)
+# plt.title("Total Electrical Load (complete)")
+# plt.plot(data)
+# plt.ylabel("Power [kW]")
+# plt.gca().set_ylim([min_power, max_power])
+# plt.gca().set_yticks(ticks_power)
+#
+# plt.subplot(2, 1, 2)
+# plt.title("Total Electrical Load (first two weeks)")
+# plt.plot(data.iloc[:4 * 24 * 7 * 2])
+# plt.ylabel("Power [kW]")
+# plt.gca().set_ylim([min_power, max_power])
+# plt.gca().set_yticks(ticks_power)
+#
+# plt.gca().xaxis.set_major_locator(mdates.DayLocator([1, 8, 15]))
+# plt.gca().xaxis.set_minor_locator(mdates.DayLocator())
+# plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
+#
+# plt.grid(b=True, axis="x", which='both', color='black', linestyle=':')
+#
+# # add day labels on plot
+# for i in range(14):
+#     timestamp = data.index[position_x + i * obs_per_day]
+#     plt.text(timestamp, position_y, timestamp.day_name()[:3])
+#
+# plt.tight_layout()
+#
+# # save figure to plot directories
+# plt.savefig(path_to_figures + "dataset_lineplot.png", dpi=dpi_resolution, bbox_inches='tight')
+# plt.close()
 
 ########################################################################################
 # Define configuration for the Contextual Matrix Profile calculation.
@@ -106,7 +106,7 @@ plt.close()
 time_window = pd.read_csv(path_to_data + "time_window.csv")
 m_context = pd.read_csv(path_to_data + "m_context.csv")["m_context"][0]
 
-# define output file
+# define output file as dataframe
 df_output_all = pd.DataFrame()
 
 for u in range(len(time_window)):
@@ -220,38 +220,30 @@ for u in range(len(time_window)):
     # calculate the date labels to define the extent of figure
     date_labels = mdates.date2num(data.index[::m].values)
 
-    # plot CMP as matrix
-    plt.figure(figsize=(10, 10))
-
-    extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
-    CMP_plot(contextual_mp=cmp.distance_matrix,
-             palette=color_palette,
-             title='Contextual Matrix Profile',
-             extent=extents,
-             legend_label=distance_string,
-             date_ticks=14 * 2
-             )
-
-    plt.savefig(path_to_figures + context_string_small + os.sep + "cmp_context.png",
-                dpi=dpi_resolution,
-                bbox_inches='tight')
-    plt.close()
+    # # plot CMP as matrix
+    # plt.figure(figsize=(10, 10))
+    #
+    # extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
+    # CMP_plot(contextual_mp=cmp.distance_matrix,
+    #          palette=color_palette,
+    #          title='Contextual Matrix Profile',
+    #          extent=extents,
+    #          legend_label=distance_string,
+    #          date_ticks=14 * 2
+    #          )
+    #
+    # plt.savefig(path_to_figures + context_string_small + os.sep + "cmp_context.png",
+    #             dpi=dpi_resolution,
+    #             bbox_inches='tight')
+    # plt.close()
 
     ########################################################################################
-    # Create boolean arrays to indicate whether each day is a weekday/weekend/saturday/sunday
-    # - holiday (calendar holidays and academic calendar closures)
-    # - saturdays (not holidays not working days)
-    # - workingdays (not holiday and not saturdays)
-
-    # load data this is a boolean dataframe created in R each column represents a group
-    # CART
-    # annotation_df = pd.read_csv(path_to_data + context_string_small + os.sep + "groups.csv", index_col='timestamp', parse_dates=True)
-    # CLUSTER
+    # Load Cluster results as boolean dataframe created in R each column represents a group
     annotation_df = pd.read_csv(path_to_data + "group_cluster.csv", index_col='timestamp', parse_dates=True)
+    # initialize dataframe of results for context to be appended to the overall result
     df_output_context = annotation_df
     # set labels
     day_labels = data.index[::obs_per_day]
-
     # get number of groups
     n_group = annotation_df.shape[1]
 
@@ -264,7 +256,6 @@ for u in range(len(time_window)):
         group_name = annotation_df.columns[i]
 
         # add column of context of group in df_oytput
-
         df_output_context[group_name + "." + context_string_small] = [False for i in range(len(df_output_context))]
 
         # if figures directory doesnt exists create and save into it
@@ -284,18 +275,19 @@ for u in range(len(time_window)):
         np.savetxt(path_to_data + context_string_small + os.sep + 'plot_cmp_' + group_name + '.csv',
                    nan_diag(group_cmp), delimiter=",")
 
-        # plot CMP as matrix
-        plt.figure(figsize=(7, 7))
-        CMP_plot(contextual_mp=group_cmp,
-                 palette=color_palette,
-                 title="Power CMP (" + group_name + " only)",
-                 xlabel=group_name + " Index",
-                 legend_label=distance_string
-                 )
-        plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_cmp.png",
-                    dpi=dpi_resolution,
-                    bbox_inches='tight')
-        plt.close()
+        # # plot CMP as matrix
+        # plt.figure(figsize=(7, 7))
+        # CMP_plot(contextual_mp=group_cmp,
+        #          palette=color_palette,
+        #          title="Power CMP (" + group_name + " only)",
+        #          xlabel=group_name + " Index",
+        #          legend_label=distance_string
+        #          )
+        # plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_cmp.png",
+        #             dpi=dpi_resolution,
+        #             bbox_inches='tight')
+        # plt.close()
+
 
         # Calculate an anomaly score
         cmp_group_score = anomaly_score_calc(group_cmp, group)
@@ -324,29 +316,29 @@ for u in range(len(time_window)):
         if num_anomalies_to_show > 10:
             num_anomalies_to_show = 10
 
-        # Plot the anomaly scores and our considered threshold
-        fig, ax = plt.subplots(1, 2,
-                               sharey='all',
-                               figsize=(10, 7),
-                               gridspec_kw={'width_ratios': [3, 1]})
-
-        ax[0].set_title("Sorted Anomaly Scores (" + group_name + " only)")
-        ax[0].plot(cmp_ad_score_plot)
-        ax[0].set_ylabel("Anomaly Score")
-        ax[0].axvline(num_anomalies_to_show, ls=":", c="gray")
-        anomaly_ticks = list(range(0, len(cmp_ad_score_plot), int(len(cmp_ad_score_plot) / 5)))
-        anomaly_ticks.append(num_anomalies_to_show)
-        ax[0].set_xticks(anomaly_ticks)
-
-        ax[1].set_title("Boxplot")
-        ax[1].boxplot(cmp_ad_score_plot, widths=0.8)
-
-        plt.tight_layout()
-
-        plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomaly_score.png",
-                    dpi=dpi_resolution,
-                    bbox_inches='tight')
-        plt.close()
+        # # Plot the anomaly scores and our considered threshold
+        # fig, ax = plt.subplots(1, 2,
+        #                        sharey='all',
+        #                        figsize=(10, 7),
+        #                        gridspec_kw={'width_ratios': [3, 1]})
+        #
+        # ax[0].set_title("Sorted Anomaly Scores (" + group_name + " only)")
+        # ax[0].plot(cmp_ad_score_plot)
+        # ax[0].set_ylabel("Anomaly Score")
+        # ax[0].axvline(num_anomalies_to_show, ls=":", c="gray")
+        # anomaly_ticks = list(range(0, len(cmp_ad_score_plot), int(len(cmp_ad_score_plot) / 5)))
+        # anomaly_ticks.append(num_anomalies_to_show)
+        # ax[0].set_xticks(anomaly_ticks)
+        #
+        # ax[1].set_title("Boxplot")
+        # ax[1].boxplot(cmp_ad_score_plot, widths=0.8)
+        #
+        # plt.tight_layout()
+        #
+        # plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomaly_score.png",
+        #             dpi=dpi_resolution,
+        #             bbox_inches='tight')
+        # plt.close()
         ##########################
 
 
@@ -435,9 +427,6 @@ for u in range(len(time_window)):
 
 # at the end of loop on context save dataframe of results
 df_output_all.to_csv(path_to_data + "anomaly_results.csv")
-
-
-
 
 # print the execution time
 print("END: " + str(datetime.datetime.now()))
