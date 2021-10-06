@@ -1,11 +1,13 @@
 import os
-import pandas as pd
+
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 
 ######################## METHOD_1_MEDIAN_BOXPLOT ###########################
 def anomaly_detection_boxplot(group, group_cmp):
+
     group = np.array(group).flatten()
 
     columns_median = np.nanmedian(group_cmp, axis=0)  # get the median of the columns
