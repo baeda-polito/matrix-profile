@@ -14,6 +14,7 @@ from distancematrix.generator import Euclidean
 from distancematrix.consumer import MatrixProfileLR, ContextualMatrixProfile
 from distancematrix.consumer.contextmanager import GeneralStaticManager
 
+from anomaly_detection_functions import anomaly_detection
 from matplotlib import rc  # font plot
 from kneed import KneeLocator  # find knee of curve
 from utils_functions import roundup, anomaly_score_calc, CMP_plot, hour_to_dec, dec_to_hour, nan_diag, dec_to_obs
@@ -241,7 +242,7 @@ for u in range(len(time_window)):
     # Load Cluster results as boolean dataframe created in R each column represents a group
     annotation_df = pd.read_csv(path_to_data + "group_cluster.csv", index_col='timestamp', parse_dates=True)
     # initialize dataframe of results for context to be appended to the overall result
-    df_output_context = annotation_df
+    df_output_context = annotation_df.astype(int)
     # set labels
     day_labels = data.index[::obs_per_day]
     # get number of groups
@@ -256,7 +257,7 @@ for u in range(len(time_window)):
         group_name = annotation_df.columns[i]
 
         # add column of context of group in df_oytput
-        df_output_context[group_name + "." + context_string_small] = [False for i in range(len(df_output_context))]
+        df_output_context[group_name + "." + context_string_small] = [0 for i in range(len(df_output_context))]
 
         # if figures directory doesnt exists create and save into it
         if not os.path.exists(path_to_figures + context_string_small + os.sep + group_name):
@@ -289,135 +290,117 @@ for u in range(len(time_window)):
         # plt.close()
 
 
-        # Calculate an anomaly score
-        cmp_group_score = anomaly_score_calc(group_cmp, group)
+        # # Calculate an anomaly score Previous method
+        # cmp_group_score = anomaly_score_calc(group_cmp, group)
+        #
+        # ##########################
+        # # Initialize ana anomaly score empty vector
+        # cmp_ad_score = np.zeros(len(cmp.distance_matrix)) * np.nan
+        # # add to the empty array those referring to the group
+        # cmp_ad_score[group] = cmp_group_score
 
-        ##########################
-        # Initialize ana anomaly score empty vector
-        cmp_ad_score = np.zeros(len(cmp.distance_matrix)) * np.nan
-        # add to the empty array those referring to the group
-        cmp_ad_score[group] = cmp_group_score
-        # Ordering of all days, from most to least anomalous
+        # calculate anomaly score as the
+        cmp_ad_score = anomaly_detection(group, group_cmp)
+        # set to nan if zero (no anomaly)
+        cmp_ad_score = np.where(cmp_ad_score == 0, np.nan, cmp_ad_score)
+
+        #the number of anomalies is the number of non nan elements
+        num_anomalies_to_show =np.count_nonzero(~np.isnan(cmp_ad_score))
+
+        # Ordering of all days, from most to least anomalous in order of severity
         ad_order = np.argsort(cmp_ad_score)[::-1]
+
         # move na at the end of the vector
         ad_order = np.roll(ad_order, -np.count_nonzero(np.isnan(cmp_ad_score)))
-        # save the position of the last available number before NA
-        last_value = np.where(cmp_ad_score[ad_order] == min(cmp_ad_score[ad_order]))[0][0]
         # create a vector to plot correctly the graph
-        cmp_ad_score_plot = cmp_ad_score[ad_order][0:last_value]
-
-        # set number of aomalies to show as the elbow of the curve
-        x_ad = np.array(range(0, len(cmp_ad_score_plot)))
-        y_ad = cmp_ad_score_plot
-        kn = KneeLocator(x_ad, y_ad, curve='convex', direction='decreasing')
-        num_anomalies_to_show = kn.knee
+        cmp_ad_score_plot = cmp_ad_score[ad_order][0:num_anomalies_to_show]
 
         # limit the number of anomalies
         if num_anomalies_to_show > 10:
             num_anomalies_to_show = 10
 
-        # # Plot the anomaly scores and our considered threshold
-        # fig, ax = plt.subplots(1, 2,
-        #                        sharey='all',
-        #                        figsize=(10, 7),
-        #                        gridspec_kw={'width_ratios': [3, 1]})
-        #
-        # ax[0].set_title("Sorted Anomaly Scores (" + group_name + " only)")
-        # ax[0].plot(cmp_ad_score_plot)
-        # ax[0].set_ylabel("Anomaly Score")
-        # ax[0].axvline(num_anomalies_to_show, ls=":", c="gray")
-        # anomaly_ticks = list(range(0, len(cmp_ad_score_plot), int(len(cmp_ad_score_plot) / 5)))
-        # anomaly_ticks.append(num_anomalies_to_show)
-        # ax[0].set_xticks(anomaly_ticks)
-        #
-        # ax[1].set_title("Boxplot")
-        # ax[1].boxplot(cmp_ad_score_plot, widths=0.8)
-        #
-        # plt.tight_layout()
-        #
-        # plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomaly_score.png",
-        #             dpi=dpi_resolution,
-        #             bbox_inches='tight')
-        # plt.close()
-        ##########################
+        # only visualize if some anomaly are shown
+        if num_anomalies_to_show >0 :
 
+            # Visualise the top anomalies according to the CMP
+            fig, ax = plt.subplots(num_anomalies_to_show, 2,
+                                   sharex='all',
+                                   sharey='all',
+                                   figsize=(10, 14 / 8 * num_anomalies_to_show),
+                                   gridspec_kw={'wspace': 0., 'hspace': 0.})
 
-        # Visualise the top anomalies according to the CMP
-        fig, ax = plt.subplots(num_anomalies_to_show, 2,
-                               sharex='all',
-                               sharey='all',
-                               figsize=(10, 14 / 8 * num_anomalies_to_show),
-                               gridspec_kw={'wspace': 0., 'hspace': 0.})
+            ax[0, 0].set_title("Anomaly vs all")
+            ax[0, 1].set_title("Anomaly vs " + group_name)
 
-        ax[0, 0].set_title("Anomaly vs all")
-        ax[0, 1].set_title("Anomaly vs " + group_name)
+            for j in range(num_anomalies_to_show):
+                anomaly_index = ad_order[j]
+                anomaly_range = range(obs_per_day * anomaly_index, obs_per_day * (anomaly_index + 1))
+                date = day_labels[anomaly_index]
 
-        for j in range(num_anomalies_to_show):
-            anomaly_index = ad_order[j]
-            anomaly_range = range(obs_per_day * anomaly_index, obs_per_day * (anomaly_index + 1))
-            date = day_labels[anomaly_index]
+                # update output dataframe add severity
+                df_output_context.loc[df_output_context.index.values == np.datetime64(date),
+                                      group_name + "." + context_string_small] = cmp_ad_score[anomaly_index]
 
-            # update output dataframe
-            df_output_context.loc[df_output_context.index.values == np.datetime64(date),
-                                  group_name + "." + context_string_small] = True
+                ax[j, 0].plot(data.values.reshape((-1, obs_per_day)).T,
+                              c=line_color_other,
+                              alpha=0.07)
+                # ax[j, 0].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
+                #               data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
+                #               c=line_color_context,
+                #               linestyle=line_style_context)
+                ax[j, 0].plot(range(dec_to_obs(context_start, obs_per_hour), (dec_to_obs(context_end, obs_per_hour) + m)),
+                              data.values[anomaly_range][
+                              dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
+                              c=line_color_context,
+                              linestyle=line_style_context)
+                ax[j, 0].plot(data.values[anomaly_range],
+                              c=line_color_context,
+                              linestyle=line_style_other)
+                ax[j, 0].set_ylim([min_power, max_power])
+                ax[j, 0].set_yticks(ticks_power)
 
-            ax[j, 0].plot(data.values.reshape((-1, obs_per_day)).T,
-                          c=line_color_other,
-                          alpha=0.07)
-            # ax[j, 0].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
-            #               data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
-            #               c=line_color_context,
-            #               linestyle=line_style_context)
-            ax[j, 0].plot(range(dec_to_obs(context_start, obs_per_hour), (dec_to_obs(context_end, obs_per_hour) + m)),
-                          data.values[anomaly_range][
-                          dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
-                          c=line_color_context,
-                          linestyle=line_style_context)
-            ax[j, 0].plot(data.values[anomaly_range],
-                          c=line_color_context,
-                          linestyle=line_style_other)
-            ax[j, 0].set_ylim([min_power, max_power])
-            ax[j, 0].set_yticks(ticks_power)
+                ax[j, 1].plot(data.values.reshape((-1, obs_per_day))[group].T,
+                              c=line_color_other,
+                              alpha=0.07)
+                # ax[j, 1].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
+                #               data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
+                #               c=line_color_context,
+                #               linestyle=line_style_context)
+                ax[j, 1].plot(range(dec_to_obs(context_start, obs_per_hour), (dec_to_obs(context_end, obs_per_hour) + m)),
+                              data.values[anomaly_range][
+                              dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
+                              c=line_color_context,
+                              linestyle=line_style_context)
+                ax[j, 1].plot(data.values[anomaly_range],
+                              c=line_color_context,
+                              linestyle=line_style_other)
+                ax[j, 0].set_ylim([min_power, max_power])
+                ax[j, 0].set_yticks(ticks_power)
 
-            ax[j, 1].plot(data.values.reshape((-1, obs_per_day))[group].T,
-                          c=line_color_other,
-                          alpha=0.07)
-            # ax[j, 1].plot(range(context_start * obs_per_hour, (context_end * obs_per_hour + m)),
-            #               data.values[anomaly_range][(context_start * obs_per_hour):(context_end * obs_per_hour + m)],
-            #               c=line_color_context,
-            #               linestyle=line_style_context)
-            ax[j, 1].plot(range(dec_to_obs(context_start, obs_per_hour), (dec_to_obs(context_end, obs_per_hour) + m)),
-                          data.values[anomaly_range][
-                          dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
-                          c=line_color_context,
-                          linestyle=line_style_context)
-            ax[j, 1].plot(data.values[anomaly_range],
-                          c=line_color_context,
-                          linestyle=line_style_other)
-            ax[j, 0].set_ylim([min_power, max_power])
-            ax[j, 0].set_yticks(ticks_power)
-
-            ax[j, 0].text(0, position_y, "Anomaly " + str(j + 1))
-            ax[j, 1].text(0, position_y, date.day_name() + " " + str(date)[:10])
+                ax[j, 0].text(0, position_y, "Anomaly " + str(j + 1))
+                ax[j, 1].text(0, position_y, date.day_name() + " " + str(date)[:10])
 
 
 
-        ax[0, 0].set_xticks(range(0, 97, 24))
-        ticklabels = ["{hour}:00".format(hour=(x // obs_per_hour)) for x in range(0, 97, 24)]
-        # ticklabels[-1] = ""
-        ax[0, 0].set_xticklabels(ticklabels)
+            ax[0, 0].set_xticks(range(0, 97, 24))
+            ticklabels = ["{hour}:00".format(hour=(x // obs_per_hour)) for x in range(0, 97, 24)]
+            # ticklabels[-1] = ""
+            ax[0, 0].set_xticklabels(ticklabels)
 
-        plt.tight_layout()
+            plt.tight_layout()
 
-        ax[num_anomalies_to_show // 2, 0].set_ylabel("Power [kW]")
-        #ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
+            ax[num_anomalies_to_show // 2, 0].set_ylabel("Power [kW]")
+            #ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
 
-        plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomalies.png",
-                    dpi=dpi_resolution,
-                    bbox_inches='tight')
-        plt.close()
-        # print the execution time
-        print("- " + group_name + ' ' + str(datetime.datetime.now() - begin_time_group))
+            plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomalies.png",
+                        dpi=dpi_resolution,
+                        bbox_inches='tight')
+            plt.close()
+            # print the execution time
+            print("- " + group_name + ' ' + str(datetime.datetime.now() - begin_time_group))
+        #if no anomaly to show not visualize
+        else:
+            pass
 
     # at the end of loop on groups save dataframe corresponding to given context
     if df_output_all.empty:
