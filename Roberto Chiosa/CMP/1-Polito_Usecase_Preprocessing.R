@@ -86,7 +86,7 @@ df %>%
   ) +
   labs(x = "", y = "", fill = "")
 
-ggsave(filename = file.path("Polito_Usecase", "figures", "dataset_carpet.png"), width = 7, height = 4, dpi = dpi )
+ggsave(filename = file.path("Polito_Usecase", "figures", "dataset_carpet,jpg"), width = 7, height = 4, dpi = dpi )
 
 dev.off()
 
