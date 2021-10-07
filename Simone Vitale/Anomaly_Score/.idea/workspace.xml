@@ -2,10 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="03b1a02b-6a31-4b33-a39a-053361947a59" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GESD_function.py" beforeDir="false" afterPath="$PROJECT_DIR$/GESD_function.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knn_func.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/methods.py" beforeDir="false" afterPath="$PROJECT_DIR$/methods.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Contextual_Series_Analysis/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/../Contextual_Series_Analysis/.idea/.name" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Contextual_Series_Analysis/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Contextual_Series_Analysis/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Contextual_Series_Analysis/cntxt_1_knn_distances.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Contextual_Series_Analysis/cntxt_1_mean_of_distances.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -165,9 +170,6 @@
       <module name="Anomaly_Score" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -207,8 +209,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.GESD_function" />
         <item itemvalue="Python.methods" />
+        <item itemvalue="Python.GESD_function" />
         <item itemvalue="Python.test_kNN" />
         <item itemvalue="Python.Polito_cntxt_1 copia" />
         <item itemvalue="Python.knn_func" />
@@ -247,6 +249,13 @@
       <workItem from="1632988267577" duration="22224000" />
       <workItem from="1633251160533" duration="1098000" />
       <workItem from="1633360387076" duration="973000" />
+      <workItem from="1633530154247" duration="123000" />
+      <workItem from="1633533395437" duration="7000" />
+      <workItem from="1633533540062" duration="1963000" />
+      <workItem from="1633537840589" duration="13000" />
+      <workItem from="1633538702075" duration="368000" />
+      <workItem from="1633596572403" duration="47000" />
+      <workItem from="1633598893142" duration="4876000" />
     </task>
     <servers />
   </component>

@@ -2,8 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="eb0c832b-c253-4e1d-8a2e-c29e6f3bbbbc" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../Anomaly_Score/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Anomaly_Score/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Anomaly_Score/method1.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Anomaly_Score/method2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Anomaly_Score/methods.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Anomaly_Score/methods.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cntxt_1_knn_distances.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cntxt_1_mean_of_distances.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,7 +48,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
-  <component name="RunManager" selected="Python.QQ_anomaly">
+  <component name="RunManager" selected="Python.main (1)">
     <configuration name="Polito_cntxt_1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Contextual_Series_Analysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -131,20 +137,17 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="knn_func" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="main (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Contextual_Series_Analysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../Anomaly_Score" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/knn_func.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../Anomaly_Score/main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -199,11 +202,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main (1)" />
         <item itemvalue="Python.QQ_anomaly" />
         <item itemvalue="Python.Polito_cntxt_1" />
         <item itemvalue="Python.test_kNN" />
         <item itemvalue="Python.Polito_cntxt_1_knn_distances" />
-        <item itemvalue="Python.knn_func" />
       </list>
     </recent_temporary>
   </component>
@@ -265,6 +268,8 @@
       <workItem from="1632473458187" duration="3684000" />
       <workItem from="1632487820567" duration="86000" />
       <workItem from="1632488644264" duration="1293000" />
+      <workItem from="1633530822626" duration="351000" />
+      <workItem from="1633537868048" duration="717000" />
     </task>
     <servers />
   </component>
@@ -287,6 +292,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Polito_case_py$Polito_cntxt_1.coverage" NAME="Polito_cntxt_1 Coverage Results" MODIFIED="1631383810745" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Polito_cntxt_1_copia_py$main.coverage" NAME="main Coverage Results" MODIFIED="1633538237805" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Contextual_Series_Analysis$Prova_CMP.coverage" NAME="Prova_CMP Coverage Results" MODIFIED="1627059266120" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Contextual_Series_Analysis$Ventilation_Usecases.coverage" NAME="Ventilation_Usecases Coverage Results" MODIFIED="1627207204169" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Polito_case_py$Polito_Usecase.coverage" NAME="Polito_Usecase Coverage Results" MODIFIED="1631116983024" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

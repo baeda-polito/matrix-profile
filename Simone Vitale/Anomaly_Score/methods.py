@@ -1,61 +1,28 @@
 ## import
 import os
 import matplotlib.pyplot as plt
+import seaborn as sns
 import pandas as pd
 import numpy as np
 
-'''
-## test method
-path_to_data = os.getcwd() + os.sep + 'data' + os.sep # get the path
-group= pd.read_csv(path_to_data + "group.csv", header=None)
-group=np.array(group).flatten()
-group_cmp = pd.read_csv(path_to_data+'group_cmp.csv',header=None) # load csv
+from scipy import stats
+from kneed import KneeLocator
+from GESD_function import ESD_Test
 
-
-data=[data[ii].dropna() for ii in range(data[0].size)] #remove nan
-data=np.array(data) # from list to array
-columns_median=np.median(data, axis=0) # get the median of the columns
-
-fig,ax=plt.subplots(figsize=(6, 6))
-bp=ax.boxplot( columns_median,notch=True,patch_artist=True)
-ax.set_ylabel('Distribution of the columns median')
-ax.axes.get_xaxis().set_visible(False) #remove x-axis
-ax.set_title('Notched box plot')
-plt.show()
-
-outliers = [flier.get_ydata() for flier in bp["fliers"]] #get the outliers
-
-# create an array of medians according cluster on yearly period
-median_of_day=np.zeros(364)
-jj=0
-for ii in range (365):
-    if group[ii]==1 and jj< 74 :
-       median_of_day[ii]=columns_median[jj]
-       jj=jj+1
-
-#take the outliers
-threshold= np.min(outliers)
-column_1=(median_of_day>=threshold)*1
-
-
-## transform into function
-'''
 ######################## METHOD_1_MEDIAN_BOXPLOT ###########################
-def method1_function(group,group_cmp):
-
-    import numpy as np
-    import matplotlib.pyplot as plt
+def boxplot_fun(group,group_cmp):
+    '''
+    This function helps to analyze data through box-plot
+    :param group: is an array of length 365 holding cluster membership through values 0 and 1
+    :param group_cmp: is the cmp by cluster
+    :return: this function will return an outliers in the form( true or false) and a figure
+    '''
 
     group = np.array(group).flatten()
 
-    dim=group_cmp[0].size
-    group_cmp = np.array(group_cmp)  # from list to array
-    group_cmp = group_cmp[~np.isnan(group_cmp)]# remove nan
-    group_cmp=np.reshape(group_cmp, (dim, dim-1))
+    columns_median = np.nanmedian(group_cmp, axis=0)  # get the median of the columns
 
-    columns_median = np.median(group_cmp, axis=0)  # get the median of the columns
-
-    fig, ax = plt.subplots()
+    fig_1, ax = plt.subplots()
     bp = ax.boxplot(columns_median, notch=True, patch_artist=True)
     ax.set_ylabel('Distribution of the columns median')
     ax.axes.get_xaxis().set_visible(False)  # remove x-axis
@@ -64,11 +31,12 @@ def method1_function(group,group_cmp):
     outliers_both_whisker = [flier.get_ydata() for flier in bp["fliers"]]  # get the outliers
     outliers_both_whisker=np.array(outliers_both_whisker)
     outliers= outliers_both_whisker[outliers_both_whisker>np.median(columns_median)]
-        # create an array of medians according cluster on yearly period
-    median_of_day = np.zeros(group.size-1)
+
+    # create an array of medians according cluster on yearly period
+    median_of_day = np.zeros(group.size)
     jj = 0
     for ii in range(group.size):
-        if group[ii] == 1 and jj < (len(group_cmp)-1):
+        if group[ii] == 1 and jj < (len(group_cmp)):
             median_of_day[ii] = columns_median[jj]
             jj = jj + 1
 
@@ -76,43 +44,38 @@ def method1_function(group,group_cmp):
     threshold = np.min(outliers)
     column_1 = (median_of_day >= threshold) * 1
 
-    return (column_1, fig)
+    return (column_1, fig_1)
 
 
 ######################## METHOD_2_ZSCORE-MEDIAN ###########################
-def method2_function(group,group_cmp):
-
-   import seaborn as sns
-   import numpy as np
-   import matplotlib.pyplot as plt
-
-   from scipy import stats
+def zscore_fun(group,group_cmp):
+   '''
+   This function helps to analyze data through z-score trasformation
+   :param group: is an array of length 365 holding cluster membership through values 0 and 1
+   :param group_cmp: is the cmp by cluster
+   :return: this function will return an outliers in the form( true or false) and a figure
+   '''
 
    group = np.array(group).flatten()
-   dim=group_cmp[0].size
-   group_cmp = np.array(group_cmp)  # from list to array
-   group_cmp = group_cmp[~np.isnan(group_cmp)]# remove nan
-   group_cmp=np.reshape(group_cmp, (dim, dim-1))
-
-   columns_median = np.median(group_cmp, axis=0)  # get the median of the columns
+   columns_median = np.nanmedian(group_cmp, axis=0)  # get the median of the columns
    zscore=stats.zscore(columns_median)
 
    upper_bound=2
 
-   fig_1 ,ax=plt.subplots()
+   fig_2 ,ax=plt.subplots()
    sns.kdeplot(data=zscore)
    plt.axvline(x=upper_bound,ymin=0,ymax=1,linestyle='dashed',color='gray')
 
    # create an array of medians according cluster on yearly period
-   outliers = np.zeros(group.size-1)
+   outliers = np.zeros(group.size)
    jj = 0
 
    for ii in range(group.size):
-       if group[ii] == 1 and jj < (len(group_cmp)-1):
+       if group[ii] == 1 and jj < (len(group_cmp)):
            outliers[ii] = zscore[jj]
            jj = jj + 1
 
-   for kk in range(group.size-1):
+   for kk in range(group.size):
        if  outliers[kk]>upper_bound:
            outliers[kk]=1
        else:
@@ -121,30 +84,27 @@ def method2_function(group,group_cmp):
    # take the outliers
    column_2=outliers
 
-   return(column_2, fig_1)
+   return(column_2, fig_2)
 
 ######################## METHOD_3_ELBOW ###########################
-def method3_function(group,group_cmp):
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from kneed import KneeLocator
+def elbow_fun(group,group_cmp):
+    '''
+    This function helps to analyze data elbow-methods: the values below the elbow of a curve are labelled as anomaly
+    :param group: is an array of length 365 holding cluster membership through values 0 and 1
+    :param group_cmp: is the cmp by cluster
+    :return: this function will return an outliers in the form( true or false) and a figure
+    '''
 
     group = np.array(group).flatten()
 
-    dim=group_cmp[0].size
-    group_cmp = np.array(group_cmp)  # from list to array
-    group_cmp = group_cmp[~np.isnan(group_cmp)]# remove nan
-    group_cmp=np.reshape(group_cmp, (dim, dim-1))
-
-    columns_median = np.median(group_cmp, axis=0)  # get the median of the columns
+    columns_median = np.nanmedian(group_cmp, axis=0)  # get the median of the columns
 
     xx = np.array(range(0,columns_median.size))
     yy = np.sort(columns_median)[::-1] #decreasing
     kn = KneeLocator(xx, yy, curve='convex', direction='decreasing')
     num_anomalies_to_show = kn.knee
 
-    fig_2,ax=plt.subplots(figsize=(6,5 ))
+    fig_3,ax=plt.subplots(figsize=(6,5))
     plt.plot(yy)
     plt.ylabel("Anomaly Score")
     plt.title("Sorted Anomaly Scores")
@@ -154,11 +114,11 @@ def method3_function(group,group_cmp):
     plt.xticks(anomaly_ticks)
 
     # create an array of medians according cluster on yearly period
-    outliers = np.zeros(group.size-1)
+    outliers = np.zeros(group.size)
 
     jj = 0
     for ii in range(group.size):
-        if group[ii] == 1 and jj < (len(group_cmp)-1):
+        if group[ii] == 1 and jj < (len(group_cmp)):
             outliers[ii] = columns_median[jj]
 
             jj = jj + 1
@@ -168,37 +128,33 @@ def method3_function(group,group_cmp):
     threshold = min(anomaly_day)
     column_3=(outliers >= threshold)*1
 
-    return (column_3, fig_2)
+    return (column_3, fig_3)
 
 ######################## METHOD_4_GESED ###########################
-def method4_function(group,group_cmp):
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import scipy.stats as stats
-    from GESD_function import ESD_Test
+def gesd_fun(group,group_cmp):
+    '''
+    This function helps to detect outliers through GESD-test:
+    :param group: is an array of length 365 holding cluster membership through values 0 and 1
+    :param group_cmp: is the cmp by cluster
+    :return: this function will return an outliers in the form( true or false) and a figure
+    '''
 
     group = np.array(group).flatten()
 
-    dim=group_cmp[0].size
-    group_cmp = np.array(group_cmp)  # from list to array
-    group_cmp = group_cmp[~np.isnan(group_cmp)]# remove nan
-    group_cmp=np.reshape(group_cmp, (dim, dim-1))
+    columns_median = np.nanmedian(group_cmp, axis=0)  # get the median of the columns
 
-    columns_median = np.median(group_cmp, axis=0)  # get the median of the columns
-
-    fig_3, ax = plt.subplots()
+    fig_4, ax = plt.subplots()
     stats.probplot(columns_median, dist="norm", plot=plt)
     plt.show()
 
     GESD_df, n_outliers =ESD_Test(columns_median, 0.05, 10)
 
     # create an array of medians according cluster on yearly period
-    outliers = np.zeros(group.size - 1)
+    outliers = np.zeros(group.size)
 
     jj = 0
     for ii in range(group.size):
-        if group[ii] == 1 and jj < (len(group_cmp) - 1):
+        if group[ii] == 1 and jj < (len(group_cmp)):
             outliers[ii] = columns_median[jj]
 
             jj = jj + 1
@@ -207,4 +163,4 @@ def method4_function(group,group_cmp):
     threshold = min(anomaly_day)
     column_4 = (outliers >= threshold) * 1
 
-    return (column_4, fig_3)
+    return (column_4, fig_4)
