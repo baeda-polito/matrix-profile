@@ -7,6 +7,16 @@ import pandas as pd
 
 ######################## METHOD_1_MEDIAN_BOXPLOT ###########################
 def anomaly_detection_boxplot(group, group_cmp):
+    """
+    :param group: description
+    :type group: array
+
+    :param group_cmp: matrix
+    :type group_cmp: array
+
+    :return: column array
+    :rtype: the return type description
+    """
 
     group = np.array(group).flatten()
 
@@ -40,6 +50,13 @@ def anomaly_detection_boxplot(group, group_cmp):
 
 
 def anomaly_detection(group, group_cmp):
+    """
+    This function implements the anomaly detection methods
+
+    :param group:
+    :param group_cmp:
+    :return:
+    """
     column_1, plot_1 = anomaly_detection_boxplot(group, group_cmp)
 
     df = pd.DataFrame()
@@ -59,11 +76,11 @@ def anomaly_detection(group, group_cmp):
 path_to_data = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'data'
 path_to_figures = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'figures'
 
-group = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group.csv", header=None)
-group_cmp = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group_cmp.csv", header=None)
+group_csv = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group.csv", header=None)
+group_cmp_csv = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group_cmp.csv", header=None)
 
-group_array = np.asarray(group[0], dtype=bool)
-group_cmp_array = np.asarray(group_cmp)
+group_array = np.asarray(group_csv[0], dtype=bool)
+group_cmp_array = np.asarray(group_cmp_csv)
 
 # nel codice i dati arrivano cosi
 

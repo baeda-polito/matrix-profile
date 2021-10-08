@@ -1,82 +1,112 @@
 # import from default libraries and packages
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import matplotlib.ticker as mticker
 import math
 
-
-def hour_to_dec(hour):
-    """ transforms float hours from HH:MM string format to float with decimal places
-    :param hour:
-    :return:
-    """
-    (H, M) = hour.split(':')
-    result = int(H) + int(M) / 60
-    return result
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
+import numpy as np
 
 
-def dec_to_hour(hour):
-    """ transforms float hours with decimal places into HH:MM string format
-    :param hour:
-    :return:
-    """
+def hour_to_dec(hour_str):
+    """ Transforms float hours from HH:MM string format to float with decimal places
 
-    H, M = divmod(hour * 60, 60)
-    result = "%02d:%02d" % (H, M)
-    return result
+    :param hour_str: hour in format HH:MM
+    :type hour_str: str
 
+    :return hour_dec: hour in numerical format
+    :rtype hour_dec: float
 
-def dec_to_obs(hour, obs_per_hour):
-    """ transforms float hours with decimal places into HH:MM string format
-    :param hour in decimal form
-    :param obs_per_hour observation per hour in int
-    :return:
+    :example:
+    >>> hour_to_dec('02:00')
+    2.0
     """
 
-    H, M = divmod(hour * 60, 60)
+    (H, M) = hour_str.split(':')
+    hour_dec = int(H) + int(M) / 60
+    return hour_dec
 
-    # 6.30 -> H = 6, M = 30
-    # 6[hours]*4[observations/hour] + 30[minutes]*1/15[observations/minutes] = 25 [observations]
-    result = int(H * obs_per_hour + M / 15)
-    return result
+
+def dec_to_hour(hour_dec):
+    """ Transforms float hours with decimal places into HH:MM string format
+
+    :param hour_dec: hour in numerical format
+    :type hour_dec: float
+
+    :return hour_str: hour in format HH:MM
+    :rtype hour_str: str
+
+    :example:
+    >>> dec_to_hour(2.5)
+    '02:30'
+    """
+
+    (H, M) = divmod(hour_dec * 60, 60)
+    hour_str = "%02d:%02d" % (H, M)
+    return hour_str
+
+
+def dec_to_obs(hour_dec, obs_per_hour):
+    """  transforms float hours with decimal places into HH:MM string format
+
+    :param hour_dec: hour interval in numerical format
+    :type hour_dec: float
+
+    :param obs_per_hour: number of observations per hour
+    :type obs_per_hour: int
+
+    :return observations: number of observations
+    :rtype observations: int
+
+    :example:
+    >>> # 6.30 -> H = 6, M = 30
+    >>> #6[hours]*4[observations/hour] + 30[minutes]*1/15[observations/minutes] = 25 [observations]
+    >>> dec_to_obs(6.30 , 4)
+    25
+    """
+
+    (H, M) = divmod(hour_dec * 60, 60)
+    observations = int(H * obs_per_hour + M / 15)
+    return observations
 
 
 def roundup(x, digit=1):
-    """ rounds number too upper decimal
-    :param x:
-    :param digit:
-    :return:
+    """  rounds number too upper decimal
+
+    :param x: number
+    :type x: float
+
+    :param digit: number of digit to round
+    :type digit: int
+
+    :return rounded: rounded number
+    :rtype rounded: int
+
+    :example:
+    >>> roundup(733, digit=10)
+    740
     """
-    return int(math.ceil(x / digit)) * digit
-
-
-def anomaly_score_calc(group_matrix, group_array):
-    """utils function used to calculate anomaly score
-    :param group_matrix:
-    :param group_array:
-    :return:
-    """
-
-    # Calculate an anomaly score by summing the values (per type of day) across one axis and averaging
-    cmp_group_score_array = np.nansum(group_matrix, axis=1) / np.count_nonzero(group_array)
-    return cmp_group_score_array
+    rounded = int(math.ceil(x / digit)) * digit
+    return rounded
 
 
 def nan_diag(matrix):
-    """Fills the diagonal of the passed square matrix with nans.
-    :param matrix:
-    :return:
+    """ Transforms a square matrix into a matrix with na on main diagonal
+
+    :param matrix:a matrix of numbers
+    :type matrix: np.matrix
+
+    :return matrix_nan: matrix of numbers
+    :rtype matrix_nan: np.matrix
     """
 
-    h, w = matrix.shape
+    (x, y) = matrix.shape
 
-    if h != w:
+    if x != y:
         raise RuntimeError("Matrix is not square")
 
-    matrix = matrix.copy()
-    matrix[range(h), range(w)] = np.nan
-    return matrix
+    matrix_nan = matrix.copy()
+    matrix_nan[range(x), range(y)] = np.nan
+    return matrix_nan
 
 
 def CMP_plot(contextual_mp,
