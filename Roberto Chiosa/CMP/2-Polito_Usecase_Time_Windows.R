@@ -9,7 +9,7 @@ import::from(dplyr, mutate, filter, select)
 import::from(rpart, plotcp)
 import::from(partykit, as.party, node_boxplot, node_inner, edge_simple)
 import::from(grid, gpar)
-import::from(lubridate, hm)
+import::from(lubridate, hm, as.duration, duration)
 library(ggplot2)
 library(scales)
 
@@ -47,7 +47,7 @@ ct <- rpart::rpart(value ~ time_dec,
 
 # Print complexity parameter
 dev.new()
-png(file = file.path("Polito_Usecase", "figures", "time_window_cp,jpg"), 
+png(file = file.path("Polito_Usecase", "figures", "time_window_cp.jpg"), 
     bg = "white", width = 2000, height = 1300, res = dpi) 
 plotcp(ct, lty = 2, col = "red", upper = "size", family = font_family)
 dev.off()
@@ -183,7 +183,7 @@ ggplot() +
   )         # margin around entire plot
 
 
-ggsave(filename = file.path("Polito_Usecase", "figures", "time_window_definition,jpg"), width = 7, height = 4.5, dpi = 200 )
+ggsave(filename = file.path("Polito_Usecase", "figures", "time_window_definition.jpg"), width = 7, height = 4.5, dpi = 200 )
 
 dev.off()
 

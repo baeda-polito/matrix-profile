@@ -1,30 +1,22 @@
 # import from default libraries and packages
-import datetime                         # data
-import os                               # OS handling utils
+import datetime  # data
+import os  # OS handling utils
 
-import matplotlib.dates as mdates       # handle dates
-import matplotlib.pyplot as plt         # plots
-import numpy as np                      # general data manipulation
-import pandas as pd                     # dataframe handling
-from matplotlib import rc               # font plot
+import matplotlib.pyplot as plt  # plots
+import numpy as np  # general data manipulation
+import pandas as pd  # dataframe handling
+from matplotlib import rc  # font plot
 
+from anomaly_detection_functions import anomaly_detection
 # import from the local module distancematrix
 from distancematrix.calculator import AnytimeCalculator
-from distancematrix.consumer import MatrixProfileLR, ContextualMatrixProfile
+from distancematrix.consumer import ContextualMatrixProfile
 from distancematrix.consumer.contextmanager import GeneralStaticManager
 from distancematrix.generator import Euclidean
-
 # import from custom modules useful functions
 from utils_functions import roundup, hour_to_dec, dec_to_hour, nan_diag, dec_to_obs
-from anomaly_detection_functions import anomaly_detection
 
 ########################################################################################
-# define a begin time to evaluate execution time & performance of algorithm
-begin_time = datetime.datetime.now()
-print('\n*********************\n' +
-      'RUNNING Polito_Usecase.py\n' +
-      'START: ' + begin_time.strftime("%Y-%m-%d %H:%M:%S"))
-
 # useful paths
 path_to_data = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'data' + os.sep
 path_to_figures = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'figures' + os.sep
@@ -35,25 +27,31 @@ dpi_resolution = 300
 fontsize = 10
 line_style_context = "-"
 line_style_other = ":"
-line_color_context = "#D83C3B" # previously red
-line_color_other = "#D5D5E0" # previously gray
+line_color_context = "#D83C3B"  # previously red
+line_color_other = "#D5D5E0"  # previously gray
 # plt.style.use("seaborn-paper")
 rc('font', **{'family': 'sans-serif', 'sans-serif': ['Poppins']})
 plt.rcParams.update({'font.size': fontsize})
 
+# define a begin time to evaluate execution time & performance of algorithm
+begin_time = datetime.datetime.now()
+print('\n*********************\n' +
+      'RUNNING Polito_Usecase.py\n' +
+      'START: ' + begin_time.strftime("%Y-%m-%d %H:%M:%S"))
+
 ########################################################################################
 # load dataset
 data = pd.read_csv(path_to_data + "polito.csv", index_col='timestamp', parse_dates=True)
-obs_per_day = 96        # [observation/day]
-obs_per_hour = 4        # [observation/hour]
+obs_per_day = 96  # [observation/day]
+obs_per_hour = 4  # [observation/hour]
 
-min_power = 0           # [kW] minimum value of power
-max_power = 850         # [kW] roundup(max(data.values)[0], 10)  # maximum value of power
+min_power = 0  # [kW] minimum value of power
+max_power = 850  # [kW] roundup(max(data.values)[0], 10)  # maximum value of power
 
 ticks_power = list(range(min_power, max_power, roundup(max_power / 6, digit=100)))
 
-position_x = 6          # [kW] position of day annotation on x axis
-position_y = 750        # [kW] position of day annotation on y axis
+position_x = 6  # [kW] position of day annotation on x axis
+position_y = 750  # [kW] position of day annotation on y axis
 
 # print dataset main characteristics
 print('\n*********************\n',
@@ -125,14 +123,14 @@ for u in range(len(time_window)):
     # Data Driven Context Definition
     if u == 0:
         # manually define context if it is the beginning
-        context_start = 0                                   # [hours] i.e., 00:00
-        context_end = context_start + m_context             # [hours] i.e., 01:00
+        context_start = 0  # [hours] i.e., 00:00
+        context_end = context_start + m_context  # [hours] i.e., 01:00
         # [observations] = ([hour]-[hour])*[observations/hour]
         m = int((hour_to_dec(time_window["to"][u]) - m_context) * obs_per_hour)
     else:
-        m = time_window["observations"][u]                  # [observations]
-        context_end = hour_to_dec(time_window["from"][u])   # [hours]
-        context_start = context_end - m_context             # [hours]
+        m = time_window["observations"][u]  # [observations]
+        context_end = hour_to_dec(time_window["from"][u])  # [hours]
+        context_start = context_end - m_context  # [hours]
 
     '''
     # 2) User Defined Context
@@ -315,18 +313,21 @@ for u in range(len(time_window)):
         # create a vector to plot correctly the graph
         cmp_ad_score_plot = cmp_ad_score[ad_order][0:num_anomalies_to_show]
 
+        # limit the number of anomalies
+        if num_anomalies_to_show > 10:
+            num_anomalies_to_show = 10
+
         # only visualize if some anomaly are shown
         if num_anomalies_to_show > 0:
 
             # Visualise the top anomalies according to the CMP
             fig, ax = plt.subplots(num_anomalies_to_show, 2,
                                    sharex='all',
-                                   #sharey='all',
+                                   # sharey='all',
                                    figsize=(10, 14 / 8 * num_anomalies_to_show),
-                                   #gridspec_kw={'wspace': 0., 'hspace': 0.}
+                                   # gridspec_kw={'wspace': 0., 'hspace': 0.}
                                    )
             fig.suptitle("Anomaly Detection " + group_name.replace("_", " "))
-
 
             for j in range(num_anomalies_to_show):
                 anomaly_index = ad_order[j]
@@ -354,14 +355,14 @@ for u in range(len(time_window)):
                               alpha=0.3)
                 ax[j, 0].plot(
                     range(dec_to_obs(context_start, obs_per_hour), (dec_to_obs(context_end, obs_per_hour) + m)),
-                    energy_group_anomaly[dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
+                    energy_group_anomaly[
+                    dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
                     c=line_color_context,
                     linestyle=line_style_context)
                 ax[j, 0].plot(energy_group_anomaly,
                               c=line_color_context,
                               linestyle=line_style_other)
-                ax[j, 0].set_title("Anomaly " + str(j + 1) + " - Severity " +  str(int(cmp_ad_score[anomaly_index])) )
-
+                ax[j, 0].set_title("Anomaly " + str(j + 1) + " - Severity " + str(int(cmp_ad_score[anomaly_index])))
 
                 ax[j, 1].plot(power_group,
                               c=line_color_other,
@@ -379,7 +380,6 @@ for u in range(len(time_window)):
                 ax[j, 1].set_yticks(ticks_power)
                 ax[j, 1].set_title(date.day_name() + " " + str(date)[:10])
 
-
             ax[0, 0].set_xticks(range(0, 97, 24))
             ticklabels = ["{hour}:00".format(hour=(x // obs_per_hour)) for x in range(0, 97, 24)]
             # ticklabels[-1] = ""
@@ -393,7 +393,8 @@ for u in range(len(time_window)):
             plt.savefig(path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomalies.png",
                         dpi=dpi_resolution,
                         bbox_inches='tight')
-            plt.close()
+            plt.cla()
+            plt.close(fig)
 
             # print the execution time
             time_interval_group = datetime.datetime.now() - begin_time_group
