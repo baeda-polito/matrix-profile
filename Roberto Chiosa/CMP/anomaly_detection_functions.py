@@ -145,10 +145,16 @@ def elbow_fun(group, group_cmp):
             outliers[i] = columns_median[j]
             j = j + 1
 
+
     # take the outliers
     anomaly_day = yy[0:num_anomalies_to_show]
-    threshold = min(anomaly_day)
-    column = (outliers >= threshold) * 1
+
+    # take the outliers
+    try:
+        threshold = min(anomaly_day)
+        column = (outliers >= threshold) * 1
+    except:
+        column = np.zeros(group.size)
 
     return column, fig
 
