@@ -15,33 +15,19 @@ group = pd.read_csv(path_to_data + "group.csv",header=None)
 group_cmp = pd.read_csv(path_to_data + "group_cmp.csv",header=None)
 
 # new data-frame
-try:
- column_1, plot_1= boxplot_fun(group, group_cmp)
-except:
-    print("Something went wrong in boxplot_fun")
-try:
- column_2, plot_2= zscore_fun(group, group_cmp)
-except:
-    print("Something went wrong in zscore_fun")
-try:
- column_3, plot_3= elbow_fun(group, group_cmp)
-except:
-    print("Something went wrong in elbow_fun")
-try:
- column_4, plot_4 = gesd_fun(group, group_cmp)
-except:
-    print("Something went wrong in gesed_fun")
-finally:
-    print("The 'try except' is finished")
+column_1, plot_1= boxplot_fun(group, group_cmp)
+column_2, plot_2= zscore_fun(group, group_cmp)
+column_3, plot_3= elbow_fun(group, group_cmp)
+column_4, plot_4 = gesd_fun(group, group_cmp)
 
-column_6 = (column_1+column_2+column_3+column_4).astype(int)
+column_5 = (column_1+column_2+column_3+column_4).astype(int)
 
 df = pd.DataFrame()
 df['box-plot']=pd.Series(column_1.astype(int))
 df['z-score']=pd.Series(column_2.astype(int))
 df['elbow']=pd.Series(column_3)
 df['gesd']=pd.Series(column_4)
-df['severity']=pd.Series(column_6)
+df['severity']=pd.Series(column_5)
 
 
 

@@ -3,25 +3,15 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 
-'''
-y = np.random.random(100)
-x = np.arange(len(y))
-
-plt.scatter(x, y)
-plt.xlabel('x')
-plt.ylabel('y')
-plt.show()
-
-y[14] = 9
-y[83] = 10
-y[44] = 14
-
-plt.scatter(x, y)
-plt.show()
-'''
 
 
 def test_stat(y, iteration):
+    '''
+    This function calculates   Ri= max_i*(x_i-x_bar)/sts_dv(x_i)
+    :param y: y= input_series of ESD_Test ( array of medians)
+    :param iteration: n
+    :return: R_i and max_i
+    '''
     std_dev = np.std(y)
     avg_y = np.mean(y)
     abs_val_minus_avg = abs(y - avg_y)
@@ -34,8 +24,15 @@ def test_stat(y, iteration):
 
 
 def calculate_critical_value(size, alpha, iteration): # 1- alpha/(2*(A+1))  A=n-i  B=tp,n-i-1  i=1....r
-    t_dist = stats.t.ppf(1 - alpha / (2 * size), size - 2)
-    numerator = (size - 1) * np.sqrt(np.square(t_dist))                   #A*B
+    '''
+    This function calculates the critical value for the hp test
+    :param size: n
+    :param alpha: level of confidence = 0.05
+    :param iteration: i
+    :return: lambda_i
+    '''
+    t_dist = stats.t.ppf(1 - alpha / (2 * size), size - 2)                # 1- alpha/(2*(A+1))   A=n-i
+    numerator = (size - 1) * np.sqrt(np.square(t_dist))                   #A*B B=tp,n-i-1  i=1....r
     denominator = np.sqrt(size) * np.sqrt(size - 2 + np.square(t_dist))
     critical_value = numerator / denominator
     print("Critical Value(λ{}): {}".format(iteration, critical_value))
@@ -50,6 +47,13 @@ def check_values(R, C, inp, max_index, iteration):
 
 
 def ESD_Test(input_series, alpha, max_outliers):
+    '''
+    GESD methods function
+    :param input_series: an array holding medians ( variable length, depending on cluster)
+    :param alpha: level of confidence = 0.05
+    :param max_outliers: give the number of outliers expected
+    :return: list in the form of df that include (value_i R_i lambda_i) and number of outliers really found
+    '''
     stats_1 = []
     critical_vals = []
     for iterations in range(1, max_outliers + 1):
@@ -82,6 +86,3 @@ def ESD_Test(input_series, alpha, max_outliers):
     print('Number of outliers {}'.format(max_i))
 
     return (df.style.apply(highlight_max, axis=1), max_i)
-
-
-#ESD_Test(y, 0.05, 7)

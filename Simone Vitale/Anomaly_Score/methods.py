@@ -15,7 +15,7 @@ def boxplot_fun(group, group_cmp):
     This function helps to analyze data through box-plot
     :param group: is an array of length 365 holding cluster membership through values 0 and 1
     :param group_cmp: is the cmp by cluster
-    :return: this function will return an outliers in the form( true or false) and a figure
+    :return: this function will return an outliers array in the form( true or false) and a figure
     '''
 
     group = np.array(group).flatten()
@@ -28,9 +28,11 @@ def boxplot_fun(group, group_cmp):
     ax.axes.get_xaxis().set_visible(False)  # remove x-axis
     ax.set_title('Notched box plot')
 
-    outliers_both_whisker = [flier.get_ydata() for flier in bp["fliers"]]  # get the outliers
-    outliers_both_whisker = np.array(outliers_both_whisker)
-    outliers = outliers_both_whisker[outliers_both_whisker > np.median(columns_median)]
+
+    outliers_both_whiskers = [flier.get_ydata() for flier in bp["fliers"]]  # get the outliers
+    outliers_both_whiskers=np.array(outliers_both_whiskers)
+    outliers= outliers_both_whiskers[outliers_both_whiskers > np.median(columns_median)]
+
 
     # create an array of medians according cluster on yearly period
     median_of_day = np.zeros(group.size)
@@ -48,13 +50,14 @@ def boxplot_fun(group, group_cmp):
 
 
 ######################## METHOD_2_ZSCORE-MEDIAN ###########################
-def zscore_fun(group, group_cmp):
-    '''
-    This function helps to analyze data through z-score trasformation
-    :param group: is an array of length 365 holding cluster membership through values 0 and 1
-    :param group_cmp: is the cmp by cluster
-    :return: this function will return an outliers in the form( true or false) and a figure
-    '''
+
+def zscore_fun(group,group_cmp):
+   '''
+   This function helps to analyze data through z-score trasformation
+   :param group: is an array of length 365 holding cluster membership through values 0 and 1
+   :param group_cmp: is the cmp by cluster
+   :return: this function will return an outliers array in the form( true or false) and a figure
+   '''
 
     group = np.array(group).flatten()
     columns_median = np.nanmedian(group_cmp, axis=0)  # get the median of the columns
@@ -84,8 +87,8 @@ def zscore_fun(group, group_cmp):
     # take the outliers
     column_2 = outliers
 
-    return (column_2, fig_2)
-
+    # in the worst case scenario column_2 is a zero array, it doesn't need try except controll!
+    return(column_2, fig_2)
 
 ######################## METHOD_3_ELBOW ###########################
 def elbow_fun(group, group_cmp):
@@ -93,7 +96,7 @@ def elbow_fun(group, group_cmp):
     This function helps to analyze data elbow-methods: the values below the elbow of a curve are labelled as anomaly
     :param group: is an array of length 365 holding cluster membership through values 0 and 1
     :param group_cmp: is the cmp by cluster
-    :return: this function will return an outliers in the form( true or false) and a figure
+    :return: this function will return an outliers array in the form( true or false) and a figure
     '''
 
     group = np.array(group).flatten()
@@ -115,30 +118,39 @@ def elbow_fun(group, group_cmp):
     plt.xticks(anomaly_ticks)
 
     # create an array of medians according cluster on yearly period
-    outliers = np.zeros(group.size)
+    medians = np.zeros(group.size)
 
     jj = 0
     for ii in range(group.size):
         if group[ii] == 1 and jj < (len(group_cmp)):
-            outliers[ii] = columns_median[jj]
+            medians[ii] = columns_median[jj]
 
             jj = jj + 1
 
     # take the outliers
+
     anomaly_day = yy[0:num_anomalies_to_show]
+
     threshold = min(anomaly_day)
     column_3 = (outliers >= threshold) * 1
 
+    try:
+     threshold = min(anomaly_day)
+     column_3= (medians >= threshold)*1
+
+    except:
+        column_3 = np.zeros(group.size)
+        column_3 = column_3.astype(int)
+
     return (column_3, fig_3)
 
-
-######################## METHOD_4_GESED ###########################
-def gesd_fun(group, group_cmp):
+######################## METHOD_4_GESD ###########################
+def gesd_fun(group,group_cmp):
     '''
     This function helps to detect outliers through GESD-test:
     :param group: is an array of length 365 holding cluster membership through values 0 and 1
     :param group_cmp: is the cmp by cluster
-    :return: this function will return an outliers in the form( true or false) and a figure
+    :return: this function will return an outliers array in the form( true or false) and a figure
     '''
 
     group = np.array(group).flatten()
@@ -152,17 +164,22 @@ def gesd_fun(group, group_cmp):
     GESD_df, n_outliers = ESD_Test(columns_median, 0.05, 10)
 
     # create an array of medians according cluster on yearly period
-    outliers = np.zeros(group.size)
+    medians = np.zeros(group.size)
 
     jj = 0
     for ii in range(group.size):
         if group[ii] == 1 and jj < (len(group_cmp)):
-            outliers[ii] = columns_median[jj]
+            medians[ii] = columns_median[jj]
 
             jj = jj + 1
 
     anomaly_day = np.sort(columns_median)[:-(n_outliers + 1):-1]
-    threshold = min(anomaly_day)
-    column_4 = (outliers >= threshold) * 1
+    try:
+     threshold = min(anomaly_day)
+     column_4 = (medians >= threshold) * 1
+
+    except:
+        column_4 = np.zeros(group.size)
+        column_4 = column_4.astype(int)
 
     return (column_4, fig_4)
