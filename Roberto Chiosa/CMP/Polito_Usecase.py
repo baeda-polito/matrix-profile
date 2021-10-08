@@ -329,7 +329,7 @@ for u in range(len(time_window)):
                                    )
             fig.suptitle("Anomaly Detection " + group_name.replace("_", " "))
 
-            for j in range(num_anomalies_to_show):
+            for j in range(0, num_anomalies_to_show):
                 anomaly_index = ad_order[j]
                 anomaly_range = range(obs_per_day * anomaly_index, obs_per_day * (anomaly_index + 1))
                 date = day_labels[anomaly_index]
