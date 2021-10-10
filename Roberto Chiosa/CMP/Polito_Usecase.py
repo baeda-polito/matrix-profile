@@ -21,20 +21,29 @@ from utils_functions import roundup, hour_to_dec, dec_to_hour, nan_diag, dec_to_
 path_to_data = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'data' + os.sep
 path_to_figures = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'figures' + os.sep
 
-# figures variables
-color_palette = 'viridis'
-dpi_resolution = 300
-fontsize = 10
-line_style_context = "-"
-line_style_other = ":"
-line_color_context = "#D83C3B"  # previously red
-line_color_other = "#D5D5E0"  # previously gray
-# plt.style.use("seaborn-paper")
-rc('font', **{'family': 'sans-serif', 'sans-serif': ['Poppins']})
+# from global variables load
+global_variables = pd.read_csv(path_to_data + "global_variables.csv", header=0)
+
+font_family = global_variables[global_variables["variable_name"] == "font_family"].iloc[0][1]
+color_palette = global_variables[global_variables["variable_name"] == "color_palette"].iloc[0][1]
+dpi_resolution = int(global_variables[global_variables["variable_name"] == "dpi_resolution"].iloc[0][1])
+fontsize = int(global_variables[global_variables["variable_name"] == "fontsize_small"].iloc[0][1])
+line_style_context = global_variables[global_variables["variable_name"] == "line_style_context"].iloc[0][1]
+line_style_other = global_variables[global_variables["variable_name"] == "line_style_other"].iloc[0][1]
+line_color_context = global_variables[global_variables["variable_name"] == "line_color_context"].iloc[0][1]
+line_color_other = global_variables[global_variables["variable_name"] == "line_color_other"].iloc[0][1]
+
+# update plot parameters
+# - font family
+# - font size
+# - plot style
+# - remove warning More than 20 figures have been opened.
+
+rc('font', **{'family': 'sans-serif', 'sans-serif': [font_family]})
 plt.rcParams.update({'font.size': fontsize})
-# remove warning More than 20 figures have been opened.
-# Figures created through the pyplot interface (`matplotlib.pyplot.figure`)
+# plt.style.use("seaborn-paper")
 plt.rcParams.update({'figure.max_open_warning': 0})
+
 # define a begin time to evaluate execution time & performance of algorithm
 begin_time = datetime.datetime.now()
 print('\n*********************\n' +
@@ -110,13 +119,15 @@ plt.close()
 # results are contained in 'time_window.csv' file
 time_window = pd.read_csv(path_to_data + "time_window.csv")
 
-# The context is defined as 1 hour before time window, to be consistend with other analysis,
+# The context is defined as 1 hour before time window, to be consistent with other analysis,
 # results are loaded from 'm_context.csv' file
 m_context = pd.read_csv(path_to_data + "m_context.csv")["m_context"][0]
 
-# Define output file as dataframe
-# in this file the anomaly results will be saved
-df_output_all = pd.DataFrame()
+# Define output files as dataframe
+# - df_anomaly_results -> in this file the anomaly results will be saved
+# - df_contexts -> the name and descriptions of contexts
+df_anomaly_results = pd.DataFrame()
+df_contexts = pd.DataFrame(columns=["from", "to", "context_string", "context_string_small", "duration", "observations"])
 
 # begin for loop on the number of time windows
 for u in range(len(time_window)):
@@ -165,7 +176,16 @@ for u in range(len(time_window)):
     # remove : to resolve path issues
     context_string_small = context_string_small.replace(":", "_")
 
-    print('\n*********************\n', 'CONTEXT: ' + context_string + " (" + context_string_small + ")")
+    # update context dataframe
+    df_contexts.loc[u] = [dec_to_hour(context_start),  # "from"
+                          dec_to_hour(context_end),  # "to"
+                          context_string,  # "context_string"
+                          context_string_small,  # "context_string_small"
+                          str(m_context) + " h",  # "duration"
+                          m_context * obs_per_hour  # "observations"
+                          ]
+
+    print('\n*********************\n', 'CONTEXT '+u+' : ' + context_string + " (" + context_string_small + ")")
 
     # if figures directory doesnt exists create and save into it
     if not os.path.exists(path_to_figures + context_string_small):
@@ -217,7 +237,7 @@ for u in range(len(time_window)):
     if not os.path.exists(path_to_data + context_string_small):
         os.makedirs(path_to_data + context_string_small)
 
-    # Save CMP for R plot
+    # Save CMP for R plot (use to_csv)
     np.savetxt(path_to_data + context_string_small + os.sep + 'plot_cmp_full.csv',
                nan_diag(cmp.distance_matrix),
                delimiter=",")
@@ -247,7 +267,7 @@ for u in range(len(time_window)):
     # Load Cluster results as boolean dataframe: each column represents a group
     annotation_df = pd.read_csv(path_to_data + "group_cluster.csv", index_col='timestamp', parse_dates=True)
     # initialize dataframe of results for context to be appended to the overall result
-    df_output_context = annotation_df.astype(int)
+    df_anomaly_context = annotation_df.astype(int)
     # set labels
     day_labels = data.index[::obs_per_day]
     # get number of groups
@@ -263,7 +283,7 @@ for u in range(len(time_window)):
         group_name = annotation_df.columns[i]
 
         # add column of context of group in df_output
-        df_output_context[group_name + "." + context_string_small] = [0 for i in range(len(df_output_context))]
+        df_anomaly_context[group_name + "." + context_string_small] = [0 for i in range(len(df_anomaly_context))]
 
         # if figures directory doesnt exists create and save into it
         if not os.path.exists(path_to_figures + context_string_small + os.sep + group_name):
@@ -300,27 +320,27 @@ for u in range(len(time_window)):
         #######################################
         # calculate anomaly score though majority voting
         cmp_ad_score = anomaly_detection(group=group, group_cmp=group_cmp)
-        # set to nan if zero (no anomaly)
-        cmp_ad_score = np.where(cmp_ad_score == 0, np.nan, cmp_ad_score)
+        # set to nan if severity 0/1/2 (no anomaly or not severe)
+        cmp_ad_score = np.where(cmp_ad_score != 4, np.nan, cmp_ad_score)
 
         # the number of anomalies is the number of non nan elements, count
         num_anomalies_to_show = np.count_nonzero(~np.isnan(cmp_ad_score))
 
-        # Ordering of all days, from most to least anomalous in order of severity
-        ad_order = np.argsort(cmp_ad_score)[::-1]
-
-        # move na at the end of the vector
-        ad_order = np.roll(ad_order, -np.count_nonzero(np.isnan(cmp_ad_score)))
-
-        # create a vector to plot correctly the graph
-        cmp_ad_score_plot = cmp_ad_score[ad_order][0:num_anomalies_to_show]
-
-        # limit the number of anomalies
-        if num_anomalies_to_show > 10:
-            num_anomalies_to_show = 10
-
         # only visualize if some anomaly are shown
         if num_anomalies_to_show > 0:
+
+            # limit the number of anomalies
+            if num_anomalies_to_show > 10:
+                num_anomalies_to_show = 10
+
+            # Ordering of all days, from most to least anomalous in order of severity
+            ad_order = np.argsort(cmp_ad_score)[::-1]
+
+            # move na at the end of the vector
+            ad_order = np.roll(ad_order, -np.count_nonzero(np.isnan(cmp_ad_score)))
+
+            # create a vector to plot correctly the graph
+            cmp_ad_score_plot = cmp_ad_score[ad_order][0:num_anomalies_to_show]
 
             # Visualise the top anomalies according to the CMP
             fig, ax = plt.subplots(num_anomalies_to_show, 2,
@@ -337,8 +357,8 @@ for u in range(len(time_window)):
                 date = day_labels[anomaly_index]
 
                 # update output dataframe and add severity
-                df_output_context.loc[df_output_context.index.values == np.datetime64(date),
-                                      group_name + "." + context_string_small] = cmp_ad_score[anomaly_index]
+                df_anomaly_context.loc[df_anomaly_context.index.values == np.datetime64(date),
+                                       group_name + "." + context_string_small] = cmp_ad_score[anomaly_index]
 
                 # dataframe for group power and energy
                 power_group = data.values.reshape((-1, obs_per_day))[group].T
@@ -354,8 +374,8 @@ for u in range(len(time_window)):
 
                 if num_anomalies_to_show == 1:
                     ax[0].plot(energy_group,
-                                  c=line_color_other,
-                                  alpha=0.3)
+                               c=line_color_other,
+                               alpha=0.3)
                     ax[0].plot(
                         range(dec_to_obs(context_start, obs_per_hour), (dec_to_obs(context_end, obs_per_hour) + m)),
                         energy_group_anomaly[
@@ -363,13 +383,13 @@ for u in range(len(time_window)):
                         c=line_color_context,
                         linestyle=line_style_context)
                     ax[0].plot(energy_group_anomaly,
-                                  c=line_color_context,
-                                  linestyle=line_style_other)
+                               c=line_color_context,
+                               linestyle=line_style_other)
                     ax[0].set_title("Anomaly " + str(j + 1) + " - Severity " + str(int(cmp_ad_score[anomaly_index])))
 
                     ax[1].plot(power_group,
-                                  c=line_color_other,
-                                  alpha=0.3)
+                               c=line_color_other,
+                               alpha=0.3)
                     ax[1].plot(
                         range(dec_to_obs(context_start, obs_per_hour), (dec_to_obs(context_end, obs_per_hour) + m)),
                         power_group_anomaly[
@@ -377,8 +397,8 @@ for u in range(len(time_window)):
                         c=line_color_context,
                         linestyle=line_style_context)
                     ax[1].plot(power_group_anomaly,
-                                  c=line_color_context,
-                                  linestyle=line_style_other)
+                               c=line_color_context,
+                               linestyle=line_style_other)
                     ax[1].set_ylim([min_power, max_power])
                     ax[1].set_yticks(ticks_power)
                     ax[1].set_title(date.day_name() + " " + str(date)[:10])
@@ -440,7 +460,7 @@ for u in range(len(time_window)):
             hours, remainder = divmod(time_interval_group.total_seconds(), 3600)
             minutes, seconds = divmod(remainder, 60)
 
-            print("- " + group_name + ' (' + str(int(seconds)) + ' s' + ') -> ' +
+            print("- " + group_name.replace('_', ' ') + ' (' + str(int(seconds)) + ' s' + ') -> ' +
                   str(num_anomalies_to_show) + ' anomalies')
 
         # if no anomaly to show not visualize
@@ -448,13 +468,14 @@ for u in range(len(time_window)):
             pass
 
     # at the end of loop on groups save dataframe corresponding to given context or append to existing one
-    if df_output_all.empty:
-        df_output_all = df_output_context
+    if df_anomaly_results.empty:
+        df_anomaly_results = df_anomaly_context
     else:
-        df_output_all = pd.concat([df_output_all, df_output_context], axis=1)
+        df_anomaly_results = pd.concat([df_anomaly_results, df_anomaly_context], axis=1)
 
 # at the end of loop on context save dataframe of results
-df_output_all.to_csv(path_to_data + "anomaly_results.csv")
+df_anomaly_results.to_csv(path_to_data + "anomaly_results.csv")
+df_contexts.to_csv(path_to_data + "contexts.csv")
 
 # print the execution time
 total_time = datetime.datetime.now() - begin_time

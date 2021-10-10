@@ -111,7 +111,7 @@ for (i in 1: (length(time_posixct_string)-1)) {
 time_window_df
 
 # save for further analysis
-write.csv(time_window_df, file.path("Polito_Usecase", "data", "time_window.csv"))
+write.csv(time_window_df, file.path("Polito_Usecase", "data", "time_window.csv"), row.names = FALSE)
 
 
 ###### CONTEXT :

@@ -13,6 +13,7 @@ library(tidyverse)
 library(ggpubr)         # arrange plots
 library(ggtext)         # annotate text
 
+        
 figma_palette <- c("#5EE393", "#0074FF")
 
 df <- read.csv(file.path(getwd(), "Polito_Usecase", "demo_data", "df_univariate_full.csv"), sep = ';', dec = ",") %>%
