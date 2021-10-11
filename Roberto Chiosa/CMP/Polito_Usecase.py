@@ -32,6 +32,7 @@ line_style_context = global_variables[global_variables["variable_name"] == "line
 line_style_other = global_variables[global_variables["variable_name"] == "line_style_other"].iloc[0][1]
 line_color_context = global_variables[global_variables["variable_name"] == "line_color_context"].iloc[0][1]
 line_color_other = global_variables[global_variables["variable_name"] == "line_color_other"].iloc[0][1]
+line_size = global_variables[global_variables["variable_name"] == "line_size"].iloc[0][1]
 
 # update plot parameters
 # - font family
@@ -185,7 +186,7 @@ for u in range(len(time_window)):
                           m_context * obs_per_hour  # "observations"
                           ]
 
-    print('\n*********************\n', 'CONTEXT '+u+' : ' + context_string + " (" + context_string_small + ")")
+    print('\n*********************\n', 'CONTEXT '+str(u+1)+' : ' + context_string + " (" + context_string_small + ")")
 
     # if figures directory doesnt exists create and save into it
     if not os.path.exists(path_to_figures + context_string_small):
@@ -381,11 +382,17 @@ for u in range(len(time_window)):
                         energy_group_anomaly[
                         dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
                         c=line_color_context,
+                        linewidth=line_size,
                         linestyle=line_style_context)
                     ax[0].plot(energy_group_anomaly,
                                c=line_color_context,
+                               linewidth=line_size,
                                linestyle=line_style_other)
                     ax[0].set_title("Anomaly " + str(j + 1) + " - Severity " + str(int(cmp_ad_score[anomaly_index])))
+                    # removing top and right borders
+                    ax[0].spines['top'].set_visible(False)
+                    ax[0].spines['right'].set_visible(False)
+
 
                     ax[1].plot(power_group,
                                c=line_color_other,
@@ -395,13 +402,18 @@ for u in range(len(time_window)):
                         power_group_anomaly[
                         dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
                         c=line_color_context,
+                        linewidth=line_size,
                         linestyle=line_style_context)
                     ax[1].plot(power_group_anomaly,
                                c=line_color_context,
+                               linewidth=line_size,
                                linestyle=line_style_other)
                     ax[1].set_ylim([min_power, max_power])
                     ax[1].set_yticks(ticks_power)
                     ax[1].set_title(date.day_name() + " " + str(date)[:10])
+                    # removing top and right borders
+                    ax[1].spines['top'].set_visible(False)
+                    ax[1].spines['right'].set_visible(False)
                 else:
                     ax[j, 0].plot(energy_group,
                                   c=line_color_other,
@@ -411,28 +423,38 @@ for u in range(len(time_window)):
                         energy_group_anomaly[
                         dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
                         c=line_color_context,
+                        linewidth=line_size,
                         linestyle=line_style_context)
                     ax[j, 0].plot(energy_group_anomaly,
                                   c=line_color_context,
+                                  linewidth=line_size,
                                   linestyle=line_style_other)
                     ax[j, 0].set_title("Anomaly " + str(j + 1) + " - Severity " + str(int(cmp_ad_score[anomaly_index])))
+                    # removing top and right borders
+                    ax[j,0].spines['top'].set_visible(False)
+                    ax[j,0].spines['right'].set_visible(False)
 
                     ax[j, 1].plot(power_group,
                                   c=line_color_other,
+                                  linewidth=line_size,
                                   alpha=0.3)
                     ax[j, 1].plot(
                         range(dec_to_obs(context_start, obs_per_hour), (dec_to_obs(context_end, obs_per_hour) + m)),
                         power_group_anomaly[
                         dec_to_obs(context_start, obs_per_hour):(dec_to_obs(context_end, obs_per_hour) + m)],
                         c=line_color_context,
+                        linewidth=line_size,
                         linestyle=line_style_context)
                     ax[j, 1].plot(power_group_anomaly,
                                   c=line_color_context,
+                                  linewidth=line_size,
                                   linestyle=line_style_other)
                     ax[j, 1].set_ylim([min_power, max_power])
                     ax[j, 1].set_yticks(ticks_power)
                     ax[j, 1].set_title(date.day_name() + " " + str(date)[:10])
-
+                    # removing top and right borders
+                    ax[j, 1].spines['top'].set_visible(False)
+                    ax[j, 1].spines['right'].set_visible(False)
             if num_anomalies_to_show == 1:
                 ax[0].set_xticks(range(0, 97, 24))
                 ticklabels = ["{hour}:00".format(hour=(x // obs_per_hour)) for x in range(0, 97, 24)]

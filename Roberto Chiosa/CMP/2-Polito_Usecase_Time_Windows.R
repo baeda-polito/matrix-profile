@@ -127,65 +127,65 @@ write.csv(data.frame(m_context = m_context), file = file.path("Polito_Usecase", 
 
 
 
-###### PLOTS
-# we can define the length of the context in two ways
-# number of time windows
-
-time_windows_n <- dim(time_window_df)[1]
-# define colors for time windows
-time_windows_palette <- RColorBrewer::brewer.pal(time_windows_n, "Set1")
-
-
-# I want to plot the time windows on the dataset
-dev.new()
-ggplot() +
-  annotate(
-    "rect",
-    xmin = as.POSIXct( paste(time_window_df$from, ":00", sep = ""), format = "%H:%M" , tz = "GMT"),
-    xmax = as.POSIXct( paste(time_window_df$to, ":00", sep = ""), format = "%H:%M" , tz = "GMT"),
-    ymin = -Inf,
-    ymax = Inf,
-    alpha = 0.2,
-    color = "black",
-    lty = 3,
-    lwd = 0.1,
-    fill = time_windows_palette
-  ) + 
-  geom_line(data = df, 
-            aes(x = as.POSIXct(Time, format = "%H:%M:%S" , tz = "GMT") , y = value, group = Date) , 
-            color = "black", alpha = 0.1, size = 0.4) + 
-  scale_x_datetime(expand = c(0,0), 
-                   labels = date_format("%H:%M" , tz = "GMT"), 
-                   breaks = as.POSIXct( paste( c(time_window_df$from, "23:45"), ":00", sep = ""), format = "%H:%M:%S" , tz = "GMT") ) +
-  scale_y_continuous(limits = c(0,ceiling(max(df$value)/100)*100), expand = c(0,0)) +
-  theme_bw() +
-  labs(title = "Interesting zone",
-       subtitle = "Unsupervised Identification where subsequence ends",
-       x = "" , y = "Power [kW]")+
-  ggplot2::theme(
-    text=element_text(family=font_family),
-    plot.title = element_text(hjust = 0.5, size = fontsize_large, margin = margin(t = 0, r = 0, b = 0, l = 0), ),
-    plot.subtitle = element_text(hjust = 0.5, size = fontsize_small, margin = margin(t = 5, r = 5, b = 10, l = 10)),
-    # legend
-    legend.position = "none",                     # legend position on the top of the graph
-    # strip.text = element_text(size = 17), # facet wrap title fontsize
-    # AXIS X
-    #axis.title.x = element_text(size = fontsize_medium, margin = margin(t = 20, r = 20, b = 0, l = 0)),
-    axis.text.x = element_text(size = fontsize_small, margin = margin(t = 5, r = 5, b = 5, l = 5), angle = 0, vjust=.3),
-    # AXIS Y
-    #axis.title.y = element_text(size = fontsize_medium,margin = margin(t = 20, r = 20, b = 0, l = 0)),
-    axis.text.y = element_text(size = fontsize_small, margin = margin(t = 5, r = 5, b = 5, l = 5), angle = 0, vjust=.3),
-    # background
-    panel.background = element_rect(fill = "gray99"),# background of plotting area, drawn underneath plot
-    panel.grid.major = element_blank(),            # draws nothing, and assigns no space.
-    panel.grid.minor = element_blank(),            # draws nothing, and assigns no space.
-    plot.margin = unit(c(plot_margin,plot_margin,plot_margin,plot_margin), "cm")
-  )         # margin around entire plot
-
-
-ggsave(filename = file.path("Polito_Usecase", "figures", "time_window_definition.jpg"), width = 7, height = 4.5, dpi = 200 )
-
-dev.off()
+# ###### PLOTS
+# # we can define the length of the context in two ways
+# # number of time windows
+# 
+# time_windows_n <- dim(time_window_df)[1]
+# # define colors for time windows
+# time_windows_palette <- RColorBrewer::brewer.pal(time_windows_n, "Set1")
+# 
+# 
+# # I want to plot the time windows on the dataset
+# dev.new()
+# ggplot() +
+#   annotate(
+#     "rect",
+#     xmin = as.POSIXct( paste(time_window_df$from, ":00", sep = ""), format = "%H:%M" , tz = "GMT"),
+#     xmax = as.POSIXct( paste(time_window_df$to, ":00", sep = ""), format = "%H:%M" , tz = "GMT"),
+#     ymin = -Inf,
+#     ymax = Inf,
+#     alpha = 0.2,
+#     color = "black",
+#     lty = 3,
+#     lwd = 0.1,
+#     fill = time_windows_palette
+#   ) + 
+#   geom_line(data = df, 
+#             aes(x = as.POSIXct(Time, format = "%H:%M:%S" , tz = "GMT") , y = value, group = Date) , 
+#             color = "black", alpha = 0.1, size = 0.4) + 
+#   scale_x_datetime(expand = c(0,0), 
+#                    labels = date_format("%H:%M" , tz = "GMT"), 
+#                    breaks = as.POSIXct( paste( c(time_window_df$from, "23:45"), ":00", sep = ""), format = "%H:%M:%S" , tz = "GMT") ) +
+#   scale_y_continuous(limits = c(0,ceiling(max(df$value)/100)*100), expand = c(0,0)) +
+#   theme_bw() +
+#   labs(title = "Interesting zone",
+#        subtitle = "Unsupervised Identification where subsequence ends",
+#        x = "" , y = "Power [kW]")+
+#   ggplot2::theme(
+#     text=element_text(family=font_family),
+#     plot.title = element_text(hjust = 0.5, size = fontsize_large, margin = margin(t = 0, r = 0, b = 0, l = 0), ),
+#     plot.subtitle = element_text(hjust = 0.5, size = fontsize_small, margin = margin(t = 5, r = 5, b = 10, l = 10)),
+#     # legend
+#     legend.position = "none",                     # legend position on the top of the graph
+#     # strip.text = element_text(size = 17), # facet wrap title fontsize
+#     # AXIS X
+#     #axis.title.x = element_text(size = fontsize_medium, margin = margin(t = 20, r = 20, b = 0, l = 0)),
+#     axis.text.x = element_text(size = fontsize_small, margin = margin(t = 5, r = 5, b = 5, l = 5), angle = 0, vjust=.3),
+#     # AXIS Y
+#     #axis.title.y = element_text(size = fontsize_medium,margin = margin(t = 20, r = 20, b = 0, l = 0)),
+#     axis.text.y = element_text(size = fontsize_small, margin = margin(t = 5, r = 5, b = 5, l = 5), angle = 0, vjust=.3),
+#     # background
+#     panel.background = element_rect(fill = "gray99"),# background of plotting area, drawn underneath plot
+#     panel.grid.major = element_blank(),            # draws nothing, and assigns no space.
+#     panel.grid.minor = element_blank(),            # draws nothing, and assigns no space.
+#     plot.margin = unit(c(plot_margin,plot_margin,plot_margin,plot_margin), "cm")
+#   )         # margin around entire plot
+# 
+# 
+# ggsave(filename = file.path("Polito_Usecase", "figures", "time_window_definition.jpg"), width = 7, height = 4.5, dpi = 200 )
+# 
+# dev.off()
 
 
 

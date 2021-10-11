@@ -4,7 +4,7 @@ rm(list = ls())             # remove all variables of the workspace
 source("global_vars.R")
 
 import::from(magrittr, "%>%")
-import::from(dplyr, select, unique, mutate, group_by, count, across)
+import::from(dplyr, select, mutate, group_by, count, across, summarise)
 import::from(tidyr, pivot_wider)
 import::from(NbClust, NbClust)
 import::from(data.table, data.table)
@@ -38,7 +38,7 @@ data <- select(df2, -Date)
 diss_matrix <- dist(data, method = "euclidean")      
 
 n_clusters <-  6 # supervised
-#Nb_res <- NbClust(data, diss = diss_matrix, distance = NULL, min.nc = 2, max.nc = 8, method = "ward.D2", index = "silhouette")
+#Nb_res <- NbClust(data, diss = diss_matrix, distance = NULL, min.nc = 2, max.nc = 8, method = "ward.D2", index = "all")
 #n_clusters <- length(unique(Nb_res$Best.partition))
 
 # Do cluster
@@ -92,7 +92,7 @@ plot <- ggplot() +
   geom_line(data = centr_plot, 
             aes(x = as.POSIXct(Time, format = "%H:%M:%S" , tz = "GMT") , y = Total_Power, color = cluster_label) , 
             size = 1) +
-  scale_color_manual(values = c("#D83C3B", "#3681A9", "#87CD93","#FA9A4E") ) +
+  #scale_color_manual(values = c("#D83C3B", "#3681A9", "#87CD93","#FA9A4E") ) +
   scale_x_datetime(expand = c(0,0), labels = date_format("%H:%M" , tz = "GMT"), breaks = date_breaks("4 hour")) +
   scale_y_continuous(limits = c(0,ceiling(max(df1_plot$Total_Power)/100)*100), expand = c(0,0)) +
   theme_bw() +

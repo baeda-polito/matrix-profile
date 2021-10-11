@@ -5,11 +5,71 @@ source("global_vars.R")
 
 library(ggplot2)
 library(dplyr)
-library(magrittr)
 library(tidyr)
 library(scales)
 library(tidyverse)
 
+library(tidyverse)
+library(gridExtra)
+
+import::from(magrittr, '%>%')
+import::from(dplyr, summarise, across, everything, arrange)
+
+###########
+# plot methods
+
+group_cmp <-  read.csv(file.path("Polito_Usecase", "data", "ad_data", "group_cmp.csv"), sep = ',', header = F)
+
+group_cmp_vector <- group_cmp %>% 
+  summarise(across(everything(), mean, na.rm = T)) %>%
+  t() %>% # transpose
+  as.data.frame() %>% # back to df 
+  rename(values = V1) %>%
+  arrange(desc(values)) %>%
+  mutate(index = seq(1:dim(group_cmp)[1]),
+         z = (values-mean(values))/sd(values) )
+
+p1 <- group_cmp_vector %>%
+  ggplot(aes(y=values)) +
+  stat_boxplot(geom ='errorbar', width = 0.6) +
+  geom_boxplot(width = 0.6)+ 
+  labs(x = "Group", y = "Distance") +
+  xlim(c(-1,1)) +
+  theme_classic()
+
+p2 <- group_cmp_vector %>%
+  ggplot() +
+  geom_line(aes(x = index, y=values)) +
+  geom_point(aes(x = index, y=values), size = 2, fill = "white", colour = "black")+ 
+  labs(x = "Index", y = "Distance")+
+  theme_classic()
+
+
+             
+p3 <-  ggplot(group_cmp_vector, aes(z)) +
+  geom_density(position="stack", adjust = 1, fill = "red", alpha = 0.1) +
+  stat_function(fun = dnorm, args = list(mean = mean(group_cmp_vector$z), 
+                                         sd = sd(group_cmp_vector$z))) + 
+  xlim(c(-3,3)) +
+  labs(x = "Z-score", y = "Distance")+
+  theme_classic()
+
+
+p4 <- ggplot(group_cmp_vector, aes(sample = values)) +
+  stat_qq() +
+  stat_qq_line()+  xlim(c(-3,3)) + 
+  labs(x = "Z-score", y = "Distance")+
+  theme_classic()
+
+library(ggpubr)
+dev.new()
+
+ggarrange(p1,p2,p3,p4, nrow = 1, align = c("h"))
+
+ggsave(filename = file.path("Polito_Usecase", "figures", "anomaly_detection_results.jpeg"),
+       width = 10, height = 2, dpi = dpi ,  bg = background_fill)
+
+dev.off()
 
 
 ###########

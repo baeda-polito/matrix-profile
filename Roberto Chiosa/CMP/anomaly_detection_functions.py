@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -159,90 +161,58 @@ def elbow_fun(group, group_cmp_median):
     return column, fig
 
 
-##################
-def gesd_test_stat(y, iteration):
-    """  This function calculates   Ri = max_i*(x_i-x_bar)/sts_dv(x_i)
+def gesd_esd_test(input_series, max_outliers, alpha=0.05):
+    """ GESD methods function
 
-    :param y: input_series of ESD_Test ( array of medians)
-    :type y: np.ndarray
+    :param input_series: the uni variate series of observations to test
+    :type input_series: np.ndarray
 
-    :param iteration: n
-    :type iteration: int
+    :param max_outliers: the number of expected outliers
+    :type max_outliers: int
 
-    :return cal: R_i
-    :rtype y: float
-
-    :return max_i: max_i
-    :rtype y: int
-    """
-
-    std_dev = np.std(y)
-    avg_y = np.mean(y)
-    abs_val_minus_avg = abs(y - avg_y)
-    max_of_deviations = max(abs_val_minus_avg)
-    max_ind = np.argmax(abs_val_minus_avg)
-    cal = max_of_deviations / std_dev
-
-    # print('Test {}'.format(iteration))
-    # print("Test Statistics Value(R{}) : {}".format(iteration, cal))
-
-    return cal, max_ind
-
-
-def gesd_calculate_critical_value(size, alpha, iteration):  # 1- alpha/(2*(A+1))  A=n-i  B=tp,n-i-1  i=1....r
-    """ This function calculates the critical value for the hp test
-
-    :param size: n
-    :type size: int
-
-    :param alpha: level of confidence = 0.05
+    :param alpha: level of confidence, default to 0.05
     :type alpha: float
 
-    :param iteration: i
-    :type iteration: int
-
-    :return critical_value: lambda_i
-    :rtype critical_value: float
-    """
-
-    t_dist = stats.t.ppf(1 - alpha / (2 * size), size - 2)  # 1- alpha/(2*(A+1))   A=n-i
-    numerator = (size - 1) * np.sqrt(np.square(t_dist))  # A*B B=tp,n-i-1  i=1....r
-    denominator = np.sqrt(size) * np.sqrt(size - 2 + np.square(t_dist))
-    critical_value = numerator / denominator
-
-    # print("Critical Value(λ{}): {}".format(iteration, critical_value))
-
-    return critical_value
-
-
-def gesd_esd_test(input_series, alpha, max_outliers):
-    """ GESD methods function
-    :param input_series: an array holding medians ( variable length, depending on cluster)
-    :param alpha: level of confidence , default to 0.05
-    :param max_outliers: give the number of outliers expected
-    :return: list in the form of df that include (value_i R_i lambda_i) and number of outliers really found
+    :return n_outliers: number of outliers found
+    :rtype n_outliers: int
     """
 
     stats_1 = []
-    max_i = 0
+    n_outliers = 0
     critical_vals = []
-    for iterations in range(1, max_outliers + 1):
-        stat, max_index = gesd_test_stat(input_series, iterations)
-        critical = gesd_calculate_critical_value(len(input_series), alpha, iterations)
+
+    for i in range(1, max_outliers + 1):
+
+        # Calculates the statistical test Ri = max_i*(x_i-x_bar)/sts_dv(x_i)
+        max_ind = np.argmax(abs(input_series - np.mean(input_series)))
+        R_i = max(abs(input_series - np.mean(input_series))) / np.std(input_series)
+        # print('Test {}'.format(iteration))
+        # print("Test Statistics Value(R{}) : {}".format(iteration, R_i))
+
+        # compute the critical values
+        # 1- alpha/(2*(A+1))  A=n-i  B=tp,n-i-1  i=1....r
+        size = len(input_series)
+        t_dist = stats.t.ppf(1 - alpha / (2 * size), size - 2)  # 1- alpha/(2*(A+1))   A=n-i
+        numerator = (size - 1) * np.sqrt(np.square(t_dist))  # A*B B=tp,n-i-1  i=1....r
+        denominator = np.sqrt(size) * np.sqrt(size - 2 + np.square(t_dist))
+        lambda_i = numerator / denominator
+        # print("Critical Value(λ{}): {}".format(iteration, critical_value))
+
         # # check values from function
-        # if stat > critical:  # R > C:
-        #     print('{} is an outlier. R{} > λ{}: {:.4f} > {:.4f} \n'.format(input_series[max_index], iterations,
-        #                                                                    iterations, stat, critical))
+        # if R_i > lambda_i:  # R > C:
+        #     print('{} is an outlier. R{} > λ{}: {:.4f} > {:.4f} \n'.format(input_series[max_ind], i,
+        #                                                                    i, R_i, lambda_i))
         # else:
         #     print(
-        #         '{} is not an outlier. R{}> λ{}: {:.4f} > {:.4f} \n'.format(input_series[max_index], iterations,
-        #                                                                     iterations, stat, critical))
+        #         '{} is not an outlier. R{}> λ{}: {:.4f} > {:.4f} \n'.format(input_series[max_ind], i,
+        #                                                                     i, R_i, lambda_i))
 
-        input_series = np.delete(input_series, max_index)
-        critical_vals.append(critical)
-        stats_1.append(stat)
-        if stat > critical:
-            max_i = iterations
+        input_series = np.delete(input_series, max_ind)
+        critical_vals.append(lambda_i)
+        stats_1.append(R_i)
+        # The number of outliers is determined by finding the largest i such that Ri > lambda_i.
+        if R_i > lambda_i:
+            n_outliers = i
 
     # print('H0:  there are no outliers in the data')
     # print('Ha:  there are up to 10 outliers in the data')
@@ -250,15 +220,14 @@ def gesd_esd_test(input_series, alpha, max_outliers):
     # print('Significance level:  α = {}'.format(alpha))
     # print('Critical region:  Reject H0 if Ri > critical value')
     # print('Ri: Test statistic')
-    # print('λi: Critical Value')
+    # print('lambda_i: Critical Value')
     # print(' ')
-    df = pd.DataFrame({'i': range(1, max_outliers + 1), 'Ri': stats_1, 'λi': critical_vals})
+    # df = pd.DataFrame({'i': range(1, max_outliers + 1), 'Ri': stats_1, 'lambda_i': critical_vals})
+    # df.index = df.index + 1
 
-    df.index = df.index + 1
+    # print('Number of outliers {}'.format(n_outliers))
 
-    # print('Number of outliers {}'.format(max_i))
-
-    return max_i
+    return n_outliers
 
 
 def gesd_fun(group, group_cmp_median):
@@ -280,7 +249,7 @@ def gesd_fun(group, group_cmp_median):
     fig, ax = plt.subplots()
     stats.probplot(group_cmp_median, dist="norm", plot=plt)
 
-    n_outliers = gesd_esd_test(group_cmp_median, 0.05, 10)
+    n_outliers = gesd_esd_test(input_series=group_cmp_median, alpha=0.05, max_outliers=10)
 
     # create an array of medians according cluster on yearly period
     medians = np.zeros(group.size)
@@ -291,9 +260,11 @@ def gesd_fun(group, group_cmp_median):
             medians[i] = group_cmp_median[j]
             j += 1
 
-    anomaly_day = np.sort(group_cmp_median)[:-(n_outliers + 1):-1]
+    # get the n_outliers higher values and store in a vector
+    outliers = group_cmp_median[np.argpartition(group_cmp_median, -n_outliers)[-n_outliers:]]
+
     try:
-        threshold = min(anomaly_day)
+        threshold = min(outliers)
         column = (medians >= threshold) * 1
     except Exception as e:
         print("EXCEPTION in gesd_fun")
@@ -341,20 +312,18 @@ def anomaly_detection(group, group_cmp):
 
 
 # uncomment when testing / comment when deploying
-
-"""
-path_to_data = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'data'
-path_to_figures = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'figures'
-
-group_csv = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group.csv", header=None)
-group_cmp_csv = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group_cmp.csv", header=None)
-
-group_array = np.asarray(group_csv[0], dtype=bool)
-group_cmp_array = np.asarray(group_cmp_csv)
-
-# nel codice i dati arrivano cosi
-
-cmp_ad_score_result = anomaly_detection(group_array, group_cmp_array)
-
-print("end")
-"""
+#
+# path_to_data = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'data'
+# path_to_figures = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'figures'
+#
+# group_csv = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group.csv", header=None)
+# group_cmp_csv = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group_cmp.csv", header=None)
+#
+# group_array = np.asarray(group_csv[0], dtype=bool)
+# group_cmp_array = np.asarray(group_cmp_csv)
+#
+# # nel codice i dati arrivano cosi
+#
+# cmp_ad_score_result = anomaly_detection(group_array, group_cmp_array)
+#
+# print("end")
