@@ -186,7 +186,8 @@ for u in range(len(time_window)):
                           m_context * obs_per_hour  # "observations"
                           ]
 
-    print('\n*********************\n', 'CONTEXT '+str(u+1)+' : ' + context_string + " (" + context_string_small + ")")
+    print('\n*********************\n',
+          'CONTEXT ' + str(u + 1) + ' : ' + context_string + " (" + context_string_small + ")")
 
     # if figures directory doesnt exists create and save into it
     if not os.path.exists(path_to_figures + context_string_small):
@@ -393,7 +394,6 @@ for u in range(len(time_window)):
                     ax[0].spines['top'].set_visible(False)
                     ax[0].spines['right'].set_visible(False)
 
-
                     ax[1].plot(power_group,
                                c=line_color_other,
                                alpha=0.3)
@@ -431,8 +431,8 @@ for u in range(len(time_window)):
                                   linestyle=line_style_other)
                     ax[j, 0].set_title("Anomaly " + str(j + 1) + " - Severity " + str(int(cmp_ad_score[anomaly_index])))
                     # removing top and right borders
-                    ax[j,0].spines['top'].set_visible(False)
-                    ax[j,0].spines['right'].set_visible(False)
+                    ax[j, 0].spines['top'].set_visible(False)
+                    ax[j, 0].spines['right'].set_visible(False)
 
                     ax[j, 1].plot(power_group,
                                   c=line_color_other,
@@ -481,13 +481,11 @@ for u in range(len(time_window)):
             time_interval_group = datetime.datetime.now() - begin_time_group
             hours, remainder = divmod(time_interval_group.total_seconds(), 3600)
             minutes, seconds = divmod(remainder, 60)
-
-            print("- " + group_name.replace('_', ' ') + ' (' + str(int(seconds)) + ' s' + ') -> ' +
-                  str(num_anomalies_to_show) + ' anomalies')
+            print('- %s (%.3f s) -> %.d anomalies'% (group_name.replace('_', ' '), seconds, num_anomalies_to_show))
 
         # if no anomaly to show not visualize
         else:
-            pass
+            print("- " + group_name.replace('_', ' ') + ' (-) -> no anomalies')
 
     # at the end of loop on groups save dataframe corresponding to given context or append to existing one
     if df_anomaly_results.empty:

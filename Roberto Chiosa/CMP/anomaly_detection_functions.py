@@ -48,6 +48,8 @@ def boxplot_fun(group, group_cmp_median):
     try:
         threshold = np.min(outliers)
         column = (median_of_day >= threshold)
+    except ValueError:  # raised if outliers is empty.
+        column = np.zeros(group.size)
     except Exception as e:
         print("EXCEPTION in boxplot_fun")
         print(e)
@@ -151,6 +153,8 @@ def elbow_fun(group, group_cmp_median):
     try:
         threshold = min(anomaly_day)
         column = (outliers >= threshold)
+    except ValueError:  # raised if anomaly_day is empty.
+        column = np.zeros(group.size)
     except Exception as e:
         print("EXCEPTION in elbow_fun")
         print(e)

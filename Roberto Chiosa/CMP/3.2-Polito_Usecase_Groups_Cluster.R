@@ -150,7 +150,7 @@ group_cluster <- data.table(
 ) %>%
   one_hot() %>%
   as.data.frame()%>%
-  mutate(across(is.numeric, as.logical))
+  mutate(across(where(is.numeric), as.logical))
 
 write.csv(group_cluster, file =  file.path("Polito_Usecase", "data", "group_cluster.csv") , row.names = FALSE)
 
