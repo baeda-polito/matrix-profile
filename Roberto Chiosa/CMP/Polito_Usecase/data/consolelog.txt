@@ -1,0 +1,70 @@
+CProgramDataAnaconda3envsCMPpython.exe CUsersBAEDADesktopmatrix-profileRoberto ChiosaCMPPolito_Usecase.py
+
+
+RUNNING Polito_Usecase.py
+START 2021-10-11 180543
+
+
+ DATASET Electrical Load dataset from Substation C
+ - From	 2019-01-01 000000 
+ - To	 2019-12-31 234500 
+ - 365 	days
+ - 1 	observations every 15 min
+ - 96 	observations per day
+ - 4 	observations per hour
+ - 35040 observations
+
+
+ CONTEXT 1  Subsequences of 0515 h that starts between 0000 and 0100 (ctx_from00_00_to01_00_m05_15)
+99.997%        0.0 sec
+
+findfont Font family ['sans-serif'] not found. Falling back to DejaVu Sans.
+findfont Generic family 'sans-serif' not found because none of the following families were found Poppins
+findfont Font family ['sans-serif'] not found. Falling back to DejaVu Sans.
+findfont Generic family 'sans-serif' not found because none of the following families were found Poppins
+- Cluster 1 (0.980 s) - 2 anomalies
+- Cluster 2 (0.437 s) - 1 anomalies
+- Cluster 3 (0.922 s) - 2 anomalies
+- Cluster 4 (8.973 s) - 10 anomalies
+
+
+ CONTEXT 2  Subsequences of 0230 h that starts between 0515 and 0615 (ctx_from05_15_to06_15_m02_30)
+99.997%        0.0 sec
+
+- Cluster 1 (1.593 s) - 3 anomalies
+- Cluster 2 (-) - no anomalies
+- Cluster 3 (1.266 s) - 3 anomalies
+- Cluster 4 (6.208 s) - 7 anomalies
+
+
+ CONTEXT 3  Subsequences of 0645 h that starts between 0745 and 0845 (ctx_from07_45_to08_45_m06_45)
+99.997%        0.0 sec
+
+- Cluster 1 (1.142 s) - 2 anomalies
+- Cluster 2 (0.391 s) - 1 anomalies
+- Cluster 3 (1.282 s) - 3 anomalies
+- Cluster 4 (9.036 s) - 10 anomalies
+
+
+ CONTEXT 4  Subsequences of 0330 h that starts between 1430 and 1530 (ctx_from14_30_to15_30_m03_30)
+99.997%        0.0 sec
+
+- Cluster 1 (0.531 s) - 1 anomalies
+- Cluster 2 (-) - no anomalies
+- Cluster 3 (1.016 s) - 2 anomalies
+- Cluster 4 (9.007 s) - 10 anomalies
+
+
+ CONTEXT 5  Subsequences of 0500 h that starts between 1800 and 1900 (ctx_from18_00_to19_00_m05_00)
+99.997%        0.0 sec
+
+- Cluster 1 (1.111 s) - 2 anomalies
+- Cluster 2 (-) - no anomalies
+- Cluster 3 (0.844 s) - 2 anomalies
+- Cluster 4 (7.318 s) - 8 anomalies
+
+
+END 2021-10-11 180742
+TOTAL 1 min 58 s
+
+Process finished with exit code 0
