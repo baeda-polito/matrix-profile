@@ -482,7 +482,7 @@ for u in range(len(time_window)):
             time_interval_group = datetime.datetime.now() - begin_time_group
             hours, remainder = divmod(time_interval_group.total_seconds(), 3600)
             minutes, seconds = divmod(remainder, 60)
-            print('- %s (%.3f s) -> %.d anomalies'% (group_name.replace('_', ' '), seconds, num_anomalies_to_show))
+            print('- %s (%.3f s) -> %.d anomalies' % (group_name.replace('_', ' '), seconds, num_anomalies_to_show))
 
         # if no anomaly to show not visualize
         else:
