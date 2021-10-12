@@ -16,7 +16,7 @@ import::from(ggeffects, pretty_range)
 # list all folders of context
 context_folder_vector <- list.dirs( file.path("Polito_Usecase","data") )[-1]
 
-for (i in 1:length(context_folder_vector)) {
+for (i in 2:length(context_folder_vector)) {
   
   
   # specific folder of context
@@ -27,8 +27,8 @@ for (i in 1:length(context_folder_vector)) {
   
   # remove not useful files
   cluster_files <-   folder_files[!folder_files %in% c("plot_cmp_full.json", "plot_cmp_full.csv")]
- 
-# plot the full CMP
+  
+  # plot the full CMP
   df <-  read.csv(file.path(context_folder, "plot_cmp_full.csv"), sep = ',', header = F)
   
   
@@ -88,11 +88,16 @@ for (i in 1:length(context_folder_vector)) {
       # AXIS X
       #axis.title.x = element_text(size = fontsize_medium, margin = margin(t = 20, r = 20, b = 0, l = 0)),
       axis.text.x = element_text(size = fontsize_small, margin = margin(t = 5, r = 5, b = 5, l = 5),
-                                 angle = 0, vjust=.3, hjust = -0.18),
+                                 angle = 0, 
+                                 #vjust=.3, hjust = -0.18,
+                                 
+      ),
       # AXIS Y
       #axis.title.y = element_text(size = fontsize_medium,margin = margin(t = 20, r = 20, b = 0, l = 0)),
       axis.text.y = element_text(size = fontsize_small, margin = margin(t = 5, r = 5, b = 5, l = 5),
-                                 angle = 0, vjust=-1.1),
+                                 angle = 0, 
+                                 #vjust=-1.1
+      ),
       # background
       panel.background = element_rect(fill = "gray99"),# background of plotting area, drawn underneath plot
       panel.grid.major = element_blank(),            # draws nothing, and assigns no space.
@@ -199,7 +204,7 @@ for (i in 1:length(context_folder_vector)) {
          width = 10, height = 10, dpi = dpi ,  bg = background_fill)
   
   dev.off()
-
+  
 }
 
 

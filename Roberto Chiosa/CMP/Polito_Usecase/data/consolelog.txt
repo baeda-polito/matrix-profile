@@ -18,10 +18,6 @@ START 2021-10-11 180543
  CONTEXT 1  Subsequences of 0515 h that starts between 0000 and 0100 (ctx_from00_00_to01_00_m05_15)
 99.997%        0.0 sec
 
-findfont Font family ['sans-serif'] not found. Falling back to DejaVu Sans.
-findfont Generic family 'sans-serif' not found because none of the following families were found Poppins
-findfont Font family ['sans-serif'] not found. Falling back to DejaVu Sans.
-findfont Generic family 'sans-serif' not found because none of the following families were found Poppins
 - Cluster 1 (0.980 s) - 2 anomalies
 - Cluster 2 (0.437 s) - 1 anomalies
 - Cluster 3 (0.922 s) - 2 anomalies

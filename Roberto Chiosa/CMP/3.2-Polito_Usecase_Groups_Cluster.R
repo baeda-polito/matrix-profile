@@ -103,8 +103,9 @@ plot <- ggplot() +
     x = "" , 
     y = "Power [kW]"
   )+
+  theme_minimal() +
   ggplot2::theme(
-    text=element_text(family=font_family),
+    text = element_text(family = font_family),
     plot.title = element_text(hjust = 0.5, size = fontsize_large, margin = margin(t = 0, r = 0, b = 0, l = 0), ),
     plot.subtitle = element_text(hjust = 0.5, size = fontsize_small, margin = margin(t = 5, r = 5, b = 10, l = 10)),
     # legend
@@ -118,10 +119,10 @@ plot <- ggplot() +
     axis.text.y = element_text(size = fontsize_small, margin = margin(t = 5, r = 5, b = 0, l = 5), angle = 0, vjust=.3),
     # background
     panel.background = element_rect(fill = "gray99"),# background of plotting area, drawn underneath plot
-    panel.grid.major = element_blank(),            # draws nothing, and assigns no space.
+    #panel.grid.major = element_blank(),            # draws nothing, and assigns no space.
     panel.grid.minor = element_blank(),            # draws nothing, and assigns no space.
     plot.margin = unit(c(plot_margin,plot_margin,plot_margin,plot_margin), "cm")
-  )         # margin around entire plot
+  ) 
 
 
 # plot horizontal labeled
