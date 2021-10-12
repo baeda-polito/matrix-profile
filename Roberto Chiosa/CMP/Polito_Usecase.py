@@ -323,7 +323,7 @@ for u in range(len(time_window)):
         # calculate anomaly score though majority voting
         cmp_ad_score = anomaly_detection(group=group, group_cmp=group_cmp)
         # set to nan if severity 0/1/2 (no anomaly or not severe)
-        cmp_ad_score = np.where(cmp_ad_score != 4, np.nan, cmp_ad_score)
+        cmp_ad_score = np.where(cmp_ad_score == 0, np.nan, cmp_ad_score)
 
         # the number of anomalies is the number of non nan elements, count
         num_anomalies_to_show = np.count_nonzero(~np.isnan(cmp_ad_score))
