@@ -270,6 +270,7 @@ for u in range(len(time_window)):
     annotation_df = pd.read_csv(path_to_data + "group_cluster.csv", index_col='timestamp', parse_dates=True)
     # initialize dataframe of results for context to be appended to the overall result
     df_anomaly_context = annotation_df.astype(int)
+
     # set labels
     day_labels = data.index[::obs_per_day]
     # get number of groups
@@ -491,7 +492,10 @@ for u in range(len(time_window)):
     if df_anomaly_results.empty:
         df_anomaly_results = df_anomaly_context
     else:
+        # concatenate dataframes by column
         df_anomaly_results = pd.concat([df_anomaly_results, df_anomaly_context], axis=1)
+        # remove redundant columns
+        df_anomaly_results = df_anomaly_results.loc[:, ~df_anomaly_results.columns.duplicated()]
 
 # at the end of loop on context save dataframe of results
 df_anomaly_results.to_csv(path_to_data + "anomaly_results.csv")
