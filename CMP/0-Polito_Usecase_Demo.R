@@ -6,7 +6,7 @@ source("utils_functions.R")
 
 library(ggplot2)
 library(dplyr)
-library(magrittr)
+import::from(magrittr, '%>%')
 library(tidyr)
 library(scales)
 library(tidyverse)

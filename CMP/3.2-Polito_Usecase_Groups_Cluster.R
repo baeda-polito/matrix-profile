@@ -51,6 +51,7 @@ plot(hcl, family = font_family)
 rect.hclust(hcl, k = 4, border = "red")
 dev.off()
 
+
 # add cluster id to total dataframe
 df2$cluster <- cutree(hcl, n_clusters) 
 # merge with previous to add calendar variables etc
@@ -131,6 +132,7 @@ plot
 ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.jpg"), 
        width = 10, height = 3, dpi = dpi,  bg = background_fill)
 dev.off()
+
 
 # # plot void
 # dev.new()
