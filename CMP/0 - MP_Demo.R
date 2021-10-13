@@ -16,7 +16,7 @@ library(ggtext)         # annotate text
         
 figma_palette <- c("#5EE393", "#0074FF")
 
-df <- read.csv(file.path(getwd(), "Polito_Usecase", "demo_data", "df_univariate_full.csv"), sep = ';', dec = ",") %>%
+df <- read.csv(file.path("Polito_Usecase", "demo_data", "df_univariate_full.csv"), sep = ';', dec = ",") %>%
   dplyr::mutate(timestamp = as.POSIXct(CET, "%Y-%m-%d %H:%M:%S", tz = "GMT"), # occhio al cambio ora
                 value = as.numeric(Power_total)
   ) %>%

@@ -14,12 +14,12 @@ library(ggplot2)
 library(scales)
 
 ###### DATASET PRE-PROCESSING:
-#   - Load all dataset polito_labeled.csv (equal to dedf_cabinaC_2019_labeled.csv)
+#   - Load all dataset polito_raw.csv
 #   - Fix datetime and variables
 #   - Remove holidays and working days
 #   - Keep only interesting variables
 
-df <-  read.csv(file.path(getwd(),"Polito_Usecase", "data",  "polito_labeled.csv"), sep = ',', dec = ".") %>%
+df <-  read.csv(file.path(getwd(),"Polito_Usecase", "data",  "polito_raw.csv"), sep = ',', dec = ".") %>%
   mutate(timestamp = as.POSIXct(Date_Time, "%Y-%m-%d %H:%M:%S", tz = "GMT"), # occhio al cambio ora
          value = Total_Power,
          Date = as.Date(timestamp),
@@ -54,7 +54,7 @@ dev.off()
 
 # Print tree
 dev.new() 
-png(file = file.path("Polito_Usecase", "figures", "time_window_cart,jpg"), bg = "white", width = 2000, height = 1300, res = dpi) 
+png(file = file.path("Polito_Usecase", "figures", "time_window_cart.jpg"), bg = "white", width = 2000, height = 1300, res = dpi) 
 ct1 <- as.party(ct)
 names(ct1$data) <- c("Total Power", "Hour") # change labels to plot
 plot(ct1, tnex = 2.8,  
@@ -92,6 +92,7 @@ names(time_posixct_string) <- NULL
 
 # initialize dataframe
 time_window_df <- data.frame(
+  id = seq(0, 0, length.out = length(time_posixct_string)-1), 
   description = seq(0, 0, length.out = length(time_posixct_string)-1), 
   observations = seq(0, 0, length.out = length(time_posixct_string)-1),
   from = seq(0, 0, length.out = length(time_posixct_string)-1),
@@ -101,6 +102,7 @@ time_window_df <- data.frame(
 
 # add columns to dataframe
 for (i in 1: (length(time_posixct_string)-1)) {
+  time_window_df$id[i] <- i
   time_window_df$description[i] <- paste("From", time_posixct_string[i], "to", time_posixct_string[i+1])
   time_window_df$from[i] <- time_posixct_string[i]
   time_window_df$to[i] <- time_posixct_string[i+1]

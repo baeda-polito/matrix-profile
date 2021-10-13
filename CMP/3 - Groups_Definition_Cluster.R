@@ -19,11 +19,11 @@ library(scales)
 #   - Spread df1 into df2 for clustering
 #   - Select only values in data from df2
 
-df <-  read.csv(file.path(getwd(),"Polito_Usecase", "data",  "polito_labeled.csv"), sep = ',', dec = ".") %>%
+df <-  read.csv(file.path(getwd(),"Polito_Usecase", "data",  "polito_raw.csv"), sep = ',', dec = ".") %>%
   select(Date, Day_Type, Holiday) %>%
   unique()
 
-df1 <-  read.csv(file.path(getwd(),"Polito_Usecase", "data",  "polito_labeled.csv"), sep = ',', dec = ".") %>%
+df1 <-  read.csv(file.path(getwd(),"Polito_Usecase", "data",  "polito_raw.csv"), sep = ',', dec = ".") %>%
   dplyr::select(Date, Time, Total_Power) 
 
 df2 <- pivot_wider(df1, names_from = "Time", values_from = "Total_Power")
