@@ -79,25 +79,32 @@ counted <- df1 %>%
 # profiles dataframe
 df1_plot <- merge.data.frame(df1, counted) %>%
   mutate(cluster_label = paste("Cluster ", cluster, " (", n," profiles)", sep = ""),
-         cluster_label = as.factor(cluster_label))
+    cluster_label = as.factor(cluster_label))
 
 # centroid dataframe
 centr_plot <- merge.data.frame(centr, counted) %>%
   mutate(cluster_label = paste("Cluster ", cluster, " (", n," profiles)", sep = ""),
-         cluster_label = as.factor(cluster_label))
+    cluster_label = as.factor(cluster_label))
 
 plot <- ggplot() +
   geom_line(data = df1_plot, 
-            aes(x = as.POSIXct(Time, format = "%H:%M:%S" , tz = "GMT") , y = Total_Power, group = Date) , 
-            color = "#D5D5E0", alpha = 0.3, size = 0.7) +
+    aes(x = as.POSIXct(Time, format = "%H:%M:%S" , tz = "GMT") , y = Total_Power, group = Date) , 
+    color = "#D5D5E0", alpha = 0.3, size = 0.7) +
   geom_line(data = centr_plot, 
-            aes(x = as.POSIXct(Time, format = "%H:%M:%S" , tz = "GMT") , y = Total_Power, color = cluster_label) , 
-            size = 1) +
+    aes(x = as.POSIXct(Time, format = "%H:%M:%S" , tz = "GMT") , y = Total_Power, color = cluster_label) , 
+    size = 1) +
   #scale_color_manual(values = c("#D83C3B", "#3681A9", "#87CD93","#FA9A4E") ) +
-  scale_x_datetime(expand = c(0,0), labels = date_format("%H:%M" , tz = "GMT"), breaks = date_breaks("4 hour")) +
-  scale_y_continuous(limits = c(0,ceiling(max(df1_plot$Total_Power)/100)*100), expand = c(0,0)) +
+  scale_x_datetime(
+    expand = c(0,0), 
+    labels = date_format("%H:%M" , tz = "GMT"), 
+    breaks = date_breaks("4 hour")
+  ) +
+  scale_y_continuous(
+    limits = c(0,ceiling(max(df1_plot$Total_Power)/100)*100), 
+    expand = c(0,0)
+  ) +
   theme_bw() +
-  facet_wrap(~cluster_label, nrow= 1) +
+  facet_wrap(~cluster_label, nrow= 1, scales = "free") +
   labs(
     #title = "Daily Profile Cluster Results",
     #subtitle = "Identification of 6 similarity groups for CMP analysis",
@@ -107,6 +114,11 @@ plot <- ggplot() +
   theme_minimal() +
   ggplot2::theme(
     text = element_text(family = font_family),
+    axis.ticks = element_line(colour = "black"),
+    panel.grid = element_blank(),
+    axis.line.y = element_line(colour = "black"),
+    axis.line.x = element_line(colour = "black"),
+    
     plot.title = element_text(hjust = 0.5, size = fontsize_large, margin = margin(t = 0, r = 0, b = 0, l = 0), ),
     plot.subtitle = element_text(hjust = 0.5, size = fontsize_small, margin = margin(t = 5, r = 5, b = 10, l = 10)),
     # legend
@@ -119,18 +131,18 @@ plot <- ggplot() +
     #axis.title.y = element_text(size = fontsize_medium,margin = margin(t = 20, r = 20, b = 0, l = 0)),
     axis.text.y = element_text(size = fontsize_small, margin = margin(t = 5, r = 5, b = 0, l = 5), angle = 0, vjust=.3),
     # background
-    panel.background = element_rect(fill = "gray99"),# background of plotting area, drawn underneath plot
+    # panel.background = element_rect(fill = "gray99"),# background of plotting area, drawn underneath plot
     #panel.grid.major = element_blank(),            # draws nothing, and assigns no space.
     panel.grid.minor = element_blank(),            # draws nothing, and assigns no space.
     plot.margin = unit(c(plot_margin,plot_margin,plot_margin,plot_margin), "cm")
-  ) 
+  )
 
 
 # plot horizontal labeled
 dev.new()
 plot
 ggsave(filename = file.path("Polito_Usecase", "figures", "groups_clusters.jpg"), 
-       width = 10, height = 3, dpi = dpi,  bg = background_fill)
+  width = 10, height = 3, dpi = dpi,  bg = background_fill)
 dev.off()
 
 

@@ -67,10 +67,20 @@ plot_boxplot <- group_cmp_vector %>%
     width = 0.6, 
     outlier.colour = outlier_color, 
     color = figma_blue
-    ) + 
+  ) + 
+  
   labs(title = "Boxplot", x = "Group", y = "Distance") +
   scale_x_continuous( expand = c(0,0), limits = c(-1,1))+
-  theme_classic()
+  theme_minimal() +
+  ggplot2::theme(
+    panel.spacing = unit(4, "lines"),
+    text = element_text(family = font_family),
+    axis.ticks = element_line(colour = "black"),
+    panel.grid = element_blank(),
+    axis.line.y = element_line(colour = "black"),
+    axis.line.x = element_line(colour = "black"),
+    plot.title = element_text(hjust = 0.5)
+  ) 
 
 plot_elbow <- ggplot() +
   annotate(
@@ -91,7 +101,17 @@ plot_elbow <- ggplot() +
   scale_x_continuous( expand = c(0,0), limits = c(0,length(group_cmp_vector$values)))+
   #scale_y_continuous( expand = c(0,0), limits = c(dist_min,dist_max) )+
   labs(title = "Elbow", x = "Index", y = "Distance")+
-  theme_classic()
+  theme_minimal() +
+  ggplot2::theme(
+    panel.spacing = unit(4, "lines"),
+    text = element_text(family = font_family),
+    axis.ticks = element_line(colour = "black"),
+    panel.grid = element_blank(),
+    axis.line.y = element_line(colour = "black"),
+    axis.line.x = element_line(colour = "black"),
+    plot.title = element_text(hjust = 0.5)
+  ) 
+
 
 plot_zscore <-  ggplot(group_cmp_vector, aes(z)) +
   annotate(
@@ -128,7 +148,16 @@ plot_zscore <-  ggplot(group_cmp_vector, aes(z)) +
   scale_x_continuous( expand = c(0,0), limits = c(-3,3))+
   scale_y_continuous( expand = c(0,0))+
   labs(title = "Z score", x = "Z-score", y = "Density")+
-  theme_classic()
+  theme_minimal() +
+  ggplot2::theme(
+    panel.spacing = unit(4, "lines"),
+    text = element_text(family = font_family),
+    axis.ticks = element_line(colour = "black"),
+    panel.grid = element_blank(),
+    axis.line.y = element_line(colour = "black"),
+    axis.line.x = element_line(colour = "black"),
+    plot.title = element_text(hjust = 0.5)
+  ) 
 
 
 plot_gesd <- ggplot() +
@@ -151,7 +180,16 @@ plot_gesd <- ggplot() +
   scale_x_continuous( expand = c(0,0), limits = c(0,length(group_cmp_vector$values)))+
   #scale_y_continuous( expand = c(0,0), limits = c(dist_min,dist_max) )+
   labs(title = "GESD", x = "Index", y = "Distance")+
-  theme_classic()
+  theme_minimal() +
+  ggplot2::theme(
+    panel.spacing = unit(4, "lines"),
+    text = element_text(family = font_family),
+    axis.ticks = element_line(colour = "black"),
+    panel.grid = element_blank(),
+    axis.line.y = element_line(colour = "black"),
+    axis.line.x = element_line(colour = "black"),
+    plot.title = element_text(hjust = 0.5)
+  ) 
 
 plot_qqplot <- ggplot(group_cmp_vector, aes(sample = values)) +
   stat_qq(color = figma_blue, size = 0.5) +
@@ -159,7 +197,18 @@ plot_qqplot <- ggplot(group_cmp_vector, aes(sample = values)) +
   #scale_y_continuous(expand = c(0, 0), limits = c(0, dist_max)) +
   scale_x_continuous(expand = c(0, 0), limits = c(-3, 3)) +
   labs(title = "QQ-plot", x = "Z-score", y = "Distance") +
-  theme_classic()
+  theme_minimal() +
+  ggplot2::theme(
+    panel.spacing = unit(4, "lines"),
+    text = element_text(family = font_family),
+    axis.ticks = element_line(colour = "black"),
+    panel.grid = element_blank(),
+    axis.line.y = element_line(colour = "black"),
+    axis.line.x = element_line(colour = "black"),
+    plot.title = element_text(hjust = 0.5)
+  ) 
+
+
 
 #library(ggpubr)
 dev.new()
@@ -167,7 +216,7 @@ dev.new()
 ggarrange(plot_boxplot,plot_elbow,plot_zscore,plot_gesd, plot_qqplot, nrow = 1, align = c("h"))
 
 ggsave(filename = file.path("Polito_Usecase", "figures", "anomaly_detection_results.jpg"),
-  width = 12, height = 3, dpi = dpi ,  bg = background_fill)
+  width = 12, height = 2.5, dpi = dpi ,  bg = background_fill)
 
 dev.off()
 

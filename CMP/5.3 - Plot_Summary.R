@@ -60,10 +60,15 @@ ggplot(df_plot, aes(x = context, y = as.factor(timestamp), fill = values)) +
                     values = brewer_pal(palette = "OrRd")(5)) +
   theme_minimal() +
   ggplot2::theme(
-    panel.spacing = unit(4, "lines"),
+    panel.spacing = unit(3, "lines"),
     text = element_text(family = font_family),
-    axis.ticks = element_line(colour = "grey50")
-  ) + 
+    axis.ticks = element_line(colour = "black"),
+    panel.grid = element_blank(),
+    legend.position = "top",
+    axis.line.y = element_line(colour = "black"),
+    axis.line.x = element_line(colour = "black"),
+    plot.title = element_text(hjust = 0.5)
+  ) +
   ggExtra::removeGrid()
 
 
