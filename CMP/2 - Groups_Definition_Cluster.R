@@ -210,7 +210,8 @@ df_power_wide_part2 <- df_power_wide
 ################# join results
 
 
-df_power_wide_all <- rbind(df_power_wide_part1, df_power_wide_part2)
+df_power_wide_all <- rbind(df_power_wide_part1, df_power_wide_part2) %>% 
+  arrange(Date)
 
 # plot horizontal labeled
 dev.new()
