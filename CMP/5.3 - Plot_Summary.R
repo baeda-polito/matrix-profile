@@ -18,7 +18,7 @@ df <-  read.csv(file.path("Polito_Usecase", "data", "anomaly_results.csv"))
 
 
 df_corrected <- df %>%
-  select(-c(Cluster_1,Cluster_2,Cluster_3,Cluster_4)) %>%
+  select(-c(Cluster_1,Cluster_2,Cluster_3,Cluster_4, Cluster_5)) %>%
   pivot_longer(cols=c(-timestamp), names_to = "context", values_to = "values") %>% 
   mutate(
     cluster = ifelse(grepl("Cluster_1.", context),
@@ -26,12 +26,14 @@ df_corrected <- df %>%
                      ifelse(grepl("Cluster_2.", context),
                             "Cluster 2",
                             ifelse(grepl("Cluster_3.", context),
-                                   "Cluster 3", "Cluster 4"))),
+                                   "Cluster 3", ifelse(grepl("Cluster_4.", context),
+                                     "Cluster 4", "Cluster 5")))),
     cluster = as.factor(cluster),
     context = gsub("Cluster_1.","",context),
     context = gsub("Cluster_2.","",context),
     context = gsub("Cluster_3.","",context),
     context = gsub("Cluster_4.","",context),
+    context = gsub("Cluster_5.","",context),
     context = as.factor(as.numeric(as.factor(context))),
     values = as.factor(values)
   )
