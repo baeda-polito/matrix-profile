@@ -5,17 +5,17 @@ import os  # OS handling utils
 import matplotlib.pyplot as plt  # plots
 import numpy as np  # general data manipulation
 import pandas as pd  # dataframe handling
-import scipy.stats as stats
 from matplotlib import rc  # font plot
 
-from anomaly_detection_functions import anomaly_detection
+from anomaly_detection_functions import (extract_vector_ad_energy,
+                                         extract_vector_ad_temperature,
+                                         extract_vector_ad_cmp,
+                                         anomaly_detection)
 # import from the local module distancematrix
 from distancematrix.calculator import AnytimeCalculator
 from distancematrix.consumer import ContextualMatrixProfile
 from distancematrix.consumer.contextmanager import GeneralStaticManager
 from distancematrix.generator import Euclidean
-from energy_anomaly_detection_functions import energy_anomaly_detection
-from temperature_anomaly_detection_functions import temperature_anomaly_detection
 # import from custom modules useful functions
 from utils_functions import roundup, hour_to_dec, dec_to_hour, nan_diag, dec_to_obs
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     path_to_data = 'Polito_Usecase' + os.sep + 'data' + os.sep
     path_to_figures = 'Polito_Usecase' + os.sep + 'figures' + os.sep
 
-    # from global variables load
+    # from global variables load todo: simplify the wau global variables are defined
     global_variables = pd.read_csv(path_to_data + "global_variables.csv", header=0)
 
     font_family = global_variables[global_variables["variable_name"] == "font_family"].iloc[0][1]
@@ -44,6 +44,7 @@ if __name__ == '__main__':
     # - plot style
     # - remove warning More than 20 figures have been opened.
 
+    # todo: solve the issue of fonts on windows machine Falling back to DejaVu Sans
     rc('font', **{'family': 'sans-serif', 'sans-serif': [font_family]})
     plt.rcParams.update({'font.size': fontsize})
     # plt.style.use("seaborn-paper")
@@ -107,8 +108,8 @@ if __name__ == '__main__':
     plt.grid(b=True, axis="x", which='both', color='black', linestyle=':')
     
     # add day labels on plot
-    for i in range(14):
-        timestamp = data.index[position_x + i * obs_per_day]
+    for id_cluster in range(14):
+        timestamp = data.index[position_x + id_cluster * obs_per_day]
         plt.text(timestamp, position_y, timestamp.day_name()[:3])
     
     plt.tight_layout()
@@ -123,7 +124,7 @@ if __name__ == '__main__':
 
     # The number of time window has been selected from CART on total electrical power,
     # results are contained in 'time_window.csv' file
-    time_window = pd.read_csv(path_to_data + "time_window.csv")
+    df_time_window = pd.read_csv(path_to_data + "time_window.csv")
 
     # The context is defined as 1 hour before time window, to be consistent with other analysis,
     # results are loaded from 'm_context.csv' file
@@ -137,19 +138,19 @@ if __name__ == '__main__':
         columns=["from", "to", "context_string", "context_string_small", "duration", "observations"])
 
     # begin for loop on the number of time windows
-    for u in range(len(time_window)):
+    for id_tw in range(len(df_time_window)):
 
         ########################################################################################
         # Data Driven Context Definition
-        if u == 0:
+        if id_tw == 0:
             # manually define context if it is the beginning
             context_start = 0  # [hours] i.e., 00:00
             context_end = context_start + m_context  # [hours] i.e., 01:00
             # [observations] = ([hour]-[hour])*[observations/hour]
-            m = int((hour_to_dec(time_window["to"][u]) - m_context) * obs_per_hour)
+            m = int((hour_to_dec(df_time_window["to"][id_tw]) - m_context) * obs_per_hour)
         else:
-            m = time_window["observations"][u]  # [observations]
-            context_end = hour_to_dec(time_window["from"][u])  # [hours]
+            m = df_time_window["observations"][id_tw]  # [observations]
+            context_end = hour_to_dec(df_time_window["from"][id_tw])  # [hours]
             context_start = context_end - m_context  # [hours]
 
         '''
@@ -184,16 +185,16 @@ if __name__ == '__main__':
         context_string_small = context_string_small.replace(":", "_")
 
         # update context dataframe
-        df_contexts.loc[u] = [dec_to_hour(context_start),  # "from"
-                              dec_to_hour(context_end),  # "to"
-                              context_string,  # "context_string"
-                              context_string_small,  # "context_string_small"
-                              str(m_context) + " h",  # "duration"
-                              m_context * obs_per_hour  # "observations"
-                              ]
+        df_contexts.loc[id_tw] = [dec_to_hour(context_start),  # "from"
+                                  dec_to_hour(context_end),  # "to"
+                                  context_string,  # "context_string"
+                                  context_string_small,  # "context_string_small"
+                                  str(m_context) + " h",  # "duration"
+                                  m_context * obs_per_hour  # "observations"
+                                  ]
 
         print('\n*********************\n',
-              'CONTEXT ' + str(u + 1) + ' : ' + context_string + " (" + context_string_small + ")")
+              'CONTEXT ' + str(id_tw + 1) + ' : ' + context_string + " (" + context_string_small + ")")
 
         # if figures directory doesnt exists create and save into it
         if not os.path.exists(path_to_figures + context_string_small):
@@ -283,27 +284,27 @@ if __name__ == '__main__':
         n_group = annotation_df.shape[1]
 
         # perform analysis of context on groups (clusters)
-        for i in range(n_group):
+        for id_cluster in range(n_group):
 
             # create this dataframe where dates cluster and anomalies scores will be saved
-            df_result_context_cluster = pd.DataFrame(
-                columns=['Date', 'cluster', 'severity_score', 'energy_score', 'temperature_score'])
+            df_result_context_cluster = pd.DataFrame()
 
             # time when computation starts
             begin_time_group = datetime.datetime.now()
 
             # get group name from dataframe
-            group_name = annotation_df.columns[i]
+            group_name = annotation_df.columns[id_cluster]
 
             # add column of context of group in df_output
-            df_anomaly_context[group_name + "." + context_string_small] = [0 for i in range(len(df_anomaly_context))]
+            df_anomaly_context[group_name + "." + context_string_small] = [0 for id_cluster in
+                                                                           range(len(df_anomaly_context))]
 
             # if figures directory doesnt exists create and save into it
             if not os.path.exists(path_to_figures + context_string_small + os.sep + group_name):
                 os.makedirs(path_to_figures + context_string_small + os.sep + group_name)
 
             # create empty group vector
-            group = np.array(annotation_df.T)[i]
+            group = np.array(annotation_df.T)[id_cluster]
             # get cmp from previously computed cmp
             group_cmp = cmp.distance_matrix[:, group][group, :]
             # substitute inf with zeros
@@ -336,17 +337,40 @@ if __name__ == '__main__':
             df_result_context_cluster["Date"] = annotation_df.index
             df_result_context_cluster["cluster"] = group
 
+            # calculate the vector to be used for the anomaly detection
+            vector_ad_cmp = extract_vector_ad_cmp(group_cmp=group_cmp)
+
+            vector_ad_energy = extract_vector_ad_energy(
+                group=group,
+                data_full=data,
+                tw=df_time_window,
+                tw_id=id_tw)
+
+            vector_ad_temperature = extract_vector_ad_temperature(
+                group=group,
+                data_full=data,
+                tw=df_time_window,
+                tw_id=id_tw)
+
             # calculate anomaly score though majority voting
-            cmp_ad_score = anomaly_detection(group=group, group_cmp=group_cmp)
-            energy_score = energy_anomaly_detection(group=group, data_full=data, tw=time_window, tw_id=u)
-            temperature_score = temperature_anomaly_detection(group=group, data_full=data, tw=time_window, tw_id=u)
+            cmp_ad_score = anomaly_detection(
+                group=group,
+                vector_ad=vector_ad_cmp)
+
+            energy_ad_score = anomaly_detection(
+                group=group,
+                vector_ad=vector_ad_energy)
+
+            temperature_ad_score = anomaly_detection(
+                group=group,
+                vector_ad=vector_ad_temperature)
 
             # add anomaly score to df_result_context_cluster
-            df_result_context_cluster["severity_score"] = cmp_ad_score
-            df_result_context_cluster["energy_score"] = energy_score
-            df_result_context_cluster["temperature_score"] = temperature_score
+            df_result_context_cluster["cmp_score"] = cmp_ad_score
+            df_result_context_cluster["energy_score"] = energy_ad_score
+            df_result_context_cluster["temperature_score"] = temperature_ad_score
 
-            # add categorization depensing on some criteria
+            # add categorization depending on some criteria
             # set to nan if severity 0/1/2 (no anomaly or not severe)
             cmp_ad_score = np.where(cmp_ad_score == 0, np.nan, cmp_ad_score)
 
@@ -522,11 +546,6 @@ if __name__ == '__main__':
 
             # drop cluster column
             df_result_context_cluster = df_result_context_cluster.drop(['cluster'], axis=1)
-
-            df_result_context_cluster['temperature_score'] = stats.zscore(
-                df_result_context_cluster['temperature_score'])
-            df_result_context_cluster['energy_score'] = stats.zscore(
-                df_result_context_cluster['energy_score'])
 
             df_result_context_cluster.to_csv(
                 path_to_data + context_string_small + os.sep + 'anomaly_results_' + group_name + '.csv')

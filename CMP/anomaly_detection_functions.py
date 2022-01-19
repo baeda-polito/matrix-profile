@@ -7,15 +7,17 @@ import scipy.stats as stats
 import seaborn as sns
 from kneed import KneeLocator
 
+from utils_functions import hour_to_dec
 
-def boxplot_fun(group, group_cmp_median):
+
+def boxplot_fun(group, vector_ad):
     """ Implements outlier detection through IQR rule and box-plot
 
     :param group: is an 365 length array defining group (values 0 and 1)
     :type group: np.ndarray
 
-    :param group_cmp_median:  is the cmp matrix median by group (i.e., cluster) by column
-    :type group_cmp_median: np.ndarray
+    :param vector_ad:  is the cmp matrix median by group (i.e., cluster) by column
+    :type vector_ad: np.ndarray
 
     :return column: array of same length of group specifying if outlier or not (values 0 and 1)
     :rtype column: np.ndarray
@@ -26,7 +28,7 @@ def boxplot_fun(group, group_cmp_median):
 
     # plot
     fig, ax = plt.subplots()
-    bp = ax.boxplot(group_cmp_median, notch=True, patch_artist=True)
+    bp = ax.boxplot(vector_ad, notch=True, patch_artist=True)
     ax.set_ylabel('Distribution of the columns median')
     ax.axes.get_xaxis().set_visible(False)  # remove x-axis
     ax.set_title('Notched box plot')
@@ -34,14 +36,14 @@ def boxplot_fun(group, group_cmp_median):
     # get the outliers
     outliers_both_whisker = [flier.get_ydata() for flier in bp["fliers"]]
     outliers_both_whisker = np.array(outliers_both_whisker)
-    outliers = outliers_both_whisker[outliers_both_whisker > np.median(group_cmp_median)]
+    outliers = outliers_both_whisker[outliers_both_whisker > np.median(vector_ad)]
 
     # create an array of medians according cluster on yearly period
     median_of_day = np.zeros(group.size)
     j = 0
     for i in range(0, group.size):
         if group[i] == 1:
-            median_of_day[i] = group_cmp_median[j]
+            median_of_day[i] = vector_ad[j]
             j += 1
 
     # take the outliers
@@ -60,16 +62,16 @@ def boxplot_fun(group, group_cmp_median):
     return column, fig
 
 
-def zscore_fun(group, group_cmp_median, upper_bound=2):
+def zscore_fun(group, vector_ad, upper_bound=2):
     """ Implements outlier detection through z-score standardization
 
     :param group: is an 365 length array defining group (values 0 and 1)
     :type group: np.ndarray
 
-    :param group_cmp_median:  is the cmp matrix median by group (i.e., cluster) by column
-    :type group_cmp_median: np.ndarray
+    :param vector_ad:  is the cmp matrix median by group (i.e., cluster) by column
+    :type vector_ad: np.ndarray
 
-    :param upper_bound:  upper bount for zscore outlier
+    :param upper_bound:  upper bound for zscore outlier
     :type upper_bound: float
 
     :return column: array of same length of group specifying if outlier or not (values 0 and 1)
@@ -79,7 +81,7 @@ def zscore_fun(group, group_cmp_median, upper_bound=2):
     :rtype fig: plot
     """
 
-    zscore = stats.zscore(group_cmp_median)
+    zscore = stats.zscore(vector_ad)
 
     fig, ax = plt.subplots()
     sns.kdeplot(data=zscore)
@@ -107,14 +109,14 @@ def zscore_fun(group, group_cmp_median, upper_bound=2):
     return column, fig
 
 
-def elbow_fun(group, group_cmp_median):
+def elbow_fun(group, vector_ad):
     """ Implements outlier detection through elbow method, the values on the sx of the elbow are labelled as anomaly
 
     :param group: is an 365 length array defining group (values 0 and 1)
     :type group: np.ndarray
 
-    :param group_cmp_median:  is the cmp matrix median by group (i.e., cluster) by column
-    :type group_cmp_median: np.ndarray
+    :param vector_ad:  is the cmp matrix median by group (i.e., cluster) by column
+    :type vector_ad: np.ndarray
 
     :return column: array of same length of group specifying if outlier or not (values 0 and 1)
     :rtype column: np.ndarray
@@ -123,8 +125,8 @@ def elbow_fun(group, group_cmp_median):
     :rtype fig: plot
     """
 
-    xx = np.array(range(0, group_cmp_median.size))
-    yy = np.sort(group_cmp_median)[::-1]  # decreasing
+    xx = np.array(range(0, vector_ad.size))
+    yy = np.sort(vector_ad)[::-1]  # decreasing
     kn = KneeLocator(xx, yy, curve='convex', direction='decreasing')
     num_anomalies_to_show = kn.knee
 
@@ -133,7 +135,7 @@ def elbow_fun(group, group_cmp_median):
     plt.ylabel("Anomaly Score")
     plt.title("Sorted Anomaly Scores")
     plt.axvline(num_anomalies_to_show, ls=":", c="gray")
-    anomaly_ticks = list(range(0, group_cmp_median.size, int(group_cmp_median.size / 5)))
+    anomaly_ticks = list(range(0, vector_ad.size, int(vector_ad.size / 5)))
     anomaly_ticks.append(num_anomalies_to_show)
     plt.xticks(anomaly_ticks)
 
@@ -143,7 +145,7 @@ def elbow_fun(group, group_cmp_median):
     j = 0
     for i in range(group.size):
         if group[i] == 1:
-            outliers[i] = group_cmp_median[j]
+            outliers[i] = vector_ad[j]
             j += 1
 
     # take the outliers
@@ -183,13 +185,14 @@ def gesd_esd_test(input_series, max_outliers, alpha=0.05):
 
     stats_1 = []
     n_outliers = 0
-    critical_vals = []
+    critical_values = []
 
     for i in range(1, max_outliers + 1):
 
         # Calculates the statistical test Ri = max_i*(x_i-x_bar)/sts_dv(x_i)
         max_ind = np.argmax(abs(input_series - np.mean(input_series)))
         R_i = max(abs(input_series - np.mean(input_series))) / np.std(input_series)
+
         # print('Test {}'.format(iteration))
         # print("Test Statistics Value(R{}) : {}".format(iteration, R_i))
 
@@ -212,7 +215,7 @@ def gesd_esd_test(input_series, max_outliers, alpha=0.05):
         #                                                                     i, R_i, lambda_i))
 
         input_series = np.delete(input_series, max_ind)
-        critical_vals.append(lambda_i)
+        critical_values.append(lambda_i)
         stats_1.append(R_i)
         # The number of outliers is determined by finding the largest i such that Ri > lambda_i.
         if R_i > lambda_i:
@@ -226,7 +229,7 @@ def gesd_esd_test(input_series, max_outliers, alpha=0.05):
     # print('Ri: Test statistic')
     # print('lambda_i: Critical Value')
     # print(' ')
-    # df = pd.DataFrame({'i': range(1, max_outliers + 1), 'Ri': stats_1, 'lambda_i': critical_vals})
+    # df = pd.DataFrame({'i': range(1, max_outliers + 1), 'Ri': stats_1, 'lambda_i': critical_values})
     # df.index = df.index + 1
 
     # print('Number of outliers {}'.format(n_outliers))
@@ -234,14 +237,14 @@ def gesd_esd_test(input_series, max_outliers, alpha=0.05):
     return n_outliers
 
 
-def gesd_fun(group, group_cmp_median):
+def gesd_fun(group, vector_ad):
     """ Implements outlier detection through GESD-test
 
     :param group: is an 365 length array defining group (values 0 and 1)
     :type group: np.ndarray
 
-    :param group_cmp_median:  is the cmp matrix median by group (i.e., cluster) by column
-    :type group_cmp_median: np.ndarray
+    :param vector_ad:  is the cmp matrix median by group (i.e., cluster) by column
+    :type vector_ad: np.ndarray
 
     :return column: array of same length of group specifying if outlier or not (values 0 and 1)
     :rtype column: np.ndarray
@@ -251,9 +254,9 @@ def gesd_fun(group, group_cmp_median):
     """
 
     fig, ax = plt.subplots()
-    stats.probplot(group_cmp_median, dist="norm", plot=plt)
+    stats.probplot(vector_ad, dist="norm", plot=plt)
 
-    n_outliers = gesd_esd_test(input_series=group_cmp_median, alpha=0.05, max_outliers=10)
+    n_outliers = gesd_esd_test(input_series=vector_ad, alpha=0.05, max_outliers=10)
 
     # create an array of medians according cluster on yearly period
     medians = np.zeros(group.size)
@@ -261,11 +264,11 @@ def gesd_fun(group, group_cmp_median):
     j = 0
     for i in range(group.size):
         if group[i] == 1:
-            medians[i] = group_cmp_median[j]
+            medians[i] = vector_ad[j]
             j += 1
 
     # get the n_outliers higher values and store in a vector
-    outliers = group_cmp_median[np.argpartition(group_cmp_median, -n_outliers)[-n_outliers:]]
+    outliers = vector_ad[np.argpartition(vector_ad, -n_outliers)[-n_outliers:]]
 
     try:
         threshold = min(outliers)
@@ -278,27 +281,131 @@ def gesd_fun(group, group_cmp_median):
     return column, fig
 
 
-def anomaly_detection(group, group_cmp):
+def extract_vector_ad_energy(group, data_full, tw, tw_id):
+    """
+    :param group: is an 365 length array defining group (values 0 and 1)
+    :type group: np.ndarray
+
+    :param data_full: is the full dataset
+    :type data_full: pd.dataframe
+
+    :param tw: is the time window dataframe
+    :type tw: pd.dataframe
+
+    :param tw_id: is the time window index
+    :type tw_id: int
+
+    :return vector_ad_energy: array of same length of group specifying the energy absorbed in the time window
+    :rtype vector_ad_energy: np.ndarray
+
+    """
+
+    data_tmp = pd.DataFrame(columns=['Date', 'power', 'mindec'])
+    data_tmp['Date'] = data_full.index.date
+    data_tmp['power'] = data_full['value'].array
+    data_tmp['mindec'] = data_full.index.strftime("%H:%M")
+    # convert to decimal
+    data_tmp = data_tmp.assign(
+        mindec=lambda dataframe: dataframe['mindec'].map(
+            lambda x: hour_to_dec(x)
+        )
+    )
+
+    data_tmp['time_window'] = np.where(
+        np.logical_and(data_tmp['mindec'] >= hour_to_dec(tw.iloc[tw_id]['from']), data_tmp['mindec'] <= hour_to_dec(
+            tw.iloc[tw_id]['to'])), True, False)
+
+    # filter
+    data_tmp = data_tmp[data_tmp.time_window == True]
+    # calculate energy
+    data_tmp_summary = data_tmp.groupby(['Date']).power.agg(sum)
+    # keep only stuff related to the group
+    data_tmp_summary = data_tmp_summary[group]
+    # convert to array for further processing
+    vector_ad_energy = np.asarray(data_tmp_summary)
+
+    return vector_ad_energy
+
+
+def extract_vector_ad_temperature(group, data_full, tw, tw_id):
+    """
+    :param group: is an 365 length array defining group (values 0 and 1)
+    :type group: np.ndarray
+
+    :param data_full: is the full dataset
+    :type data_full: pd.dataframe
+
+     :param tw: is the time window dataframe
+    :type tw: pd.dataframe
+
+    :param tw_id: is the time window index
+    :type tw_id: int
+
+
+    :return temperature_score: array of same length of group specifying the energy absorbed in the time window
+    :rtype temperature_score: np.ndarray
+
+    """
+
+    data_tmp = pd.DataFrame(columns=['Date', 'temperature', 'mindec'])
+    data_tmp['Date'] = data_full.index.date
+    data_tmp['temperature'] = data_full['temp'].array
+    data_tmp['mindec'] = data_full.index.strftime("%H:%M")
+    # convert to decimal
+    data_tmp = data_tmp.assign(
+        mindec=lambda dataframe: dataframe['mindec'].map(
+            lambda x: hour_to_dec(x)
+        )
+    )
+
+    data_tmp['time_window'] = np.where(
+        np.logical_and(data_tmp['mindec'] >= hour_to_dec(tw.iloc[tw_id]['from']), data_tmp['mindec'] <= hour_to_dec(
+            tw.iloc[tw_id]['to'])), True, False)
+
+    # filter
+    data_tmp = data_tmp[data_tmp.time_window == True]
+    # calculate energy
+    data_tmp_summary = data_tmp.groupby(['Date']).temperature.mean()
+    # keep only stuff related to the group
+    data_tmp_summary = data_tmp_summary[group]
+    # convert to array for further processing
+    vector_ad_temperature = np.asarray(data_tmp_summary)
+
+    return vector_ad_temperature
+
+
+def extract_vector_ad_cmp(group_cmp):
+    """
+
+    :param group_cmp:
+    :type group_cmp:
+
+    :return:
+    :rtype:
+    """
+    vector_ad_cmp = np.nanmedian(group_cmp, axis=0)
+
+    return vector_ad_cmp
+
+
+def anomaly_detection(group, vector_ad):
     """ This function implements the anomaly detection methods
 
     :param group: is an 365 length array defining group (values 0 and 1)
     :type group: np.ndarray
 
-    :param group_cmp:  is the cmp matrix by group (i.e., cluster)
-    :type group_cmp: np.ndarray
+    :param vector_ad: the vector on which perform the anomaly detection
+    :type vector_ad: np.ndarray
 
-    :return cmp_ad_score: array of same length of group specifying the severity
-    :rtype cmp_ad_score: np.ndarray
+    :return ad_score: array of same length of group specifying the severity
+    :rtype ad_score: np.ndarray
 
     """
 
-    # do the median of the group_cmp matrix to get a vector
-    group_cmp_median = np.nanmedian(group_cmp, axis=0)
-
-    column_1, plot_1 = boxplot_fun(group=group, group_cmp_median=group_cmp_median)
-    column_2, plot_2 = zscore_fun(group=group, group_cmp_median=group_cmp_median, upper_bound=2.5)
-    column_3, plot_3 = elbow_fun(group=group, group_cmp_median=group_cmp_median)
-    column_4, plot_4 = gesd_fun(group=group, group_cmp_median=group_cmp_median)
+    column_1, plot_1 = boxplot_fun(group=group, vector_ad=vector_ad)
+    column_2, plot_2 = zscore_fun(group=group, vector_ad=vector_ad, upper_bound=2.5)
+    column_3, plot_3 = elbow_fun(group=group, vector_ad=vector_ad)
+    column_4, plot_4 = gesd_fun(group=group, vector_ad=vector_ad)
 
     df = pd.DataFrame()
     df['box-plot'] = pd.Series(column_1.astype(int))
@@ -310,9 +417,9 @@ def anomaly_detection(group, group_cmp):
     df['severity'] = df.sum(axis=1, numeric_only=True)
 
     # return the severity as ndarray to integrate on main code
-    cmp_ad_score = np.asarray(df['severity'])
+    ad_score = np.asarray(df['severity'])
 
-    return cmp_ad_score
+    return ad_score
 
 
 if __name__ == '__main__':
@@ -325,6 +432,6 @@ if __name__ == '__main__':
     group_array = np.asarray(group_csv[0], dtype=bool)
     group_cmp_array = np.asarray(group_cmp_csv)
 
-    # nel codice i dati arrivano cosi
+    # in the code data looks like this
     cmp_ad_score_result = anomaly_detection(group_array, group_cmp_array)
     print("end")

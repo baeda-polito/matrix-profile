@@ -18,39 +18,39 @@ plot_clusters <- function(df_power, df_power_wide) {
     merge.data.frame(df_power, df_power_wide[c("Date", "cluster")])
   centr <-
     ddply(df_power,
-      c("cluster", "Time"),
-      summarise,
-      Total_Power = mean(Total_Power))
-  
+          c("cluster", "Time"),
+          summarise,
+          Total_Power = mean(Total_Power))
+
   # create a counting dataframe
   counted <- df_power %>%
     group_by(cluster) %>%
     count() %>%
     mutate(n = n / 96)
-  
-  
+
+
   # profiles dataframe
   df1_plot <- merge.data.frame(df_power, counted) %>%
     mutate(
       cluster_label = paste("Cluster ", cluster, " (", n, " profiles)", sep = ""),
       cluster_label = as.factor(cluster_label)
     )
-  
+
   # centroid dataframe
   centr_plot <- merge.data.frame(centr, counted) %>%
     mutate(
       cluster_label = paste("Cluster ", cluster, " (", n, " profiles)", sep = ""),
       cluster_label = as.factor(cluster_label)
     )
-  
+
   plot <- ggplot() +
     geom_line(
       data = df1_plot,
       aes(
-        x = as.POSIXct(Time, format = "%H:%M:%S" , tz = "GMT") ,
+        x = as.POSIXct(Time, format = "%H:%M:%S", tz = "GMT"),
         y = Total_Power,
         group = Date
-      ) ,
+      ),
       color = "#D5D5E0",
       alpha = 0.3,
       size = 0.7
@@ -58,27 +58,27 @@ plot_clusters <- function(df_power, df_power_wide) {
     geom_line(
       data = centr_plot,
       aes(
-        x = as.POSIXct(Time, format = "%H:%M:%S" , tz = "GMT") ,
+        x = as.POSIXct(Time, format = "%H:%M:%S", tz = "GMT"),
         y = Total_Power,
         color = cluster_label
-      ) ,
+      ),
       size = 1
     ) +
     #scale_color_manual(values = c("#D83C3B", "#3681A9", "#87CD93","#FA9A4E") ) +
     scale_x_datetime(
       expand = c(0, 0),
-      labels = date_format("%H:%M" , tz = "GMT"),
+      labels = date_format("%H:%M", tz = "GMT"),
       breaks = date_breaks("4 hour")
     ) +
     scale_y_continuous(limits = c(0, ceiling(max(
       df1_plot$Total_Power
     ) / 100) * 100),
-      expand = c(0, 0)) +
+                       expand = c(0, 0)) +
     theme_bw() +
-    facet_wrap(~ cluster_label, nrow = 1, scales = "free") +
-    labs(#title = "Daily Profile Cluster Results",
+    facet_wrap(~cluster_label, nrow = 1, scales = "free") +
+    labs( #title = "Daily Profile Cluster Results",
       #subtitle = "Identification of 6 similarity groups for CMP analysis",
-      x = "" ,
+      x = "",
       y = "Power [kW]") +
     theme_minimal() +
     ggplot2::theme(
@@ -87,7 +87,7 @@ plot_clusters <- function(df_power, df_power_wide) {
       panel.grid = element_blank(),
       axis.line.y = element_line(colour = "black"),
       axis.line.x = element_line(colour = "black"),
-      
+
       plot.title = element_text(
         hjust = 0.5,
         size = fontsize_large,
@@ -97,7 +97,7 @@ plot_clusters <- function(df_power, df_power_wide) {
           b = 0,
           l = 0
         ),
-        
+
       ),
       plot.subtitle = element_text(
         hjust = 0.5,
@@ -158,20 +158,20 @@ plot_clusters <- function(df_power, df_power_wide) {
 
 df_calendar <-
   read.csv(
-    file.path(getwd(), "Polito_Usecase", "data",  "polito_raw.csv"),
+    file.path(getwd(), "Polito_Usecase", "data", "polito_raw.csv"),
     sep = ',',
     dec = "."
   ) %>%
-  select(Date, Day_Type, Holiday) %>%
-  unique()
+    select(Date, Day_Type, Holiday) %>%
+    unique()
 
 df_power <-
   read.csv(
-    file.path(getwd(), "Polito_Usecase", "data",  "polito_raw.csv"),
+    file.path(getwd(), "Polito_Usecase", "data", "polito_raw.csv"),
     sep = ',',
     dec = "."
   ) %>%
-  dplyr::select(Date, Time, Total_Power)
+    dplyr::select(Date, Time, Total_Power)
 
 df_power_wide <-
   pivot_wider(df_power, names_from = "Time", values_from = "Total_Power")
@@ -185,7 +185,7 @@ cluster_data <- select(df_power_wide, -Date)
 
 diss_matrix <- dist(cluster_data, method = "euclidean")
 
-n_clusters <-  6 # supervised
+n_clusters <- 6 # supervised
 #Nb_res <- NbClust(cluster_data, diss = diss_matrix, distance = NULL, min.nc = 2, max.nc = 8, method = "ward.D2", index = "all")
 #n_clusters <- length(unique(Nb_res$Best.partition))
 
@@ -225,11 +225,11 @@ df_power_wide <-
 # move saturday in 3
 df_power_wide <-
   mutate(df_power_wide, cluster = ifelse(Day_Type == 6 &
-      cluster != 1, 3, cluster))
+                                           cluster != 1, 3, cluster))
 # merge clusters
 df_power_wide <-
   mutate(df_power_wide, cluster = ifelse(cluster == 5 |
-      cluster == 6, 4, cluster))
+                                           cluster == 6, 4, cluster))
 
 # plot horizontal labeled
 dev.new()
@@ -257,24 +257,24 @@ df_power_wide_part1 <- df_power_wide %>%
 
 df_calendar <-
   read.csv(
-    file.path(getwd(), "Polito_Usecase", "data",  "polito_raw.csv"),
+    file.path(getwd(), "Polito_Usecase", "data", "polito_raw.csv"),
     sep = ',',
     dec = "."
   ) %>%
-  select(Date, Day_Type, Holiday) %>%
-  unique()
+    select(Date, Day_Type, Holiday) %>%
+    unique()
 
 df_power <-
   read.csv(
-    file.path(getwd(), "Polito_Usecase", "data",  "polito_raw.csv"),
+    file.path(getwd(), "Polito_Usecase", "data", "polito_raw.csv"),
     sep = ',',
     dec = "."
   ) %>%
-  dplyr::select(Date, Time, Total_Power)
+    dplyr::select(Date, Time, Total_Power)
 
 df_power_wide <-
   pivot_wider(df_power, names_from = "Time", values_from = "Total_Power") %>%
-  filter(!(Date %in% df_power_wide_part1$Date))
+    filter(!(Date %in% df_power_wide_part1$Date))
 
 
 cluster_data <- select(df_power_wide, -Date)
@@ -325,7 +325,7 @@ df_power_wide_part2 <- df_power_wide
 
 df_power_wide_all <-
   rbind(df_power_wide_part1, df_power_wide_part2) %>%
-  arrange(Date)
+    arrange(Date)
 
 # plot horizontal labeled
 dev.new()
@@ -347,13 +347,13 @@ dev.off()
 #   - Save
 
 group_cluster <- data.table(timestamp = df_power_wide_all$Date,
-  Cluster = as.factor(df_power_wide_all$cluster)) %>%
+                            Cluster = as.factor(df_power_wide_all$cluster)) %>%
   one_hot() %>%
   as.data.frame() %>%
   mutate(across(where(is.numeric), as.logical))
 
 write.csv(
   group_cluster,
-  file =  file.path("Polito_Usecase", "data", "group_cluster.csv") ,
+  file = file.path("Polito_Usecase", "data", "group_cluster.csv"),
   row.names = FALSE
 )
