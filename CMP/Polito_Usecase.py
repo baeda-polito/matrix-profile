@@ -299,10 +299,6 @@ if __name__ == '__main__':
             df_anomaly_context[group_name + "." + context_string_small] = [0 for id_cluster in
                                                                            range(len(df_anomaly_context))]
 
-            # if figures directory doesnt exists create and save into it
-            if not os.path.exists(path_to_figures + context_string_small + os.sep + group_name):
-                os.makedirs(path_to_figures + context_string_small + os.sep + group_name)
-
             # create empty group vector
             group = np.array(annotation_df.T)[id_cluster]
             # get cmp from previously computed cmp
@@ -523,7 +519,7 @@ if __name__ == '__main__':
                 # ax[num_anomalies_to_show - 1, 1].set_xlabel("Time of day")
 
                 plt.savefig(
-                    path_to_figures + context_string_small + os.sep + group_name + os.sep + "polito_anomalies.png",
+                    path_to_figures + context_string_small + os.sep + 'anomalous_profiles__' + group_name + '.png',
                     dpi=dpi_resolution,
                     bbox_inches='tight')
                 plt.cla()
