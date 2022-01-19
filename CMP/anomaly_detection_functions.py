@@ -315,19 +315,16 @@ def anomaly_detection(group, group_cmp):
     return cmp_ad_score
 
 
-# uncomment when testing / comment when deploying
-#
-# path_to_data = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'data'
-# path_to_figures = os.getcwd() + os.sep + 'Polito_Usecase' + os.sep + 'figures'
-#
-# group_csv = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group.csv", header=None)
-# group_cmp_csv = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group_cmp.csv", header=None)
-#
-# group_array = np.asarray(group_csv[0], dtype=bool)
-# group_cmp_array = np.asarray(group_cmp_csv)
-#
-# # nel codice i dati arrivano cosi
-#
-# cmp_ad_score_result = anomaly_detection(group_array, group_cmp_array)
-#
-# print("end")
+if __name__ == '__main__':
+    path_to_data = 'Polito_Usecase' + os.sep + 'data'
+    path_to_figures = 'Polito_Usecase' + os.sep + 'figures'
+
+    group_csv = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group.csv", header=None)
+    group_cmp_csv = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group_cmp.csv", header=None)
+
+    group_array = np.asarray(group_csv[0], dtype=bool)
+    group_cmp_array = np.asarray(group_cmp_csv)
+
+    # nel codice i dati arrivano cosi
+    cmp_ad_score_result = anomaly_detection(group_array, group_cmp_array)
+    print("end")
