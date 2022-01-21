@@ -1,66 +1,73 @@
-CProgramDataAnaconda3envsCMPpython.exe CUsersBAEDADesktopmatrix-profileRoberto ChiosaCMPPolito_Usecase.py
-
-
+*********************
 RUNNING Polito_Usecase.py
-START 2021-10-11 180543
+START: 2022-01-21 17:46:04
 
-
- DATASET Electrical Load dataset from Substation C
- - From	 2019-01-01 000000 
- - To	 2019-12-31 234500 
+*********************
+ DATASET: Electrical Load dataset from Substation C
+ - From	 2019-01-01 00:00:00 
+ - To	 2019-12-31 23:45:00 
  - 365 	days
  - 1 	observations every 15 min
  - 96 	observations per day
  - 4 	observations per hour
  - 35040 observations
 
-
- CONTEXT 1  Subsequences of 0515 h that starts between 0000 and 0100 (ctx_from00_00_to01_00_m05_15)
+*********************
+ CONTEXT 1 : Subsequences of 05:15 h that starts between 00:00 and 01:00 (ctx_from00_00_to01_00_m05_15)
 99.997%        0.0 sec
 
-- Cluster 1 (0.980 s) - 2 anomalies
-- Cluster 2 (0.437 s) - 1 anomalies
-- Cluster 3 (0.922 s) - 2 anomalies
-- Cluster 4 (8.973 s) - 10 anomalies
+findfont: Font family ['sans-serif'] not found. Falling back to DejaVu Sans.
+findfont: Generic family 'sans-serif' not found because none of the following families were found: Poppins
+findfont: Font family ['sans-serif'] not found. Falling back to DejaVu Sans.
+findfont: Generic family 'sans-serif' not found because none of the following families were found: Poppins
+- Cluster 1 (1.299 s) 	-> 1 anomalies
+- Cluster 2 (2.034 s) 	-> 3 anomalies
+- Cluster 3 (2.284 s) 	-> 4 anomalies
+- Cluster 4 (4.146 s) 	-> 4 anomalies
+- Cluster 5 (-) 		-> no anomalies
 
-
- CONTEXT 2  Subsequences of 0230 h that starts between 0515 and 0615 (ctx_from05_15_to06_15_m02_30)
+*********************
+ CONTEXT 2 : Subsequences of 02:30 h that starts between 05:15 and 06:15 (ctx_from05_15_to06_15_m02_30)
 99.997%        0.0 sec
 
-- Cluster 1 (1.593 s) - 3 anomalies
-- Cluster 2 (-) - no anomalies
-- Cluster 3 (1.266 s) - 3 anomalies
-- Cluster 4 (6.208 s) - 7 anomalies
+- Cluster 1 (3.503 s) 	-> 6 anomalies
+- Cluster 2 (2.100 s) 	-> 3 anomalies
+- Cluster 3 (1.678 s) 	-> 2 anomalies
+- Cluster 4 (6.322 s) 	-> 7 anomalies
+- Cluster 5 (-) 		-> no anomalies
 
-
- CONTEXT 3  Subsequences of 0645 h that starts between 0745 and 0845 (ctx_from07_45_to08_45_m06_45)
+*********************
+ CONTEXT 3 : Subsequences of 06:45 h that starts between 07:45 and 08:45 (ctx_from07_45_to08_45_m06_45)
 99.997%        0.0 sec
 
-- Cluster 1 (1.142 s) - 2 anomalies
-- Cluster 2 (0.391 s) - 1 anomalies
-- Cluster 3 (1.282 s) - 3 anomalies
-- Cluster 4 (9.036 s) - 10 anomalies
+- Cluster 1 (1.686 s) 	-> 2 anomalies
+- Cluster 2 (1.938 s) 	-> 3 anomalies
+- Cluster 3 (-) 		-> no anomalies
+- Cluster 4 (3.248 s) 	-> 3 anomalies
+- Cluster 5 (-) 		-> no anomalies
 
-
- CONTEXT 4  Subsequences of 0330 h that starts between 1430 and 1530 (ctx_from14_30_to15_30_m03_30)
+*********************
+ CONTEXT 4 : Subsequences of 03:30 h that starts between 14:30 and 15:30 (ctx_from14_30_to15_30_m03_30)
 99.997%        0.0 sec
 
-- Cluster 1 (0.531 s) - 1 anomalies
-- Cluster 2 (-) - no anomalies
-- Cluster 3 (1.016 s) - 2 anomalies
-- Cluster 4 (9.007 s) - 10 anomalies
+- Cluster 1 (1.665 s) 	-> 2 anomalies
+- Cluster 2 (3.298 s) 	-> 6 anomalies
+- Cluster 3 (-) 		-> no anomalies
+- Cluster 4 (4.770 s) 	-> 5 anomalies
+- Cluster 5 (1.410 s) 	-> 1 anomalies
 
-
- CONTEXT 5  Subsequences of 0500 h that starts between 1800 and 1900 (ctx_from18_00_to19_00_m05_00)
+*********************
+ CONTEXT 5 : Subsequences of 05:00 h that starts between 18:00 and 19:00 (ctx_from18_00_to19_00_m05_00)
 99.997%        0.0 sec
 
-- Cluster 1 (1.111 s) - 2 anomalies
-- Cluster 2 (-) - no anomalies
-- Cluster 3 (0.844 s) - 2 anomalies
-- Cluster 4 (7.318 s) - 8 anomalies
+- Cluster 1 (2.109 s) 	-> 3 anomalies
+- Cluster 2 (2.277 s) 	-> 4 anomalies
+- Cluster 3 (-) 		-> no anomalies
+- Cluster 4 (4.948 s) 	-> 5 anomalies
+- Cluster 5 (-) 		-> no anomalies
 
-
-END 2021-10-11 180742
-TOTAL 1 min 58 s
+*********************
+END: 2022-01-21 17:48:10
+TOTAL 2 min 5 s
 
 Process finished with exit code 0

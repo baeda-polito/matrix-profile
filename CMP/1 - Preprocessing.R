@@ -19,8 +19,8 @@ df <-
 # select variables for python analysis of total power
 df_py <- df %>%
   dplyr::mutate(timestamp = Date_Time,
-    value = Total_Power,
-    temp = AirTemp) %>%
+                value = Total_Power,
+                temp = AirTemp) %>%
   dplyr::select(timestamp, value, temp)
 
 # summary(df_py)
@@ -40,7 +40,7 @@ df %>%
   dplyr::mutate(Date = as.Date(Date)) %>%
   ggplot2::ggplot() + # crea lo sfondo del grafico
   ggplot2::geom_tile(ggplot2::aes(
-    x = as.POSIXct(Time, format = "%H:%M:%S", tz = "Etc/GMT+12") ,
+    x = as.POSIXct(Time, format = "%H:%M:%S", tz = "Etc/GMT+12"),
     y = Date,
     fill = Total_Power
   )) +
@@ -57,14 +57,14 @@ df %>%
   ggplot2::scale_y_date(
     breaks = scales::date_breaks("1 month"),
     # specify breaks every two months
-    labels = scales::date_format("%b" , tz = "Etc/GMT+12"),
+    labels = scales::date_format("%b", tz = "Etc/GMT+12"),
     # specify format of labels anno mese
     expand = c(0, 0)                                     # espande l'asse y affinche riempia tutto il box in verticale
   ) +
   ggplot2::scale_x_datetime(
     breaks = scales::date_breaks("3 hour"),
     # specify breaks every 4 hours
-    labels = scales::date_format(("%H:%M") , tz = "Etc/GMT+12"),
+    labels = scales::date_format(("%H:%M"), tz = "Etc/GMT+12"),
     # specify format of labels ora minuti
     expand = c(0, 0)                                     # espande l'asse x affinche riempia tutto il box in orizzontale
   ) +
@@ -81,7 +81,7 @@ df %>%
         b = 0,
         l = 0
       ),
-      
+
     ),
     plot.subtitle = element_text(
       hjust = 0.5,

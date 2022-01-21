@@ -4,7 +4,7 @@ rm(list = ls())             # remove all variables of the workspace
 source("global_vars.R")
 
 import::from(magrittr, "%>%")
-import::from(dplyr, select, mutate, group_by, count, across, summarise, filter)
+import::from(dplyr, select, mutate, group_by, count, across, summarise, filter, arrange)
 import::from(tidyr, pivot_wider)
 import::from(NbClust, NbClust)
 import::from(data.table, data.table)

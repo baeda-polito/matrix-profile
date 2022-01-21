@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt  # plots
 import numpy as np  # general data manipulation
 import pandas as pd  # dataframe handling
 from matplotlib import rc  # font plot
+from termcolor import colored
 
 from anomaly_detection_functions import (extract_vector_ad_energy,
                                          extract_vector_ad_temperature,
@@ -368,7 +369,12 @@ if __name__ == '__main__':
 
             # add categorization depending on some criteria
             # set to nan if severity 0/1/2 (no anomaly or not severe)
-            cmp_ad_score = np.where(cmp_ad_score == 0, np.nan, cmp_ad_score)
+            # cmp_ad_score = np.where(cmp_ad_score == 0, np.nan, cmp_ad_score)
+            # override definition of cmp_ad_score with this new definition
+            # todo: when everything works fine change the variable cmp_ad_score to avoid misunderstandings
+            cmp_ad_score = np.array(df_result_context_cluster["cmp_score"] + df_result_context_cluster["energy_score"])
+
+            cmp_ad_score = np.where(cmp_ad_score < 6, np.nan, cmp_ad_score)
 
             # the number of anomalies is the number of non nan elements, count
             num_anomalies_to_show = np.count_nonzero(~np.isnan(cmp_ad_score))
@@ -529,11 +535,14 @@ if __name__ == '__main__':
                 time_interval_group = datetime.datetime.now() - begin_time_group
                 hours, remainder = divmod(time_interval_group.total_seconds(), 3600)
                 minutes, seconds = divmod(remainder, 60)
-                print('- %s (%.3f s) -> %.d anomalies' % (group_name.replace('_', ' '), seconds, num_anomalies_to_show))
+                string_anomaly_print = '- %s (%.3f s) \t-> %.d anomalies' % (
+                    group_name.replace('_', ' '), seconds, num_anomalies_to_show)
+                print(colored(string_anomaly_print, "red"))
 
             # if no anomaly to show not visualize
             else:
-                print("- " + group_name.replace('_', ' ') + ' (-) -> no anomalies')
+                string_anomaly_print = "- " + group_name.replace('_', ' ') + ' (-) \t\t-> no anomalies'
+                print(colored(string_anomaly_print, "green"))
 
             # save intermediate results
 
@@ -544,7 +553,7 @@ if __name__ == '__main__':
             df_result_context_cluster = df_result_context_cluster.drop(['cluster'], axis=1)
 
             df_result_context_cluster.to_csv(
-                path_to_data + context_string_small + os.sep + 'anomaly_results_' + group_name + '.csv')
+                path_to_data + context_string_small + os.sep + 'anomaly_results_' + group_name + '.csv', index=False)
 
         # at the end of loop on groups save dataframe corresponding to given context or append to existing one
         if df_anomaly_results.empty:
@@ -557,7 +566,7 @@ if __name__ == '__main__':
 
     # at the end of loop on context save dataframe of results
     df_anomaly_results.to_csv(path_to_data + "anomaly_results.csv")
-    df_contexts.to_csv(path_to_data + "contexts.csv")
+    df_contexts.to_csv(path_to_data + "contexts.csv", index=False)
 
     # print the execution time
     total_time = datetime.datetime.now() - begin_time
