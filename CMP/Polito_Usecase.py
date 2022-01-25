@@ -7,7 +7,7 @@ import numpy as np  # general data manipulation
 import pandas as pd  # dataframe handling
 from matplotlib import rc  # font plot
 from termcolor import colored
-
+import scipy.stats as stats
 from anomaly_detection_functions import (extract_vector_ad_energy,
                                          extract_vector_ad_temperature,
                                          extract_vector_ad_cmp,
@@ -361,6 +361,8 @@ if __name__ == '__main__':
             temperature_ad_score = anomaly_detection(
                 group=group,
                 vector_ad=vector_ad_temperature)
+
+            temperature_ad_score = stats.zscore(vector_ad_temperature)
 
             # add anomaly score to df_result_context_cluster
             df_result_context_cluster["cmp_score"] = cmp_ad_score

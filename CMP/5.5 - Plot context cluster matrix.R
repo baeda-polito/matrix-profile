@@ -21,10 +21,7 @@ for (i in c(1:5)) {
       "data",
       "ctx_from00_00_to01_00_m05_15",
       paste0("anomaly_results_Cluster_", i, ".csv")
-    )) %>%
-    select(-X)
-  
-  
+    )) 
   
   col <- c("white", brewer.pal(4, "OrRd"))
   # The mtcars dataset:
