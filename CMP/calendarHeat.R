@@ -15,6 +15,7 @@ extra.calendarHeat <- function(dates,
   require(grid)
   require(chron)
   
+  
   # Reshape data  ------------------------------------------------------------------
   transformdata <- function(dates,  values,pvalues, date.form = "%Y-%m-%d", ...) {
     
@@ -68,7 +69,9 @@ extra.calendarHeat <- function(dates,
     'g2r' = c("#B5E384" , "#FFFFBD", "#FFAE63" , "#D61818"),
     'severity' = c("#fef0d9","#fef0d9","#fef0d9" , "#fdcc8a", "#fc8d59" , "#d7301f"),
     'r2r' = c("#fff7ec","#fee8c8","#fdd49e","#fdbb84","#fc8d59","#ef6548","#d7301f","#990000"),
-    'b2w'=white.colors(5) )## black to white
+    'b2w'=white.colors(5) ,
+    'palette' = c("#3288bd" ,"#66c2a5" ,"#abdda4", "#e6f598", "#ffffbf" ,"#fee08b","#fdae61", "#f46d43" ,"#d53e4f")
+    )## black to white
   # assign("col.sty", get(color))
   calendar.pal <- colorRampPalette((col.sty), space = "Lab")
   
@@ -153,49 +156,49 @@ extra.calendarHeat <- function(dates,
     if (y.start > 0) {
       grid.lines(x = c(x.start, x.start + 1),
         y = c(y.start - 0.5, y.start -  0.5), default.units = "native",
-        gp=gpar(col = "black", lwd = 1.75))
+        gp=gpar(col = "black", lwd = 2))
       grid.lines(x = c(x.start + 1, x.start + 1),
         y = c(y.start - 0.5 , -0.5), default.units = "native",
-        gp=gpar(col = "black", lwd = 1.75))
+        gp=gpar(col = "black", lwd = 2))
       grid.lines(x = c(x.start, x.start),
         y = c(y.start - 0.5, 6.5), default.units = "native",
-        gp=gpar(col = "black", lwd = 1.75))
+        gp=gpar(col = "black", lwd = 2))
       if (y.end < 6  ) {
         grid.lines(x = c(x.start + 1, x.finis + 1),
           y = c(-0.5, -0.5), default.units = "native",
-          gp=gpar(col = "black", lwd = 1.75))
+          gp=gpar(col = "black", lwd = 2))
         grid.lines(x = c(x.start, x.finis),
           y = c(6.5, 6.5), default.units = "native",
-          gp=gpar(col = "black", lwd = 1.75))
+          gp=gpar(col = "black", lwd = 2))
       } else {
         grid.lines(x = c(x.start + 1, x.finis),
           y = c(-0.5, -0.5), default.units = "native",
-          gp=gpar(col = "black", lwd = 1.75))
+          gp=gpar(col = "black", lwd = 2))
         grid.lines(x = c(x.start, x.finis),
           y = c(6.5, 6.5), default.units = "native",
-          gp=gpar(col = "black", lwd = 1.75))
+          gp=gpar(col = "black", lwd = 2))
       }
     } else {
       grid.lines(x = c(x.start, x.start),
         y = c( - 0.5, 6.5), default.units = "native",
-        gp=gpar(col = "black", lwd = 1.75))
+        gp=gpar(col = "black", lwd = 2))
     }
     
     if (y.start == 0 ) {
       if (y.end < 6  ) {
         grid.lines(x = c(x.start, x.finis + 1),
           y = c(-0.5, -0.5), default.units = "native",
-          gp=gpar(col = "black", lwd = 1.75))
+          gp=gpar(col = "black", lwd = 2))
         grid.lines(x = c(x.start, x.finis),
           y = c(6.5, 6.5), default.units = "native",
-          gp=gpar(col = "black", lwd = 1.75))
+          gp=gpar(col = "black", lwd = 2))
       } else {
         grid.lines(x = c(x.start + 1, x.finis),
           y = c(-0.5, -0.5), default.units = "native",
-          gp=gpar(col = "black", lwd = 1.75))
+          gp=gpar(col = "black", lwd = 2))
         grid.lines(x = c(x.start, x.finis),
           y = c(6.5, 6.5), default.units = "native",
-          gp=gpar(col = "black", lwd = 1.75))
+          gp=gpar(col = "black", lwd = 2))
       }
     }
     for (j in 1:12)  {
@@ -203,15 +206,15 @@ extra.calendarHeat <- function(dates,
       x.last.m <- dates.fsubs$woty[last.month] + 0.5
       y.last.m <- dates.fsubs$dotw[last.month] + 0.5
       grid.lines(x = c(x.last.m, x.last.m), y = c(-0.5, y.last.m),
-        default.units = "native", gp=gpar(col = "black", lwd = 1.75))
+        default.units = "native", gp=gpar(col = "black", lwd = 2))
       if ((y.last.m) < 6) {
         grid.lines(x = c(x.last.m, x.last.m - 1), y = c(y.last.m, y.last.m),
-          default.units = "native", gp=gpar(col = "black", lwd = 1.75))
+          default.units = "native", gp=gpar(col = "black", lwd = 2))
         grid.lines(x = c(x.last.m - 1, x.last.m - 1), y = c(y.last.m, 6.5),
-          default.units = "native", gp=gpar(col = "black", lwd = 1.75))
+          default.units = "native", gp=gpar(col = "black", lwd = 2))
       } else {
         grid.lines(x = c(x.last.m, x.last.m), y = c(- 0.5, 6.5),
-          default.units = "native", gp=gpar(col = "black", lwd = 1.75))
+          default.units = "native", gp=gpar(col = "black", lwd = 2))
       }
     }
   }

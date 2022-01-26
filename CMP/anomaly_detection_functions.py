@@ -300,9 +300,11 @@ def extract_vector_ad_energy(group, data_full, tw, tw_id):
 
     """
 
-    data_tmp = pd.DataFrame(columns=['Date', 'power', 'mindec'])
+    data_tmp = pd.DataFrame(columns=['Date', 'energy', 'mindec'])
     data_tmp['Date'] = data_full.index.date
-    data_tmp['power'] = data_full['value'].array
+    # units conversion
+    # x * kW * 15min * 1h / (4 * 15min) = x * kW * 1h / 4  = x/4 * kWh
+    data_tmp['energy'] = data_full['value'].array / 4  # kWh
     data_tmp['mindec'] = data_full.index.strftime("%H:%M")
     # convert to decimal
     data_tmp = data_tmp.assign(
@@ -318,7 +320,7 @@ def extract_vector_ad_energy(group, data_full, tw, tw_id):
     # filter
     data_tmp = data_tmp[data_tmp.time_window == True]
     # calculate energy
-    data_tmp_summary = data_tmp.groupby(['Date']).power.agg(sum)
+    data_tmp_summary = data_tmp.groupby(['Date']).energy.agg(sum)
     # keep only stuff related to the group
     data_tmp_summary = data_tmp_summary[group]
     # convert to array for further processing

@@ -1,10 +1,40 @@
+# HEADER --------------------------------------------
+#
+# Author: Roberto Chiosa
+# Copyright © Roberto Chiosa, 2022
+# Email:  roberto.chiosa@polito.it
+#
+# Date: 2022-01-26
+#
+# Script Name: ~/Desktop/matrix-profile/CMP/2 - Groups_Definition_Cluster.R
+#
+# Script Description:
+#
+# This script implements the hierarchical cluster on the dataset by
+# identifying the groups for matrix profile splitting and analysis
+#
+#
+# Notes:
+#
+# A bit messy in the double clustering approach and should be revised
+#
+#
 #  LOAD PACKAGES and FUNCTIONS ------------------------------------------------------------------
 cat("\014")                 # clears the console
 rm(list = ls())             # remove all variables of the workspace
 source("global_vars.R")
 
+
 import::from(magrittr, "%>%")
-import::from(dplyr, select, mutate, group_by, count, across, summarise, filter, arrange)
+import::from(dplyr,
+  select,
+  mutate,
+  group_by,
+  count,
+  across,
+  summarise,
+  filter,
+  arrange)
 import::from(tidyr, pivot_wider)
 import::from(NbClust, NbClust)
 import::from(data.table, data.table)
@@ -13,36 +43,38 @@ import::from(plyr, ddply)
 library(ggplot2)
 library(scales)
 
+figures_path <- file.path("Polito_Usecase", "figures", "groups")
+
 plot_clusters <- function(df_power, df_power_wide) {
   df_power <-
     merge.data.frame(df_power, df_power_wide[c("Date", "cluster")])
   centr <-
     ddply(df_power,
-          c("cluster", "Time"),
-          summarise,
-          Total_Power = mean(Total_Power))
-
+      c("cluster", "Time"),
+      summarise,
+      Total_Power = mean(Total_Power))
+  
   # create a counting dataframe
   counted <- df_power %>%
     group_by(cluster) %>%
     count() %>%
     mutate(n = n / 96)
-
-
+  
+  
   # profiles dataframe
   df1_plot <- merge.data.frame(df_power, counted) %>%
     mutate(
       cluster_label = paste("Cluster ", cluster, " (", n, " profiles)", sep = ""),
       cluster_label = as.factor(cluster_label)
     )
-
+  
   # centroid dataframe
   centr_plot <- merge.data.frame(centr, counted) %>%
     mutate(
       cluster_label = paste("Cluster ", cluster, " (", n, " profiles)", sep = ""),
       cluster_label = as.factor(cluster_label)
     )
-
+  
   plot <- ggplot() +
     geom_line(
       data = df1_plot,
@@ -73,10 +105,10 @@ plot_clusters <- function(df_power, df_power_wide) {
     scale_y_continuous(limits = c(0, ceiling(max(
       df1_plot$Total_Power
     ) / 100) * 100),
-                       expand = c(0, 0)) +
+      expand = c(0, 0)) +
     theme_bw() +
-    facet_wrap(~cluster_label, nrow = 1, scales = "free") +
-    labs( #title = "Daily Profile Cluster Results",
+    facet_wrap( ~ cluster_label, nrow = 1, scales = "free") +
+    labs(#title = "Daily Profile Cluster Results",
       #subtitle = "Identification of 6 similarity groups for CMP analysis",
       x = "",
       y = "Power [kW]") +
@@ -87,7 +119,7 @@ plot_clusters <- function(df_power, df_power_wide) {
       panel.grid = element_blank(),
       axis.line.y = element_line(colour = "black"),
       axis.line.x = element_line(colour = "black"),
-
+      
       plot.title = element_text(
         hjust = 0.5,
         size = fontsize_large,
@@ -97,7 +129,7 @@ plot_clusters <- function(df_power, df_power_wide) {
           b = 0,
           l = 0
         ),
-
+        
       ),
       plot.subtitle = element_text(
         hjust = 0.5,
@@ -162,8 +194,8 @@ df_calendar <-
     sep = ',',
     dec = "."
   ) %>%
-    select(Date, Day_Type, Holiday) %>%
-    unique()
+  select(Date, Day_Type, Holiday) %>%
+  unique()
 
 df_power <-
   read.csv(
@@ -171,7 +203,7 @@ df_power <-
     sep = ',',
     dec = "."
   ) %>%
-    dplyr::select(Date, Time, Total_Power)
+  dplyr::select(Date, Time, Total_Power)
 
 df_power_wide <-
   pivot_wider(df_power, names_from = "Time", values_from = "Total_Power")
@@ -194,7 +226,7 @@ hcl <- hclust(diss_matrix, method = "ward.D2")
 
 # # plot dendogram
 # dev.new()
-# png(file = file.path("Polito_Usecase", "figures", "groups_dendogram.jpg"), bg = "white", width = 900, height = 500)                   # to save automatically image in WD
+# png(file = file.path(figures_path, "groups_dendogram.jpg"), bg = "white", width = 900, height = 500)                   # to save automatically image in WD
 # plot(hcl, family = font_family)
 # rect.hclust(hcl, k = n_clusters, border = "red")
 # dev.off()
@@ -207,7 +239,7 @@ dev.new()
 plot <- plot_clusters(df_power, df_power_wide)
 plot
 ggsave(
-  filename = file.path("Polito_Usecase", "figures", "groups_clusters_part_1_0.jpg"),
+  filename = file.path(figures_path, "groups_clusters_part_1_0.jpg"),
   width = 10,
   height = 3,
   dpi = dpi,
@@ -225,18 +257,18 @@ df_power_wide <-
 # move saturday in 3
 df_power_wide <-
   mutate(df_power_wide, cluster = ifelse(Day_Type == 6 &
-                                           cluster != 1, 3, cluster))
+      cluster != 1, 3, cluster))
 # merge clusters
 df_power_wide <-
   mutate(df_power_wide, cluster = ifelse(cluster == 5 |
-                                           cluster == 6, 4, cluster))
+      cluster == 6, 4, cluster))
 
 # plot horizontal labeled
 dev.new()
 plot <- plot_clusters(df_power, df_power_wide)
 plot
 ggsave(
-  filename = file.path("Polito_Usecase", "figures", "groups_clusters_part_1_1.jpg"),
+  filename = file.path(figures_path, "groups_clusters_part_1_1.jpg"),
   width = 10,
   height = 3,
   dpi = dpi,
@@ -261,8 +293,8 @@ df_calendar <-
     sep = ',',
     dec = "."
   ) %>%
-    select(Date, Day_Type, Holiday) %>%
-    unique()
+  select(Date, Day_Type, Holiday) %>%
+  unique()
 
 df_power <-
   read.csv(
@@ -270,11 +302,11 @@ df_power <-
     sep = ',',
     dec = "."
   ) %>%
-    dplyr::select(Date, Time, Total_Power)
+  dplyr::select(Date, Time, Total_Power)
 
 df_power_wide <-
   pivot_wider(df_power, names_from = "Time", values_from = "Total_Power") %>%
-    filter(!(Date %in% df_power_wide_part1$Date))
+  filter(!(Date %in% df_power_wide_part1$Date))
 
 
 cluster_data <- select(df_power_wide, -Date)
@@ -310,7 +342,7 @@ dev.new()
 plot <- plot_clusters(df_power, df_power_wide)
 plot
 ggsave(
-  filename = file.path("Polito_Usecase", "figures", "groups_clusters_part_2_0.jpg"),
+  filename = file.path(figures_path, "groups_clusters_part_2_0.jpg"),
   width = 10,
   height = 3,
   dpi = dpi,
@@ -325,14 +357,14 @@ df_power_wide_part2 <- df_power_wide
 
 df_power_wide_all <-
   rbind(df_power_wide_part1, df_power_wide_part2) %>%
-    arrange(Date)
+  arrange(Date)
 
 # plot horizontal labeled
 dev.new()
 plot <- plot_clusters(df_power, df_power_wide_all)
 plot
 ggsave(
-  filename = file.path("Polito_Usecase", "figures", "groups_clusters_part_2_1.jpg"),
+  filename = file.path(figures_path, "groups_clusters_part_2_1.jpg"),
   width = 10,
   height = 3,
   dpi = dpi,
@@ -347,7 +379,7 @@ dev.off()
 #   - Save
 
 group_cluster <- data.table(timestamp = df_power_wide_all$Date,
-                            Cluster = as.factor(df_power_wide_all$cluster)) %>%
+  Cluster = as.factor(df_power_wide_all$cluster)) %>%
   one_hot() %>%
   as.data.frame() %>%
   mutate(across(where(is.numeric), as.logical))

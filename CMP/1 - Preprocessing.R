@@ -1,6 +1,22 @@
-#  LOAD PACKAGES and FUNCTIONS ------------------------------------------------------------------
-cat("\014")                 # clears the console
-rm(list = ls())             # remove all variables of the workspace
+# HEADER --------------------------------------------
+#
+# Author: Roberto Chiosa
+# Copyright © Roberto Chiosa, 2022
+# Email:  roberto.chiosa@polito.it
+# 
+# Date: 2022-01-26
+#
+# Script Name: ~/Desktop/matrix-profile/CMP/1 - Preprocessing.R
+#
+# Script Description:
+#
+# This script performs the data pre-processing of the substation C dataset 
+# by selecting only total electrical power and outdoor air temperature
+#
+#
+# LOAD PACKAGES and FUNCTIONS ------------------------------------
+cat("\014")                 # Clears the console
+rm(list = ls())             # Remove all variables of the work space
 source("global_vars.R")
 
 import::from(magrittr, '%>%')

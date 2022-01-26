@@ -1,3 +1,22 @@
+# HEADER --------------------------------------------
+#
+# Author: Roberto Chiosa
+# Copyright © Roberto Chiosa, 2022
+# Email:  roberto.chiosa@polito.it
+# 
+# Date: 2022-01-26
+#
+# Script Name: ~/Desktop/matrix-profile/CMP/0 - MP_Demo.R
+#
+# Script Description:
+# 
+# In this script evidences of the limits of the MP method applied on energy 
+# time series are shown by generating 2 figures
+#
+# Notes:
+# 
+# The script is not well optimized but works
+#
 #  LOAD PACKAGES and FUNCTIONS ------------------------------------------------------------------
 cat("\014")                 # clears the console
 rm(list = ls())             # remove all variables of the workspace

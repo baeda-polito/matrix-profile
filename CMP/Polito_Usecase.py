@@ -5,9 +5,10 @@ import os  # OS handling utils
 import matplotlib.pyplot as plt  # plots
 import numpy as np  # general data manipulation
 import pandas as pd  # dataframe handling
+import scipy.stats as stats
 from matplotlib import rc  # font plot
 from termcolor import colored
-import scipy.stats as stats
+
 from anomaly_detection_functions import (extract_vector_ad_energy,
                                          extract_vector_ad_temperature,
                                          extract_vector_ad_cmp,
@@ -275,14 +276,14 @@ if __name__ == '__main__':
 
         ########################################################################################
         # Load Cluster results as boolean dataframe: each column represents a group
-        annotation_df = pd.read_csv(path_to_data + "group_cluster.csv", index_col='timestamp', parse_dates=True)
+        group_df = pd.read_csv(path_to_data + "group_cluster.csv", index_col='timestamp', parse_dates=True)
         # initialize dataframe of results for context to be appended to the overall result
-        df_anomaly_context = annotation_df.astype(int)
+        df_anomaly_context = group_df.astype(int)
 
         # set labels
         day_labels = data.index[::obs_per_day]
         # get number of groups
-        n_group = annotation_df.shape[1]
+        n_group = group_df.shape[1]
 
         # perform analysis of context on groups (clusters)
         for id_cluster in range(n_group):
@@ -294,14 +295,14 @@ if __name__ == '__main__':
             begin_time_group = datetime.datetime.now()
 
             # get group name from dataframe
-            group_name = annotation_df.columns[id_cluster]
+            group_name = group_df.columns[id_cluster]
 
             # add column of context of group in df_output
             df_anomaly_context[group_name + "." + context_string_small] = [0 for id_cluster in
                                                                            range(len(df_anomaly_context))]
 
             # create empty group vector
-            group = np.array(annotation_df.T)[id_cluster]
+            group = np.array(group_df.T)[id_cluster]
             # get cmp from previously computed cmp
             group_cmp = cmp.distance_matrix[:, group][group, :]
             # substitute inf with zeros
@@ -331,7 +332,7 @@ if __name__ == '__main__':
             #######################################
 
             # add date to df_result_context_cluster
-            df_result_context_cluster["Date"] = annotation_df.index
+            df_result_context_cluster["Date"] = group_df.index
             df_result_context_cluster["cluster"] = group
 
             # calculate the vector to be used for the anomaly detection
@@ -362,7 +363,7 @@ if __name__ == '__main__':
                 group=group,
                 vector_ad=vector_ad_temperature)
 
-            temperature_ad_score = stats.zscore(vector_ad_temperature)
+            # temperature_ad_score = stats.zscore(vector_ad_temperature)
 
             # add anomaly score to df_result_context_cluster
             df_result_context_cluster["cmp_score"] = cmp_ad_score
@@ -553,6 +554,10 @@ if __name__ == '__main__':
 
             # drop cluster column
             df_result_context_cluster = df_result_context_cluster.drop(['cluster'], axis=1)
+
+            df_result_context_cluster["vector_ad_cmp"] = vector_ad_cmp
+            df_result_context_cluster["vector_ad_energy"] = vector_ad_energy
+            df_result_context_cluster["vector_ad_temperature"] = stats.zscore(vector_ad_temperature)
 
             df_result_context_cluster.to_csv(
                 path_to_data + context_string_small + os.sep + 'anomaly_results_' + group_name + '.csv', index=False)
