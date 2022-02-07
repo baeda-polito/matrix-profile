@@ -3,14 +3,14 @@
 # Author: Roberto Chiosa
 # Copyright © Roberto Chiosa, 2022
 # Email:  roberto.chiosa@polito.it
-# 
+#
 # Date: 2022-01-26
 #
 # Script Name: ~/Desktop/matrix-profile/CMP/6 - Plot Calendar Results.R
 #
 # Script Description:
-# 
-# This script summarises the results of the anomalyd etection 
+#
+# This script summarises the results of the anomalyd etection
 # methods using custom calendar plot
 #
 # Notes:
@@ -50,7 +50,7 @@ context_folder_vector <-
 #       paste0("anomaly_results_Cluster_", context_idx, ".csv")
 #     ))
 
-
+df_diagnosis <- data.frame()
 for (context_idx in 1:length(context_folder_vector)) {
   df <- data.frame()
   
@@ -77,7 +77,7 @@ for (context_idx in 1:length(context_folder_vector)) {
       "Polito_Usecase",
       "figures",
       paste0("calendar_result_context_",
-        context_idx, ".png")
+             context_idx, ".png")
       
     ),
     res = 200,
@@ -93,11 +93,21 @@ for (context_idx in 1:length(context_folder_vector)) {
       pch.symbol = c(0:5),
       cex.symbol = 0.7,
       fontfamily = font_family,
-      col.symbol='gray30',
+      col.symbol = 'gray30',
       color = 'palette'
     )
   })
   
   dev.off()
+  
+  
+  df_diagnosis <-
+    rbind(
+      df_diagnosis,
+      df %>% dplyr::filter(severity >= 6) %>% dplyr::mutate(context = context_idx)
+    )
+  
+  
+  
   
 }

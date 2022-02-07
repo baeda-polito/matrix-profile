@@ -1,6 +1,7 @@
 # import from default libraries and packages
 import datetime  # data
 import os  # OS handling utils
+from statistics import mean
 
 import matplotlib.pyplot as plt  # plots
 import numpy as np  # general data manipulation
@@ -59,13 +60,30 @@ if __name__ == '__main__':
           'START: ' + begin_time.strftime("%Y-%m-%d %H:%M:%S"))
 
     ########################################################################################
-    # load dataset
+    # PREPROCESSING
+    # load full dataset
+    data_raw = pd.read_csv(path_to_data + "polito_raw.csv")
+
+    # ask the user which type of load
+    print(colored("Type the load to be analyzed: ", "yellow"), end="")
+    electrical_load = str(input())
+
+    # subset the dataset into 3 columns
+    data_raw = data_raw[['Date_Time', electrical_load, 'AirTemp']]
+
+    # rename columns
+    data_raw = data_raw.rename(columns={"Date_Time": "timestamp", electrical_load: "value", "AirTemp": "temp"})
+    data_raw.to_csv(path_to_data + "polito.csv", index=False)
+
+    # # load dataset
     data = pd.read_csv(path_to_data + "polito.csv", index_col='timestamp', parse_dates=True)
+
     obs_per_day = 96  # [observation/day]
     obs_per_hour = 4  # [observation/hour]
 
     min_power = 0  # [kW] minimum value of power
-    max_power = 850  # [kW] roundup(max(data.values)[0], 10)  # maximum value of power
+    # max_power = 850  # [kW]   # maximum value of power
+    max_power = roundup(max(data['value']), 10)
 
     # define ticks for plot
     ticks_power = list(range(min_power, max_power, roundup(max_power / 6, digit=100)))
@@ -74,15 +92,15 @@ if __name__ == '__main__':
     position_y = 750  # [kW] position of day annotation on y axis
 
     # print dataset main characteristics
-    print('\n*********************\n',
-          'DATASET: Electrical Load dataset from Substation C\n',
-          '- From\t', data.index[0], '\n',
-          '- To\t', data.index[len(data) - 1], '\n',
-          '-', len(data.index[::obs_per_day]), '\tdays\n',
-          '- 1 \tobservations every 15 min\n',
-          '-', obs_per_day, '\tobservations per day\n',
-          '-', obs_per_hour, '\tobservations per hour\n',
-          '-', len(data), 'observations'
+    print(f'\n*********************\n'
+          f'DATASET: Electrical Load dataset from {electrical_load}\n'
+          f'- From\t{data.index[0]}\n'
+          f'- To\t{data.index[len(data) - 1]}\n'
+          f'-{len(data.index[::obs_per_day])}\tdays\n'
+          f' - 1 \tobservations every 15 min\n'
+          f'-{obs_per_day}\tobservations per day\n'
+          f' -{obs_per_hour}\tobservations per hour\n'
+          f'-{len(data)}observations'
           )
 
     '''
@@ -402,7 +420,7 @@ if __name__ == '__main__':
                 fig, ax = plt.subplots(num_anomalies_to_show, 2,
                                        sharex='all',
                                        # sharey='all',
-                                       figsize=(10, 14 / 8 * num_anomalies_to_show),
+                                       figsize=(8, 14 / 8 * num_anomalies_to_show),
                                        # gridspec_kw={'wspace': 0., 'hspace': 0.}
                                        )
                 fig.suptitle("Anomaly Detection " + group_name.replace("_", " "))
@@ -423,10 +441,8 @@ if __name__ == '__main__':
                         energy_group[:, k] = np.cumsum(power_group[:, k])
 
                     # dataframe for group power and energy for anomaly
-                    power_group_anomaly = data.values[anomaly_range]
-                    energy_group_anomaly = np.empty((power_group_anomaly.shape[0], power_group_anomaly.shape[1]))
-                    for k in range(0, power_group_anomaly.shape[1]):
-                        energy_group_anomaly[:, k] = np.cumsum(power_group_anomaly[:, k])
+                    power_group_anomaly = data["value"].values[anomaly_range]
+                    energy_group_anomaly = np.cumsum(power_group_anomaly)
 
                     if num_anomalies_to_show == 1:
                         ax[0].plot(energy_group,
@@ -557,6 +573,13 @@ if __name__ == '__main__':
 
             df_result_context_cluster["vector_ad_cmp"] = vector_ad_cmp
             df_result_context_cluster["vector_ad_energy"] = vector_ad_energy
+
+            mean_energy = mean(df_result_context_cluster["vector_ad_energy"])
+
+            df_result_context_cluster["vector_ad_energy_absolute"] = df_result_context_cluster[
+                                                                         "vector_ad_energy"] - mean_energy
+            df_result_context_cluster["vector_ad_energy_relative"] = (df_result_context_cluster[
+                                                                          "vector_ad_energy"] / mean_energy - 1) * 100
             df_result_context_cluster["vector_ad_temperature"] = stats.zscore(vector_ad_temperature)
 
             df_result_context_cluster.to_csv(

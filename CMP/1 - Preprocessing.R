@@ -35,7 +35,7 @@ df <-
 # select variables for python analysis of total power
 df_py <- df %>%
   dplyr::mutate(timestamp = Date_Time,
-                value = Total_Power,
+                value = Data_centre,
                 temp = AirTemp) %>%
   dplyr::select(timestamp, value, temp)
 
@@ -58,7 +58,7 @@ df %>%
   ggplot2::geom_tile(ggplot2::aes(
     x = as.POSIXct(Time, format = "%H:%M:%S", tz = "Etc/GMT+12"),
     y = Date,
-    fill = Total_Power
+    fill = Not_allocated
   )) +
   # tile crea un grafico a tre dimensioni x y z = fill con il data set df_tot
   # aes creates an aestetic property to data
