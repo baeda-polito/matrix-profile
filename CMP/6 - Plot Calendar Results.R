@@ -17,11 +17,11 @@
 #
 #
 #  LOAD PACKAGES and FUNCTIONS ------------------------------------------------------------------
-cat("\014")                 # clears the console
-rm(list = ls())             # remove all variables of the workspace
-source("global_vars.R")
-source("utils_functions.R")
-source("calendarHeat.R")
+cat("\014")                 # Clears the console
+rm(list = ls())             # Remove all variables of the work space
+source("global_vars.R")     # Loads global variables
+source("utils_functions.R") # Loads utils functions
+source("calendarHeat.R")    # Loads the custom defined calendar heatmap
 
 # load the context decoder dataframe
 df_context_decoder <-
@@ -60,7 +60,7 @@ for (context_idx in 1:length(context_folder_vector)) {
         context_folder_vector[context_idx],
         paste0("anomaly_results_Cluster_", cluster_idx, ".csv")
       )) %>%
-      mutate(Cluster = cluster_idx)
+      dplyr::mutate(Cluster = cluster_idx)
     
     df <- rbind(df, df_tmp)
     
@@ -81,8 +81,8 @@ for (context_idx in 1:length(context_folder_vector)) {
       
     ),
     res = 200,
-    width = 1800,
-    height = 700
+    width = 1900,
+    height = 800
   )
   
   print({
@@ -91,7 +91,8 @@ for (context_idx in 1:length(context_folder_vector)) {
       values = df$severity,
       pvalues = df$Cluster,
       pch.symbol = c(0:5),
-      cex.symbol = 1,
+      cex.symbol = 0.7,
+      fontfamily = font_family,
       col.symbol='gray30',
       color = 'palette'
     )

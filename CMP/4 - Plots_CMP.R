@@ -15,9 +15,10 @@
 #
 #
 #  LOAD PACKAGES and FUNCTIONS ------------------------------------------------------------------
-cat("\014")                 # clears the console
-rm(list = ls())             # remove all variables of the workspace
-source("global_vars.R")
+cat("\014")                 # Clears the console
+rm(list = ls())             # Remove all variables of the work space
+source("global_vars.R")     # Loads global variables
+source("utils_functions.R") # Loads utils functions
 
 library(ggplot2)
 library(dplyr)
@@ -34,12 +35,33 @@ import::from(ggeffects, pretty_range)
 # - Full CMP (loop on contexts)
 # - single CMP (loop on groups)
 
+fontsize_rescale_factor <- 4
 # load the context decoder dataframe
 df_context_decoder <-
   read.csv(file.path("Polito_Usecase", "data", "contexts.csv"))
 # list all folders of context
 context_folder_vector <-
   list.dirs(file.path("Polito_Usecase", "data"))[-1]
+
+# load cluster definition
+group_cluster_df <- read.csv(
+  file.path("Polito_Usecase", "data", "group_cluster.csv"),
+  sep = ',',
+  header = T
+)
+
+
+# dates in chronological order
+dates_cronological <- as.Date(group_cluster_df$timestamp)
+# dates in cluster order
+dates_clusters <- as.Date(as.vector(
+  group_cluster_df %>%
+    pivot_longer(c(2:6), values_to = "values", names_to = "names") %>%
+    filter(values ==  TRUE) %>%
+    arrange(names)
+)$timestamp)
+
+
 
 for (context_idx in 1:length(context_folder_vector)) {
   # specific folder of context
@@ -54,11 +76,8 @@ for (context_idx in 1:length(context_folder_vector)) {
   # list files of context
   folder_files <- list.files(context_folder)
   
-  # remove not useful files
-  cluster_files <-
-    folder_files[!folder_files %in% c("plot_cmp_full.csv") &
-        !str_detect(folder_files,  "anomaly")]
   
+  # FULL CMP Version 1------------------------------------
   
   # plot the full CMP (always named plot_cmp_full.csv)
   df <-
@@ -69,138 +88,134 @@ for (context_idx in 1:length(context_folder_vector)) {
     )
   
   # put dates on row and columns to keep reference of the day
-  colnames(df) <-
-    as.Date(read.csv(
-      file.path("Polito_Usecase", "data", "group_cluster.csv"),
-      sep = ',',
-      header = T
-    )[, 1])
-  rownames(df) <-
-    as.Date(read.csv(
-      file.path("Polito_Usecase", "data", "group_cluster.csv"),
-      sep = ',',
-      header = T
-    )[, 1])
+  colnames(df) <- dates_cronological
+  rownames(df) <- dates_cronological
   
   df_long <- df %>%
     rownames_to_column("Date") %>%
     pivot_longer(-c(Date), names_to = "Date1", values_to = "values") %>%
     mutate(Date = as.Date(Date),
-      Date1 = as.Date(Date1),)
+      Date1 = as.Date(Date1))
   
   # spot the maximum ant the minimum
   legend_breaks <-
     ggeffects::pretty_range(0:round(max(df_long$values,  na.rm = T)), length = 6)
   xy_breaks <- ggeffects::pretty_range(1:dim(df)[1], length = 8)
   
-  plot_full <- df_long %>%
-    ggplot() +
-    geom_raster(aes(x = Date1, y = Date, fill = values)) +
-    scale_fill_gradientn(
-      colours = palette,
-      na.value = "white",
-      # limits = c(0, maximum_value),
-      breaks = legend_breaks,
-      labels = legend_breaks
-    ) +
-    scale_x_date(
-      breaks = date_breaks("1 month"),
-      # specify breaks every two months
-      labels = date_format("%b" , tz = "Etc/GMT+12"),
-      # specify format of labels anno mese
-      expand = c(0, 0)                                     # espande l'asse y affinche riempia tutto il box in verticale
-    ) +
-    scale_y_date(
-      breaks = date_breaks("1 month"),
-      # specify breaks every two months
-      labels = date_format("%b" , tz = "Etc/GMT+12"),
-      # specify format of labels anno mese
-      expand = c(0, 0)                                     # espande l'asse y affinche riempia tutto il box in verticale
-    ) +
-    theme_bw() +  # white bakground with lines
-    coord_fixed(ratio = 1) +
-    labs(
-      title = paste("CMP for context", context_idx),
-      subtitle = context_string,
-      x = "" ,
-      y = "",
-      fill = ""
-    ) +                   # axis label
-    ggplot2::theme(
-      text = element_text(family = font_family),
-      plot.title = element_text(
-        hjust = 0.5,
-        size = fontsize_large,
-        margin = margin(
-          t = 0,
-          r = 0,
-          b = 0,
-          l = 0
+  Sys.setlocale("LC_TIME", "C")
+  
+  plot_full <- {
+    df_long %>%
+      ggplot() +
+      geom_raster(aes(x = Date1, y = Date, fill = values)) +
+      scale_fill_gradientn(
+        colours = palette,
+        na.value = "white",
+        # limits = c(0, maximum_value),
+        breaks = legend_breaks,
+        labels = legend_breaks
+      ) +
+      scale_x_date(
+        breaks = date_breaks("1 month"),
+        # specify breaks every two months
+        labels = date_format("%b" , tz = "Etc/GMT+12"),
+        # specify format of labels anno mese
+        expand = c(0, 0)                                     # espande l'asse y affinche riempia tutto il box in verticale
+      ) +
+      scale_y_date(
+        breaks = date_breaks("1 month"),
+        # specify breaks every two months
+        labels = date_format("%b" , tz = "Etc/GMT+12"),
+        # specify format of labels anno mese
+        expand = c(0, 0)                                     # espande l'asse y affinche riempia tutto il box in verticale
+      ) +
+      theme_bw() +  # white bakground with lines
+      coord_fixed(ratio = 1) +
+      labs(
+        title = paste("CMP for context", context_idx),
+        subtitle = context_string,
+        x = "" ,
+        y = "",
+        fill = ""
+      ) +                   # axis label
+      ggplot2::theme(
+        text = element_text(family = font_family),
+        plot.title = element_text(
+          hjust = 0.5,
+          size = fontsize_large + fontsize_rescale_factor,
+          margin = margin(
+            t = 0,
+            r = 0,
+            b = 0,
+            l = 0
+          ),
+          
         ),
-        
-      ),
-      plot.subtitle = element_text(
-        hjust = 0.5,
-        size = fontsize_small,
-        margin = margin(
-          t = 5,
-          r = 5,
-          b = 10,
-          l = 10
+        plot.subtitle = element_text(
+          hjust = 0.5,
+          size = fontsize_small + fontsize_rescale_factor,
+          margin = margin(
+            t = 5,
+            r = 5,
+            b = 10,
+            l = 10
+          )
+        ),
+        # legend
+        legend.text = element_text(size = fontsize_small + fontsize_rescale_factor),
+        legend.position = "right",
+        # legend position on the top of the graph
+        legend.key.height = unit(2, "cm"),
+        # size of legend keys, tacche legenda
+        legend.key.width = unit(0.4, "cm"),
+        legend.direction = "vertical",
+        # layout of items in legends
+        legend.box = "vertical",
+        # arrangement of multiple legends
+        legend.title = element_blank(),
+        # title of legend (inherits from title)
+        # strip.text = element_text(size = 17), # facet wrap title fontsize
+        # AXIS X
+        #axis.title.x = element_text(size = fontsize_medium, margin = margin(t = 20, r = 20, b = 0, l = 0)),
+        axis.text.x = element_text(
+          size = fontsize_small + fontsize_rescale_factor,
+          margin = margin(
+            t = 5,
+            r = 5,
+            b = 5,
+            l = 5
+          ),
+          angle = 0,
+          #vjust=.3, hjust = -0.18,
+          
+        ),
+        # AXIS Y
+        #axis.title.y = element_text(size = fontsize_medium,margin = margin(t = 20, r = 20, b = 0, l = 0)),
+        axis.text.y = element_text(
+          size = fontsize_small + fontsize_rescale_factor,
+          margin = margin(
+            t = 5,
+            r = 5,
+            b = 5,
+            l = 5
+          ),
+          angle = 0,
+          #vjust=-1.1
+        ),
+        # background
+        panel.background = element_rect(fill = "gray99"),
+        # background of plotting area, drawn underneath plot
+        panel.grid.major = element_blank(),
+        # draws nothing, and assigns no space.
+        panel.grid.minor = element_blank(),
+        # draws nothing, and assigns no space.
+        plot.margin = unit(
+          c(plot_margin, plot_margin, plot_margin, plot_margin),
+          "cm"
         )
-      ),
-      # legend
-      legend.text = element_text(size = fontsize_small),
-      legend.position = "right",
-      # legend position on the top of the graph
-      legend.key.height = unit(2, "cm"),
-      # size of legend keys, tacche legenda
-      legend.key.width = unit(0.4, "cm"),
-      legend.direction = "vertical",
-      # layout of items in legends
-      legend.box = "vertical",
-      # arrangement of multiple legends
-      legend.title = element_blank(),
-      # title of legend (inherits from title)
-      # strip.text = element_text(size = 17), # facet wrap title fontsize
-      # AXIS X
-      #axis.title.x = element_text(size = fontsize_medium, margin = margin(t = 20, r = 20, b = 0, l = 0)),
-      axis.text.x = element_text(
-        size = fontsize_small,
-        margin = margin(
-          t = 5,
-          r = 5,
-          b = 5,
-          l = 5
-        ),
-        angle = 0,
-        #vjust=.3, hjust = -0.18,
-        
-      ),
-      # AXIS Y
-      #axis.title.y = element_text(size = fontsize_medium,margin = margin(t = 20, r = 20, b = 0, l = 0)),
-      axis.text.y = element_text(
-        size = fontsize_small,
-        margin = margin(
-          t = 5,
-          r = 5,
-          b = 5,
-          l = 5
-        ),
-        angle = 0,
-        #vjust=-1.1
-      ),
-      # background
-      panel.background = element_rect(fill = "gray99"),
-      # background of plotting area, drawn underneath plot
-      panel.grid.major = element_blank(),
-      # draws nothing, and assigns no space.
-      panel.grid.minor = element_blank(),
-      # draws nothing, and assigns no space.
-      plot.margin = unit(c(
-        plot_margin, plot_margin, plot_margin, plot_margin
-      ), "cm")
-    )         # margin around entire plot
+      )         # margin around entire plot
+    
+  }
   
   # version 1
   dev.new()
@@ -210,8 +225,8 @@ for (context_idx in 1:length(context_folder_vector)) {
       gsub("data", "figures", context_folder_vector[context_idx]),
       "cmp_full.jpg"
     ),
-    width = 7,
-    height = 7,
+    width = 9,
+    height = 9,
     dpi = dpi ,
     bg = background_fill
   )
@@ -220,10 +235,16 @@ for (context_idx in 1:length(context_folder_vector)) {
   
   # plot the group CMP and arrange in a list of plot in a single figure
   plot_list <-  list()
-  for (j in 1:length(cluster_files)) {
+  
+  # remove not useful files
+  cluster_files <-
+    folder_files[!folder_files %in% c("plot_cmp_full.csv") &
+        !str_detect(folder_files,  "anomaly")]
+  
+  for (cluster_idx in 1:length(cluster_files)) {
     # read contextual matrix for group
     df1 <-
-      read.csv(file.path(context_folder, cluster_files[j]),
+      read.csv(file.path(context_folder, cluster_files[cluster_idx]),
         sep = ',',
         header = F)
     
@@ -247,12 +268,13 @@ for (context_idx in 1:length(context_folder_vector)) {
       ggeffects::pretty_range(0:round(max(df_long1$values,  na.rm = T)), length = 6)
     xy_breaks <-
       ggeffects::pretty_range(1:dim(df1)[1], length = 8)
-    plot_title <- gsub(pattern = "plot_cmp_", "", cluster_files[j])
+    plot_title <-
+      gsub(pattern = "plot_cmp_", "", cluster_files[cluster_idx])
     plot_title <- gsub(pattern = ".csv", "", plot_title)
     plot_title <- gsub(pattern = "_", " ", plot_title)
     
     
-    plot_list[[j]] <- df_long1 %>%
+    plot_list[[cluster_idx]] <- df_long1 %>%
       ggplot() +
       geom_raster(aes(x = Date1, y = Date, fill = values)) +
       scale_fill_gradientn(
@@ -277,7 +299,7 @@ for (context_idx in 1:length(context_folder_vector)) {
         text = element_text(family = font_family),
         plot.title = element_text(
           hjust = 0.5,
-          size = fontsize_large,
+          size = fontsize_large + fontsize_rescale_factor,
           margin = margin(
             t = 0,
             r = 0,
@@ -288,7 +310,7 @@ for (context_idx in 1:length(context_folder_vector)) {
         ),
         plot.subtitle = element_text(
           hjust = 0.5,
-          size = fontsize_small,
+          size = fontsize_small + fontsize_rescale_factor,
           margin = margin(
             t = 5,
             r = 5,
@@ -297,7 +319,7 @@ for (context_idx in 1:length(context_folder_vector)) {
           )
         ),
         # legend
-        legend.text = element_text(size = fontsize_small),
+        legend.text = element_text(size = fontsize_small + fontsize_rescale_factor),
         legend.position = "right",
         # legend position on the top of the graph
         legend.key.height = unit(1.5, "cm"),
@@ -313,7 +335,7 @@ for (context_idx in 1:length(context_folder_vector)) {
         # AXIS X
         #axis.title.x = element_text(size = fontsize_medium, margin = margin(t = 20, r = 20, b = 0, l = 0)),
         axis.text.x = element_text(
-          size = fontsize_small,
+          size = fontsize_small + fontsize_rescale_factor,
           margin = margin(
             t = 5,
             r = 5,
@@ -325,7 +347,7 @@ for (context_idx in 1:length(context_folder_vector)) {
         # AXIS Y
         #axis.title.y = element_text(size = fontsize_medium,margin = margin(t = 20, r = 20, b = 0, l = 0)),
         axis.text.y = element_text(
-          size = fontsize_small,
+          size = fontsize_small + fontsize_rescale_factor,
           margin = margin(
             t = 5,
             r = 5,
@@ -360,7 +382,7 @@ for (context_idx in 1:length(context_folder_vector)) {
       gsub("data", "figures", context_folder_vector[context_idx]),
       "cmp_groups_horizontal.jpg"
     ),
-    width = 20,
+    width = 23,
     height = 5.5,
     dpi = dpi ,
     bg = background_fill
@@ -375,11 +397,12 @@ for (context_idx in 1:length(context_folder_vector)) {
       gsub("data", "figures", context_folder_vector[context_idx]),
       "cmp_groups_compact.jpg"
     ),
-    width = 10,
-    height = 10,
+    width = 14,
+    height = 9,
     dpi = dpi ,
     bg = background_fill
   )
   dev.off()
+  
   
 }

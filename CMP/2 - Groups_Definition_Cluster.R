@@ -20,9 +20,10 @@
 #
 #
 #  LOAD PACKAGES and FUNCTIONS ------------------------------------------------------------------
-cat("\014")                 # clears the console
-rm(list = ls())             # remove all variables of the workspace
-source("global_vars.R")
+cat("\014")                 # Clears the console
+rm(list = ls())             # Remove all variables of the work space
+source("global_vars.R")     # loads global variables
+source("utils_functions.R") # loads utils functions
 
 
 import::from(magrittr, "%>%")

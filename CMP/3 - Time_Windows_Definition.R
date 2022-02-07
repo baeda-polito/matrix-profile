@@ -18,8 +18,8 @@
 # LOAD PACKAGES and FUNCTIONS ------------------------------------
 cat("\014")                 # Clears the console
 rm(list = ls())             # Remove all variables of the work space
-source("global_vars.R")
-source("utils_functions.R")
+source("global_vars.R")     # loads global variables
+source("utils_functions.R") # loads utils functions
 
 import::from(magrittr, '%>%')
 import::from(dplyr, mutate, filter, select)
@@ -30,10 +30,11 @@ import::from(lubridate, hm, as.duration, duration)
 library(ggplot2)
 library(scales)
 
+# define where to save figures
 figures_path <-
   file.path("Polito_Usecase", "figures", "time_windows")
 
-###### DATASET PRE-PROCESSING:
+# DATASET PRE-PROCESSING: ------------------------------------
 #   - Load all dataset "polito_raw.csv"
 #   - Load all dataset "group_cluster.csv" and see dates to exclude
 #   - Fix datetime and variables
@@ -67,7 +68,7 @@ df <-
   filter(!(Date %in% df_cluster$Date)) %>%
   select(timestamp, Date, time_dec, value, Time)
 
-###### CART for time windows definition:
+# CART ------------------------------------
 #   - Target Variable: value (Total Power kWh)
 #   - Predictive Variable: time_dec (Hour decimal form h)
 #   - cp = 0 (no limits to complexity)
@@ -111,7 +112,7 @@ png(
   file = file.path(figures_path, "time_window_cart.jpg"),
   bg = "white",
   units = "in",
-  width = 8,
+  width = 6,
   height = 5,
   res = dpi
 )
@@ -119,7 +120,7 @@ ct1 <- as.party(ct)
 names(ct1$data) <- c("Total Power", "Hour") # change labels to plot
 plot(
   ct1,
-  tnex = 2.8,
+  tnex = 3.0,
   terminal_panel = node_boxplot,
   tp_args = list(bg = "white", cex = 0.2, fill = "gray"),
   inner_panel = node_inner,
@@ -210,9 +211,7 @@ write.csv(
   row.names = FALSE
 )
 
-
-
-###### PLOTS
+# PLOTS ------------------------------------
 # we can define the length of the context in two ways
 # number of time windows
 
@@ -275,7 +274,11 @@ ggplot() +
       c(time_window_df$from, "23:59"), ":00", sep = ""
     ), format = "%H:%M:%S" , tz = "GMT")
   ) +
-  scale_y_continuous(limits = c(0, ceiling(max(df$value) / 100) * 100), expand = c(0, 0)) +
+  scale_y_continuous(
+    limits = c(0, ceiling(max(df$value) / 100) * 100),
+    breaks = seq(0, 800, 200),
+    expand = c(0, 0)
+  ) +
   theme_minimal() +
   ggplot2::theme(
     text = element_text(family = font_family),
