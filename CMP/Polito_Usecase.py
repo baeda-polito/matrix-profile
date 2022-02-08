@@ -65,13 +65,8 @@ if __name__ == '__main__':
     data_raw = pd.read_csv(path_to_data + "polito_raw.csv")
 
     # ask the user which type of load
-    print(colored("Type the load to be analyzed:\n* Total_Power\n* Allocated\n* Not_allocated\n* Canteen\n* Data_cent\n* Refrigeration_unit2\n* Rectory\n* Bar_Ambrogio\n* DIMAT\n* Print_shop\n (type here ->)", "yellow"), end="")
+    print(colored("Type the load to be analyzed:\n* Total_Power\n* Allocated\n* Not_allocated\n* Canteen\n* Data_cent\n* Refrigeration_unit2\n* Rectory\n* Bar_Ambrogio\n* DIMAT\n* Print_shop\n type here ->\t", "yellow"), end="")
     electrical_load = str(input())
-
-
-
-
-
 
     # subset the dataset into 3 columns
     data_raw = data_raw[['Date_Time', electrical_load, 'AirTemp']]
@@ -101,11 +96,11 @@ if __name__ == '__main__':
           f'DATASET: Electrical Load dataset from {electrical_load}\n'
           f'- From\t{data.index[0]}\n'
           f'- To\t{data.index[len(data) - 1]}\n'
-          f'-{len(data.index[::obs_per_day])}\tdays\n'
-          f' - 1 \tobservations every 15 min\n'
-          f'-{obs_per_day}\tobservations per day\n'
-          f' -{obs_per_hour}\tobservations per hour\n'
-          f'-{len(data)}observations'
+          f'- {len(data.index[::obs_per_day])}\tdays\n'
+          f'- 1 \tobservations every 15 min\n'
+          f'- {obs_per_day}\tobservations per day\n'
+          f'- {obs_per_hour}\tobservations per hour\n'
+          f'- {len(data)}observations'
           )
 
     '''
