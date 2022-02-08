@@ -65,8 +65,13 @@ if __name__ == '__main__':
     data_raw = pd.read_csv(path_to_data + "polito_raw.csv")
 
     # ask the user which type of load
-    print(colored("Type the load to be analyzed: ", "yellow"), end="")
+    print(colored("Type the load to be analyzed:\n* Total_Power\n* Allocated\n* Not_allocated\n* Canteen\n* Data_cent\n* Refrigeration_unit2\n* Rectory\n* Bar_Ambrogio\n* DIMAT\n* Print_shop\n (type here ->)", "yellow"), end="")
     electrical_load = str(input())
+
+
+
+
+
 
     # subset the dataset into 3 columns
     data_raw = data_raw[['Date_Time', electrical_load, 'AirTemp']]
