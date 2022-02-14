@@ -22,3 +22,5 @@ palette <- rev(c('#d53e4f','#f46d43','#fdae61','#fee08b','#ffffbf','#e6f598','#a
 # palette <- rev(RColorBrewer::brewer.pal(11,"RdYlBu"))
 # palette <- viridis::viridis(20)
 plot_margin <-  0.5
+
+Sys.setlocale("LC_TIME", "C")
