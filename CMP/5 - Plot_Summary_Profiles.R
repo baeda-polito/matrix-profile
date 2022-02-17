@@ -28,7 +28,7 @@ library(tidyverse)
 library(ggpubr)
 import::from(magrittr, "%>%")
 
-
+{
 # # FILTER DATES ------------------------------------
 # 
 # # load the context decoder dataframe
@@ -104,9 +104,23 @@ import::from(magrittr, "%>%")
 #   mutate(context = paste("Context", context),
 #     severity = as.numeric(severity)) %>%
 #   rename(Date = timestamp)
+}
 
 
 # LOAD POWER ------------------------------------
+
+load <- "Refrigeration_unit2"
+
+ # "Total_Power"        
+ # "Allocated"          
+ # "Not_allocated"      
+ # "Canteen"            
+ # "Data_centre"        
+ # "Refrigeration_unit2"
+ # "Rectory"            
+ # "Bar_Ambrogio"       
+ # "DIMAT"              
+ # "Print_shop"   
 
 # load power data full
 df_power <-
@@ -115,8 +129,13 @@ df_power <-
     sep = ',',
     dec = "."
   ) %>%
-  dplyr::select(Date, Time, Total_Power)
+  dplyr::select(Date, Time, all_of(load))
 
+colnames(df_power)[3] <- "Total_Power"
+
+ymax <- ceiling(max(df_power$Total_Power)/100)*100
+
+ymax <- 850
 # CLUSTER INFO ------------------------------------
 df_cluster <-
   read.csv(
@@ -139,7 +158,7 @@ df_merged <- merge.data.frame(df_power, df_cluster, by = "Date")
 
 # PLOT ------------------------------------
 
-dates_df <- as.Date(c("2019-08-12", "2019-12-27", "2019-07-15", "2019-07-06","2019-11-10"))
+dates_df <- as.Date(c("2019-08-12", "2019-12-27", "2019-07-15", "2019-07-06","2019-11-10", "2019-07-29", "2019-07-30"))
 
 for (date_idx in 1:length(dates_df)) {
   
@@ -184,7 +203,7 @@ for (date_idx in 1:length(dates_df)) {
       labels = date_format("%H:%M" , tz = "GMT"),
       breaks = date_breaks("4 hour")
     ) +
-    scale_y_continuous(limits = c(0, 850),
+    scale_y_continuous(limits = c(0, ymax),
       expand = c(0, 0)) +
     theme_bw() +
     labs(
@@ -267,7 +286,7 @@ for (date_idx in 1:length(dates_df)) {
       "Polito_Usecase",
       "figures",
       "results_profiles",
-      paste0(date_plot,".png")
+      paste0(load, "_", date_plot,".png")
     ),
     width = 100,
     height = 80,
