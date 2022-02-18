@@ -28,85 +28,99 @@ library(tidyverse)
 library(ggpubr)
 import::from(magrittr, "%>%")
 
-
-# FILTER DATES ------------------------------------
-
-# load the context decoder dataframe
-df_context_decoder <-
-  read.csv(file.path("Polito_Usecase", "data", "contexts.csv"))
-# list all folders of context
-context_folder_vector <-
-  list.dirs(file.path("Polito_Usecase", "data"))[-1]
-
-# define empty vector of dates
-dates_df <- data.frame()
-
-for (context_idx in 1:length(context_folder_vector)) {
-  df <- data.frame()
-  
-  for (cluster_idx in c(1:5)) {
-    df_tmp <-
-      read.csv(file = file.path(
-        context_folder_vector[context_idx],
-        paste0("anomaly_results_Cluster_", cluster_idx, ".csv")
-      )) %>%
-      mutate(Cluster = cluster_idx)
-    
-    df <- rbind(df, df_tmp)
-    
-  }
-  
-  df <- df %>%
-    dplyr::arrange(Date) %>%
-    dplyr::mutate(severity = cmp_score + energy_score) %>%
-    dplyr::filter(severity == 8) %>% 
-    dplyr::mutate(context = gsub("Polito_Usecase/data/", "", context_folder_vector[context_idx])) %>% 
-    dplyr::select(Date, context)
-  
-  dates_df <- rbind(dates_df, df)
+{
+# # FILTER DATES ------------------------------------
+# 
+# # load the context decoder dataframe
+# df_context_decoder <-
+#   read.csv(file.path("Polito_Usecase", "data", "contexts.csv"))
+# # list all folders of context
+# context_folder_vector <-
+#   list.dirs(file.path("Polito_Usecase", "data"))[-1]
+# 
+# # define empty vector of dates
+# dates_df <- data.frame()
+# 
+# for (context_idx in 1:length(context_folder_vector)) {
+#   df <- data.frame()
+#   
+#   for (cluster_idx in c(1:5)) {
+#     df_tmp <-
+#       read.csv(file = file.path(
+#         context_folder_vector[context_idx],
+#         paste0("anomaly_results_Cluster_", cluster_idx, ".csv")
+#       )) %>%
+#       mutate(Cluster = cluster_idx)
+#     
+#     df <- rbind(df, df_tmp)
+#     
+#   }
+#   
+#   df <- df %>%
+#     dplyr::arrange(Date) %>%
+#     dplyr::mutate(severity = cmp_score + energy_score) %>%
+#     dplyr::filter(severity == 8) %>% 
+#     dplyr::mutate(context = gsub("Polito_Usecase/data/", "", context_folder_vector[context_idx])) %>% 
+#     dplyr::select(Date, context)
+#   
+#   dates_df <- rbind(dates_df, df)
+# }
+# 
+# 
+# # SECTION ------------------------------------
+# 
+# df_results <-
+#   read.csv(file.path("Polito_Usecase", "data", "anomaly_results.csv"))
+# 
+# df_corrected <- df_results %>%
+#   select(-c(Cluster_1, Cluster_2, Cluster_3, Cluster_4, Cluster_5)) %>%
+#   pivot_longer(cols = c(-timestamp),
+#     names_to = "context",
+#     values_to = "severity") %>%
+#   mutate(
+#     cluster = ifelse(
+#       grepl("Cluster_1.", context),
+#       "Cluster 1",
+#       ifelse(
+#         grepl("Cluster_2.", context),
+#         "Cluster 2",
+#         ifelse(
+#           grepl("Cluster_3.", context),
+#           "Cluster 3",
+#           ifelse(grepl("Cluster_4.", context),
+#             "Cluster 4", "Cluster 5")
+#         )
+#       )
+#     ),
+#     cluster = as.factor(cluster),
+#     context = gsub("Cluster_1.", "", context),
+#     context = gsub("Cluster_2.", "", context),
+#     context = gsub("Cluster_3.", "", context),
+#     context = gsub("Cluster_4.", "", context),
+#     context = gsub("Cluster_5.", "", context),
+#     context = as.factor(as.numeric(as.factor(context))),
+#     severity = as.factor(severity)
+#   ) %>%
+#   mutate(context = paste("Context", context),
+#     severity = as.numeric(severity)) %>%
+#   rename(Date = timestamp)
 }
 
 
-# SECTION ------------------------------------
-
-df_results <-
-  read.csv(file.path("Polito_Usecase", "data", "anomaly_results.csv"))
-
-df_corrected <- df_results %>%
-  select(-c(Cluster_1, Cluster_2, Cluster_3, Cluster_4, Cluster_5)) %>%
-  pivot_longer(cols = c(-timestamp),
-    names_to = "context",
-    values_to = "severity") %>%
-  mutate(
-    cluster = ifelse(
-      grepl("Cluster_1.", context),
-      "Cluster 1",
-      ifelse(
-        grepl("Cluster_2.", context),
-        "Cluster 2",
-        ifelse(
-          grepl("Cluster_3.", context),
-          "Cluster 3",
-          ifelse(grepl("Cluster_4.", context),
-            "Cluster 4", "Cluster 5")
-        )
-      )
-    ),
-    cluster = as.factor(cluster),
-    context = gsub("Cluster_1.", "", context),
-    context = gsub("Cluster_2.", "", context),
-    context = gsub("Cluster_3.", "", context),
-    context = gsub("Cluster_4.", "", context),
-    context = gsub("Cluster_5.", "", context),
-    context = as.factor(as.numeric(as.factor(context))),
-    severity = as.factor(severity)
-  ) %>%
-  mutate(context = paste("Context", context),
-    severity = as.numeric(severity)) %>%
-  rename(Date = timestamp)
-
-
 # LOAD POWER ------------------------------------
+
+load <- "Refrigeration_unit2"
+
+ # "Total_Power"        
+ # "Allocated"          
+ # "Not_allocated"      
+ # "Canteen"            
+ # "Data_centre"        
+ # "Refrigeration_unit2"
+ # "Rectory"            
+ # "Bar_Ambrogio"       
+ # "DIMAT"              
+ # "Print_shop"   
 
 # load power data full
 df_power <-
@@ -115,8 +129,13 @@ df_power <-
     sep = ',',
     dec = "."
   ) %>%
-  dplyr::select(Date, Time, Total_Power)
+  dplyr::select(Date, Time, all_of(load))
 
+colnames(df_power)[3] <- "Total_Power"
+
+ymax <- ceiling(max(df_power$Total_Power)/100)*100
+
+ymax <- 850
 # CLUSTER INFO ------------------------------------
 df_cluster <-
   read.csv(
@@ -139,9 +158,11 @@ df_merged <- merge.data.frame(df_power, df_cluster, by = "Date")
 
 # PLOT ------------------------------------
 
+dates_df <- as.Date(c("2019-08-12", "2019-12-27", "2019-07-15", "2019-07-06","2019-11-10", "2019-07-29", "2019-07-30"))
+
 for (date_idx in 1:length(dates_df)) {
   
-  date_plot <- dates_df$Date[date_idx]
+  date_plot <- dates_df[date_idx]
   
   cluster_plot <- df_merged %>%
     filter(Date == date_plot) %>%
@@ -159,9 +180,12 @@ for (date_idx in 1:length(dates_df)) {
         group = Date
       ) ,
       #color = "#D5D5E0",
-      color = "black",
-      alpha = 0.1,
-      size = 0.5
+      # color = "black",
+      # alpha = 0.1,
+      # size = 0.5
+      color = "#D5D5E0",
+      alpha = 0.3,
+      size = 0.7
     ) +
     geom_line(
       data = df_merged %>% filter(Date == date_plot),
@@ -179,12 +203,12 @@ for (date_idx in 1:length(dates_df)) {
       labels = date_format("%H:%M" , tz = "GMT"),
       breaks = date_breaks("4 hour")
     ) +
-    scale_y_continuous(limits = c(0, 850),
+    scale_y_continuous(limits = c(0, ymax),
       expand = c(0, 0)) +
     theme_bw() +
     labs(
       title = paste(cluster_plot),
-      subtitle = format(as.Date(date_plot), "%d-%m-%Y"),
+      subtitle = format(as.Date(date_plot), "%A %d %B %Y"),
       x = "Hour" ,
       y = "Power [kW]"
     ) +
@@ -262,10 +286,10 @@ for (date_idx in 1:length(dates_df)) {
       "Polito_Usecase",
       "figures",
       "results_profiles",
-      paste0(date_plot,".png")
+      paste0(load, "_", date_plot,".png")
     ),
     width = 100,
-    height = 100,
+    height = 80,
     units = "mm",
     dpi = dpi ,
     bg = background_fill
