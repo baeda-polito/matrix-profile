@@ -18,6 +18,14 @@ df_list <- df %>%
   lapply(function(x) toString(names(x))) %>% 
   unlist()
 
+df_list_sev <- df %>% 
+  select(all_of(severity_vector)) %>% 
+  apply(1,function(x) which(x==max(x))) %>% 
+  lapply(function(x) toString(x)) %>% 
+  unlist()
+
+
+
 df$responsible <- df_list
 
 df %>% 
@@ -40,7 +48,7 @@ df %>%
   select(responsible, Total_Power) %>% 
   group_by(responsible) %>% 
   count() %>% 
-  arrange(n)
+  arrange(desc(n))
 
 
 
