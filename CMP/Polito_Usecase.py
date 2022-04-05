@@ -271,6 +271,16 @@ if __name__ == '__main__':
                    nan_diag(cmp.distance_matrix),
                    delimiter=",")
 
+        # Save CMP for R plot (use to_csv)
+        np.savetxt(path_to_data + context_string_small + os.sep + 'match_index_query.csv',
+                   cmp.match_index_query,
+                   delimiter=",")
+
+        # Save CMP for R plot (use to_csv)
+        np.savetxt(path_to_data + context_string_small + os.sep + 'match_index_series.csv',
+                   cmp.match_index_series,
+                   delimiter=",")
+
         '''
         # calculate the date labels to define the extent of figure
         date_labels = mdates.date2num(data.index[::m].values)
