@@ -76,13 +76,13 @@ df <-
     geom_line(
       aes(x = timestamp, y = value),
       color = "gray",
-      size = 0.5,
+      size = 1,
       show.legend = F
     ) +
     geom_line(
       data = df %>% filter(!is.na(tag)),
       aes(x = timestamp, y = value, color = tag),
-      size = 0.5
+      size = 1
     ) +
     labs(y = "Power [kW]", x = "Date")+
     scale_color_manual(values = figma_palette) +
@@ -103,7 +103,7 @@ df <-
     scale_x_datetime(
       expand = c(0, 0),
       date_breaks = "3 days",
-      date_labels = "%m-%d"
+      date_labels = "%b-%d"
     )
   
   
@@ -125,7 +125,7 @@ df <-
       group = tag,
       color = tag
     ),
-      size = 0.5) +
+      size = 1) +
     labs(y = "Power [kW]", x = "Observations")+
     scale_color_manual(values = figma_palette) +
     theme_classic() +
@@ -153,7 +153,7 @@ df <-
       group = tag,
       color = tag
     ),
-      size = 0.5) +
+      size = 1) +
     labs(y = "Z-Normalized Power [-]", x = "Observations")+
     theme_classic() +
     scale_color_manual(values = figma_palette) +
@@ -240,8 +240,8 @@ df <-
       group = str,
       color = str
     ),
-      size = 0.5) +
-    labs(y = "Not normalized [-]")+
+      size = 1) +
+    labs(y = "Power [kW]")+
     scale_color_manual(values = figma_palette) +
     theme_classic() +
     theme(
@@ -270,9 +270,9 @@ df <-
       group = str,
       color = str
     ),
-      size = 0.5) +
+      size = 1) +
     theme_classic() +
-    labs(y = "Normalized [-]")+
+    labs(y = "Z-Normalized Power [-]")+
     scale_color_manual(values = figma_palette) +
     theme(
       text = element_text(family = font_family),
@@ -310,8 +310,8 @@ df <-
       group = str,
       color = str
     ),
-      size = 0.5) +
-    labs(y = "Not normalized [-]")+
+      size = 1) +
+    labs(y = "Power [kW]")+
     scale_color_manual(values = figma_palette) +
     theme_classic() +
     theme(
@@ -340,9 +340,9 @@ df <-
       group = str,
       color = str
     ),
-      size = 0.5) +
+      size = 1) +
     theme_classic() +
-    labs(y = "Normalized [-]")+
+    labs(y = "Z-Normalized Power [-]")+
     scale_color_manual(values = figma_palette) +
     theme(
       text = element_text(family = font_family),
