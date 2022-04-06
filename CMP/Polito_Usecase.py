@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
     # The number of time window has been selected from CART on total electrical power,
     # results are contained in 'time_window.csv' file
-    df_time_window = pd.read_csv(path_to_data + "time_window.csv")
+    df_time_window = pd.read_csv(path_to_data + "time_window_corrected.csv")
 
     # The context is defined as 1 hour before time window, to be consistent with other analysis,
     # results are loaded from 'm_context.csv' file
@@ -170,7 +170,7 @@ if __name__ == '__main__':
             m = int((hour_to_dec(df_time_window["to"][id_tw]) - m_context) * obs_per_hour)
         else:
             m = df_time_window["observations"][id_tw]  # [observations]
-            context_end = hour_to_dec(df_time_window["from"][id_tw])  # [hours]
+            context_end = hour_to_dec(df_time_window["from"][id_tw])+0.25  # [hours]
             context_start = context_end - m_context  # [hours]
 
         '''
@@ -195,14 +195,19 @@ if __name__ == '__main__':
         '''
 
         # print string to explain the created context in an intelligible way
-        context_string = 'Subsequences of ' + dec_to_hour(m / obs_per_hour) + ' h that starts between ' + \
-                         dec_to_hour(context_start) + ' and ' + dec_to_hour(context_end)
+        context_string = 'Subsequences of {} h (m = {}) that start in [{},{})' .format(
+            dec_to_hour(m / obs_per_hour),
+            m,
+            dec_to_hour(context_start),
+            dec_to_hour(context_end)
+        )
 
         # contracted context string for names
-        context_string_small = 'ctx_from' + dec_to_hour(context_start) + \
-                               '_to' + dec_to_hour(context_end) + "_m" + dec_to_hour(m / obs_per_hour)
-        # remove : to resolve path issues
-        context_string_small = context_string_small.replace(":", "_")
+        context_string_small = 'ctx_from{}_to{}_m{}'.format(
+            dec_to_hour(context_start),
+            dec_to_hour(context_end),
+            dec_to_hour(m / obs_per_hour)
+        ).replace(":", "_")
 
         # update context dataframe
         df_contexts.loc[id_tw] = [dec_to_hour(context_start),  # "from"
@@ -237,13 +242,14 @@ if __name__ == '__main__':
         ])
         '''
 
+        # todo: add 1 to contexts
         # Context Definition:
         contexts = GeneralStaticManager([
             range(
                 # FROM  [observations]  = x * 96 [observations] + 0 [hour] * 4 [observation/hour]
-                (x * obs_per_day) + dec_to_obs(context_start, obs_per_hour),
+                ((x * obs_per_day) + dec_to_obs(context_start, obs_per_hour)),
                 # TO    [observations]  = x * 96 [observations] + (0 [hour] + 2 [hour]) * 4 [observation/hour]
-                (x * obs_per_day) + dec_to_obs(context_end, obs_per_hour))
+                ((x * obs_per_day) + dec_to_obs(context_end, obs_per_hour)))
             for x in range(len(data) // obs_per_day)
         ])
 
@@ -341,6 +347,16 @@ if __name__ == '__main__':
             # save group CMP for R plot
             np.savetxt(path_to_data + context_string_small + os.sep + 'plot_cmp_' + group_name + '.csv',
                        nan_diag(group_cmp), delimiter=",")
+
+            # Save CMP for R plot (use to_csv)
+            np.savetxt(path_to_data + context_string_small + os.sep + 'match_index_query_' + group_name + '.csv',
+                       cmp.match_index_query[:, group][group, :], delimiter=",")
+
+
+            # Save CMP for R plot (use to_csv)
+            np.savetxt(path_to_data + context_string_small + os.sep + 'match_index_series_' + group_name + '.csv',
+                       cmp.match_index_series[:, group][group, :], delimiter=",")
+
 
             '''
             # plot CMP as matrix
