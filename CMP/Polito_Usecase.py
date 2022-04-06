@@ -65,7 +65,9 @@ if __name__ == '__main__':
     data_raw = pd.read_csv(path_to_data + "polito_raw.csv")
 
     # ask the user which type of load
-    print(colored("Type the load to be analyzed:\n* Total_Power\n* Allocated\n* Not_allocated\n* Canteen\n* Data_cent\n* Refrigeration_unit2\n* Rectory\n* Bar_Ambrogio\n* DIMAT\n* Print_shop\n type here ->\t", "yellow"), end="")
+    print(colored(
+        "Type the load to be analyzed:\n* Total_Power\n* Allocated\n* Not_allocated\n* Canteen\n* Data_cent\n* Refrigeration_unit2\n* Rectory\n* Bar_Ambrogio\n* DIMAT\n* Print_shop\n type here ->\t",
+        "yellow"), end="")
     electrical_load = str(input())
 
     # subset the dataset into 3 columns
@@ -170,7 +172,7 @@ if __name__ == '__main__':
             m = int((hour_to_dec(df_time_window["to"][id_tw]) - m_context) * obs_per_hour)
         else:
             m = df_time_window["observations"][id_tw]  # [observations]
-            context_end = hour_to_dec(df_time_window["from"][id_tw])+0.25  # [hours]
+            context_end = hour_to_dec(df_time_window["from"][id_tw]) + 0.25  # [hours]
             context_start = context_end - m_context  # [hours]
 
         '''
@@ -195,7 +197,7 @@ if __name__ == '__main__':
         '''
 
         # print string to explain the created context in an intelligible way
-        context_string = 'Subsequences of {} h (m = {}) that start in [{},{})' .format(
+        context_string = 'Subsequences of {} h (m = {}) that start in [{},{})'.format(
             dec_to_hour(m / obs_per_hour),
             m,
             dec_to_hour(context_start),
@@ -210,13 +212,14 @@ if __name__ == '__main__':
         ).replace(":", "_")
 
         # update context dataframe
-        df_contexts.loc[id_tw] = [dec_to_hour(context_start),  # "from"
-                                  dec_to_hour(context_end),  # "to"
-                                  context_string,  # "context_string"
-                                  context_string_small,  # "context_string_small"
-                                  str(m_context) + " h",  # "duration"
-                                  m_context * obs_per_hour  # "observations"
-                                  ]
+        df_contexts.loc[id_tw] = [
+            dec_to_hour(context_start),  # "from"
+            dec_to_hour(context_end),  # "to"
+            context_string,  # "context_string"
+            context_string_small,  # "context_string_small"
+            str(m_context) + " h",  # "duration"
+            m_context * obs_per_hour  # "observations"
+        ]
 
         print('\n*********************\n',
               'CONTEXT ' + str(id_tw + 1) + ' : ' + context_string + " (" + context_string_small + ")")
@@ -352,11 +355,9 @@ if __name__ == '__main__':
             np.savetxt(path_to_data + context_string_small + os.sep + 'match_index_query_' + group_name + '.csv',
                        cmp.match_index_query[:, group][group, :], delimiter=",")
 
-
             # Save CMP for R plot (use to_csv)
             np.savetxt(path_to_data + context_string_small + os.sep + 'match_index_series_' + group_name + '.csv',
                        cmp.match_index_series[:, group][group, :], delimiter=",")
-
 
             '''
             # plot CMP as matrix
@@ -442,6 +443,9 @@ if __name__ == '__main__':
                 # create a vector to plot correctly the graph
                 cmp_ad_score_plot = cmp_ad_score[ad_order][0:num_anomalies_to_show]
 
+                '''
+                
+                
                 # Visualise the top anomalies according to the CMP
                 fig, ax = plt.subplots(num_anomalies_to_show, 2,
                                        sharex='all',
@@ -575,7 +579,7 @@ if __name__ == '__main__':
                     bbox_inches='tight')
                 plt.cla()
                 plt.close(fig)
-
+                '''
                 # print the execution time
                 time_interval_group = datetime.datetime.now() - begin_time_group
                 hours, remainder = divmod(time_interval_group.total_seconds(), 3600)

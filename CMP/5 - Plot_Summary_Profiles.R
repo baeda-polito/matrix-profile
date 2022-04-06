@@ -109,7 +109,7 @@ import::from(magrittr, "%>%")
 
 # LOAD POWER ------------------------------------
 
-load <- "Refrigeration_unit2"
+load <- "Total_Power"
 
  # "Total_Power"        
  # "Allocated"          

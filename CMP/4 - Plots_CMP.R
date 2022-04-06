@@ -74,7 +74,7 @@ for (context_idx in 1:length(context_folder_vector)) {
     df_context_decoder$context_string[df_context_decoder$context_string_small == context_string_small]
   
   # list files of context
-  folder_files <- list.files(context_folder)
+  folder_files <- list.files(context_folder, pattern = "plot")
   
   
   # FULL CMP Version 1------------------------------------
