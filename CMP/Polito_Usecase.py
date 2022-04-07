@@ -169,7 +169,8 @@ if __name__ == '__main__':
             context_start = 0  # [hours] i.e., 00:00
             context_end = context_start + m_context  # [hours] i.e., 01:00
             # [observations] = ([hour]-[hour])*[observations/hour]
-            m = int((hour_to_dec(df_time_window["to"][id_tw]) - m_context) * obs_per_hour)
+            # m = int((hour_to_dec(df_time_window["to"][id_tw]) - 0.25 - m_context) * obs_per_hour)
+            m = 23
         else:
             m = df_time_window["observations"][id_tw]  # [observations]
             context_end = hour_to_dec(df_time_window["from"][id_tw]) + 0.25  # [hours]
