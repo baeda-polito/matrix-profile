@@ -18,9 +18,9 @@ figma_blue_alpha <- "#D5D5E0"
 
 defined_context <- "ctx_from18_30_to19_30_m04_45"
 defined_cluster <- 2
-ylabel <- "Energy [kWh]" # Distance
-vector_ad <- "vector_ad_energy" # vector_ad_cmp
-gesd_limit <- 800
+ylabel <- "Distance" # Distance / "Energy [kWh]"
+vector_ad <- "vector_ad_cmp" # vector_ad_cmp / vector_ad_energy
+gesd_limit <- 200 # 300/800
 
 ###### Plot Anomaly detection methods
 # 1) Box Plot method

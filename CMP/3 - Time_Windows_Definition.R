@@ -221,6 +221,11 @@ time_windows_palette <-
   RColorBrewer::brewer.pal(time_windows_n, "Dark2")
 
 
+
+
+time_window_df$from <- c("00:00", "06:30", "09:00", "15:45", "19:15")
+time_window_df$to <- c("06:30", "09:00", "15:45", "19:15", "24:00")
+
 # I want to plot the time windows on the dataset
 dev.new()
 ggplot() +

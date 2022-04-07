@@ -109,7 +109,7 @@ import::from(magrittr, "%>%")
 
 # LOAD POWER ------------------------------------
 
-load <- "Total_Power"
+load <- "Print_shop"
 
  # "Total_Power"        
  # "Allocated"          
@@ -135,7 +135,7 @@ colnames(df_power)[3] <- "Total_Power"
 
 ymax <- ceiling(max(df_power$Total_Power)/100)*100
 
-ymax <- 850
+ymax <- 5 
 # CLUSTER INFO ------------------------------------
 df_cluster <-
   read.csv(
@@ -158,7 +158,7 @@ df_merged <- merge.data.frame(df_power, df_cluster, by = "Date")
 
 # PLOT ------------------------------------
 
-dates_df <- as.Date(c("2019-08-12", "2019-12-27", "2019-07-15", "2019-07-06","2019-11-10", "2019-07-29", "2019-07-30"))
+dates_df <- as.Date(c("2019-01-01","2019-01-02", "2019-08-12", "2019-12-27", "2019-07-15", "2019-07-06","2019-11-10", "2019-07-29", "2019-07-30"))
 
 for (date_idx in 1:length(dates_df)) {
   

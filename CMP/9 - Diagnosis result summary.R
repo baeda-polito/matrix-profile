@@ -32,7 +32,7 @@ df %>%
   select(responsible, Total_Power) %>% 
   group_by(responsible) %>% 
   count() %>% 
-  arrange(n)
+  arrange(desc(n))
 
 # SECTION ------------------------------------
 energy_vector <- c(12:18)

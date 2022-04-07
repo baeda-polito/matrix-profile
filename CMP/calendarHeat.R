@@ -108,7 +108,6 @@ extra.calendarHeat <- function(dates,
       "white",
       "white",
       "white",
-      "white",
       "#ffc100",
       "#ff7400",
       "#ff0000"
