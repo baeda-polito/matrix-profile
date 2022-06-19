@@ -45,7 +45,7 @@ context_folder_vector <-
 
 # load cluster definition
 group_cluster_df <- read.csv(
-  file.path("Polito_Usecase", "data", "group_cluster.csv"),
+  file.path("Polito_Usecase", "data", "group_cluster_fixed.csv"),
   sep = ',',
   header = T
 )

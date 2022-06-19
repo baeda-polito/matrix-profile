@@ -356,9 +356,15 @@ df_power_wide_part2 <- df_power_wide
 
 # join results ------------------------------------
 
-df_power_wide_all <-
-  rbind(df_power_wide_part1, df_power_wide_part2) %>%
+#####
+df_power_wide_all <-df_power %>% 
+  mutate(weekday = lubridate::wday(Date),
+    cluster = ifelse(weekday == 7, "1", ifelse(weekday==6, "2", "3"))) %>%
   arrange(Date)
+#####
+# df_power_wide_all <-
+#   rbind(df_power_wide_part1, df_power_wide_part2) %>%
+#   arrange(Date)
 
 # plot horizontal labeled
 dev.new()
@@ -383,10 +389,10 @@ group_cluster <- data.table(timestamp = df_power_wide_all$Date,
   Cluster = as.factor(df_power_wide_all$cluster)) %>%
   one_hot() %>%
   as.data.frame() %>%
-  mutate(across(where(is.numeric), as.logical))
+  mutate(across(where(is.numeric), as.logical)) %>% unique()
 
 write.csv(
   group_cluster,
-  file = file.path("Polito_Usecase", "data", "group_cluster.csv"),
+  file = file.path("Polito_Usecase", "data", "group_cluster_fixed.csv"),
   row.names = FALSE
 )

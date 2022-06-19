@@ -314,7 +314,7 @@ if __name__ == '__main__':
 
         ########################################################################################
         # Load Cluster results as boolean dataframe: each column represents a group
-        group_df = pd.read_csv(path_to_data + "group_cluster.csv", index_col='timestamp', parse_dates=True)
+        group_df = pd.read_csv(path_to_data + "group_cluster_fixed.csv", index_col='timestamp', parse_dates=True)
         # initialize dataframe of results for context to be appended to the overall result
         df_anomaly_context = group_df.astype(int)
 

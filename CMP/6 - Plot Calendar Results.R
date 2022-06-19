@@ -32,80 +32,80 @@ context_folder_vector <-
 # remove unnecessary folders
 context_folder_vector <- context_folder_vector[c(2:6)]
 
-# df_diagnosis <- data.frame()
-# 
-# for (context_idx in 1:length(context_folder_vector)) {
-#   df <- data.frame()
-#   
-#   for (cluster_idx in c(1:5)) {
-#     df_tmp <-
-#       read.csv(file = file.path(
-#         context_folder_vector[context_idx],
-#         paste0("anomaly_results_Cluster_", cluster_idx, ".csv")
-#       )) %>%
-#       dplyr::mutate(Cluster = cluster_idx)
-#     
-#     df <- rbind(df, df_tmp)
-#     
-#   }
-#   
-#   df <- df %>%
-#     dplyr::arrange(Date) %>%
-#     dplyr::mutate(severity = cmp_score + energy_score)
-#   
-#   dev.new()
-#   
-#   png(
-#     filename = file.path(
-#       "Polito_Usecase",
-#       "figures",
-#       paste0("calendar_result_context_",
-#              context_idx, ".png")
-#       
-#     ),
-#     res = 200,
-#     width = 1900,
-#     height = 800
-#   )
-#   
-#   print({
-#     extra.calendarHeat(
-#       dates =  df$Date,
-#       values = df$severity,
-#       pvalues = df$Cluster,
-#       pch.symbol = c(0:5),
-#       cex.symbol = 0.7,
-#       fontfamily = font_family,
-#       col.symbol = 'gray30',
-#       color = 'palette'
-#     )
-#   })
-#   
-#   dev.off()
-#   
-#   
-#   df_diagnosis <-
-#     rbind(
-#       df_diagnosis,
-#       df %>% dplyr::filter(severity >= 6) %>% dplyr::mutate(context = context_idx)
-#     )
-#  
-#   
-#    
-# }
-# 
-# # save only severity >= 6 for total power
-# write.csv(
-#   df_diagnosis,
-#   file = file.path("Polito_Usecase", "diagnosis", "Total_Power.csv"),
-#   row.names = FALSE
-# )
-# 
-# 
-# df_diagnosis %>% 
-#   dplyr::mutate(Month = lubridate::month(Date, label = T)) %>% 
-#   dplyr::group_by(Month) %>% 
-#   dplyr::count()
+df_diagnosis <- data.frame()
+
+for (context_idx in 1:length(context_folder_vector)) {
+  df <- data.frame()
+
+  for (cluster_idx in c(1:5)) {
+    df_tmp <-
+      read.csv(file = file.path(
+        context_folder_vector[context_idx],
+        paste0("anomaly_results_Cluster_", cluster_idx, ".csv")
+      )) %>%
+      dplyr::mutate(Cluster = cluster_idx)
+
+    df <- rbind(df, df_tmp)
+
+  }
+
+  df <- df %>%
+    dplyr::arrange(Date) %>%
+    dplyr::mutate(severity = cmp_score + energy_score)
+
+  dev.new()
+
+  png(
+    filename = file.path(
+      "Polito_Usecase",
+      "figures",
+      paste0("calendar_result_context_",
+             context_idx, ".png")
+
+    ),
+    res = 200,
+    width = 1900,
+    height = 800
+  )
+
+  print({
+    extra.calendarHeat(
+      dates =  df$Date,
+      values = df$severity,
+      pvalues = df$Cluster,
+      pch.symbol = c(0:5),
+      cex.symbol = 0.7,
+      fontfamily = font_family,
+      col.symbol = 'gray30',
+      color = 'palette'
+    )
+  })
+
+  dev.off()
+
+
+  df_diagnosis <-
+    rbind(
+      df_diagnosis,
+      df %>% dplyr::filter(severity >= 6) %>% dplyr::mutate(context = context_idx)
+    )
+
+
+
+}
+
+# save only severity >= 6 for total power
+write.csv(
+  df_diagnosis,
+  file = file.path("Polito_Usecase", "diagnosis", "Total_Power.csv"),
+  row.names = FALSE
+)
+
+
+df_diagnosis %>%
+  dplyr::mutate(Month = lubridate::month(Date, label = T)) %>%
+  dplyr::group_by(Month) %>%
+  dplyr::count()
 
 # these are the dates detected as anomalous
 subloads <- c(
