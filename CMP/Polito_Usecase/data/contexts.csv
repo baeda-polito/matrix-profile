@@ -1,6 +1,5 @@
 from,to,context_string,context_string_small,duration,observations
 00:00,01:00,"Subsequences of 05:45 h (m = 23) that start in [00:00,01:00)",ctx_from00_00_to01_00_m05_45,1 h,4
-05:45,06:45,"Subsequences of 02:30 h (m = 10) that start in [05:45,06:45)",ctx_from05_45_to06_45_m02_30,1 h,4
-08:15,09:15,"Subsequences of 06:45 h (m = 27) that start in [08:15,09:15)",ctx_from08_15_to09_15_m06_45,1 h,4
-15:00,16:00,"Subsequences of 03:30 h (m = 14) that start in [15:00,16:00)",ctx_from15_00_to16_00_m03_30,1 h,4
-18:30,19:30,"Subsequences of 04:45 h (m = 19) that start in [18:30,19:30)",ctx_from18_30_to19_30_m04_45,1 h,4
+05:15,06:15,"Subsequences of 06:00 h (m = 24) that start in [05:15,06:15)",ctx_from05_15_to06_15_m06_00,1 h,4
+11:15,12:15,"Subsequences of 06:00 h (m = 24) that start in [11:15,12:15)",ctx_from11_15_to12_15_m06_00,1 h,4
+17:15,18:15,"Subsequences of 06:00 h (m = 24) that start in [17:15,18:15)",ctx_from17_15_to18_15_m06_00,1 h,4

@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
     # The number of time window has been selected from CART on total electrical power,
     # results are contained in 'time_window.csv' file
-    df_time_window = pd.read_csv(path_to_data + "time_window_corrected.csv")
+    df_time_window = pd.read_csv(path_to_data + "time_window_corrected_fixed.csv")
 
     # The context is defined as 1 hour before time window, to be consistent with other analysis,
     # results are loaded from 'm_context.csv' file

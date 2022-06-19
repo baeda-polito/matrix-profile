@@ -1,0 +1,5 @@
+"id","description","observations","from","to","duration","node"
+1,[00:00 - 06:00),24,"00:00",06:00,21600s (~6 hours),Node fixed
+2,[06:00 - 12:00),24,06:00,12:00,21600s (~6 hours),Node fixed
+3,[12:00 - 18:00),24,12:00,18:00,21600s (~6 hours),Node fixed
+5,[18:00 - 24:00),24,18:00,"24:00",21600s (~6 hours),Node fixed
