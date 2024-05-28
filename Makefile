@@ -31,6 +31,7 @@ activate:
 clean: ## Remove build and cache files
 clean:
 	rm -rf *.egg-info
+	rm -rf src/*.egg-info
 	rm -rf build
 	rm -rf dist
 	rm -rf .pytest_cache
