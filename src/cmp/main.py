@@ -1,17 +1,15 @@
 # import from default libraries and packages
 import datetime  # data
-import os  # OS handling utils
+import os
 from statistics import mean
 
 # import matplotlib.pyplot as plt  # plots
 import numpy as np  # general data manipulation
 import pandas as pd  # dataframe handling
-
+from jinja2 import Environment, FileSystemLoader
 # import scipy.stats as stats
-from matplotlib import rc, pyplot as plt  # font plot
+from matplotlib import pyplot as plt  # font plot
 from scipy.stats import stats
-
-from src.cmp.utils import hour_to_dec, dec_to_hour, CMP_plot
 
 from anomaly_detection_functions import (extract_vector_ad_energy,
                                          extract_vector_ad_temperature,
@@ -25,12 +23,27 @@ from src.distancematrix.consumer.contextual_matrix_profile import ContextualMatr
 from src.distancematrix.generator.euclidean import Euclidean
 # from src.distancematrix.generator import Euclidean
 # import from custom modules useful functions
-from utils import roundup, hour_to_dec, dec_to_hour, nan_diag, dec_to_obs
+from utils import hour_to_dec, dec_to_hour, nan_diag, dec_to_obs
 
 if __name__ == '__main__':
-    ########################################################################################
+    # define a begin time to evaluate execution time & performance of algorithm
+    begin_time = datetime.datetime.now()
+
+    # The context is a dict defining parameters for report generation
+    context = {
+        'title': 'Anomaly detection report',
+        'subtitle': f'Generated on {begin_time.strftime("%Y-%m-%d %H:%M:%S")}',
+        'sections': [],
+        'footer_text': '© 2024 Roberto Chiosa'
+    }
+    # Set up the Jinja2 environment for report
+    env = Environment(loader=FileSystemLoader('.'))
+    template = env.get_template(os.path.join('templates', 'cmp.html'))
+
+    # Path to folders
     path_to_data = os.path.join('data')
     path_to_figures = os.path.join('results', 'figures')
+    path_to_reports = os.path.join('results', 'reports')
 
     # from global variables load todo: simplify the wau global variables are defined
     global_variables = pd.read_csv(os.path.join(path_to_data, "global_variables.csv"), header=0)
@@ -53,12 +66,6 @@ if __name__ == '__main__':
     plt.rcParams.update({'font.size': fontsize})
     # plt.style.use("seaborn-paper")
     plt.rcParams.update({'figure.max_open_warning': 0})
-
-    # define a begin time to evaluate execution time & performance of algorithm
-    begin_time = datetime.datetime.now()
-    print('\n*********************\n' +
-          'RUNNING Polito_Usecase.py\n' +
-          'START: ' + begin_time.strftime("%Y-%m-%d %H:%M:%S"))
 
     ########################################################################################
     # PREPROCESSING
@@ -91,16 +98,15 @@ if __name__ == '__main__':
     position_y = 750  # [kW] position of day annotation on y axis
 
     # print dataset main characteristics
-    print(f'\n*********************\n'
-          f'DATASET: Electrical Load dataset from {electrical_load}\n'
-          f'- From\t{data.index[0]}\n'
-          f'- To\t{data.index[len(data) - 1]}\n'
-          f'- {len(data.index[::obs_per_day])}\tdays\n'
-          f'- 1 \tobservations every 15 min\n'
-          f'- {obs_per_day}\tobservations per day\n'
-          f'- {obs_per_hour}\tobservations per hour\n'
-          f'- {len(data)}observations'
-          )
+    summary = f'\n*********************\n' \
+              f'DATASET: Electrical Load dataset from {electrical_load}\n' \
+              f'- From\t{data.index[0]}\n' \
+              f'- To\t{data.index[len(data) - 1]}\n' \
+              f'- {len(data.index[::obs_per_day])}\tdays\n' \
+              f'- 1 \tobservations every 15 min\n' \
+              f'- {obs_per_day}\tobservations per day\n' \
+              f'- {obs_per_hour}\tobservations per hour\n' \
+              f'- {len(data)}observations'
 
     # Visualise the data
     plt.figure(figsize=(10, 4))
@@ -131,11 +137,23 @@ if __name__ == '__main__':
         plt.text(timestamp, position_y, timestamp.day_name()[:3])
 
     plt.tight_layout()
+    # remove background to transparent
 
     # save figure to plot directories
     plt.savefig(os.path.join(path_to_figures, f"dataset_{electrical_load}.png"), dpi=dpi_resolution,
-                bbox_inches='tight')
+                bbox_inches='tight', transparent=True)
     plt.close()
+    context['sections'].append({
+        "title": "Dataset Summary",
+        "content": summary,
+        "plot": os.path.join('..', 'figures', f"dataset_{electrical_load}.png")
+    })
+    # Render the template with the data
+    html_content = template.render(context)
+
+    # Save the rendered HTML to a file (optional, for inspection)
+    with open(os.path.join('results', 'reports', 'report_cmp.html'), 'w') as file:
+        file.write(html_content)
 
     ########################################################################################
     # Define configuration for the Contextual Matrix Profile calculation.
@@ -633,3 +651,10 @@ if __name__ == '__main__':
     minutes, seconds = divmod(remainder, 60)
     print('\n*********************\n' + "END: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     print("TOTAL " + str(int(minutes)) + ' min ' + str(int(seconds)) + ' s')
+
+    # Render the template with the data
+    html_content = template.render(context)
+
+    # Save the rendered HTML to a file (optional, for inspection)
+    with open(os.path.join('results', 'reports', 'report_cmp.html'), 'w') as file:
+        file.write(html_content)
