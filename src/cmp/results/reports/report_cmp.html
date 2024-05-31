@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly detection report</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<main>
+    <body>
+    <div class="container py-4">
+        <!-- Report Header -->
+        <div class="pb-3 mb-4 border-bottom">
+            <h1>Anomaly detection report</h1>
+            <p>Generated on 2024-05-31 20:40:50</p>
+        </div>
+
+        <!-- Additional Sections -->
+        
+        <div class="p-5 mb-4 bg-light rounded-3">
+            <h2>Dataset Summary</h2>
+            <p>
+*********************
+DATASET: Electrical Load dataset from Total_Power
+- From	2019-01-01 00:00:00
+- To	2019-12-31 23:45:00
+- 365	days
+- 1 	observations every 15 min
+- 96	observations per day
+- 4	observations per hour
+- 35040observations</p>
+            <img src="../figures/dataset_Total_Power.png" style="width: 100%; height: auto;"/>
+        </div>
+        
+
+        <!-- Footer -->
+
+        <footer class="pt-3 mt-4 text-muted border-top">
+            <p>© 2024 Roberto Chiosa</p>
+        </footer>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
+</main>
+</html>
