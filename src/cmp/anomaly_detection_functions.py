@@ -32,6 +32,8 @@ def boxplot_fun(group, vector_ad):
     ax.set_ylabel('Distribution of the columns median')
     ax.axes.get_xaxis().set_visible(False)  # remove x-axis
     ax.set_title('Notched box plot')
+    # close
+    plt.close(fig)
 
     # get the outliers
     outliers_both_whisker = [flier.get_ydata() for flier in bp["fliers"]]
@@ -86,7 +88,7 @@ def zscore_fun(group, vector_ad, upper_bound=2):
     fig, ax = plt.subplots()
     sns.kdeplot(data=zscore)
     plt.axvline(x=upper_bound, ymin=0, ymax=1, linestyle='dashed', color='gray')
-
+    plt.close(fig)
     # create an array of medians according cluster on yearly period
     outliers = np.zeros(group.size)
     j = 0
@@ -255,6 +257,7 @@ def gesd_fun(group, vector_ad):
 
     fig, ax = plt.subplots()
     stats.probplot(vector_ad, dist="norm", plot=plt)
+    plt.close(fig)
 
     n_outliers = gesd_esd_test(input_series=vector_ad, alpha=0.05, max_outliers=10)
 
@@ -320,7 +323,7 @@ def extract_vector_ad_energy(group, data_full, tw, tw_id):
     # filter
     data_tmp = data_tmp[data_tmp.time_window == True]
     # calculate energy
-    data_tmp_summary = data_tmp.groupby(['Date']).energy.agg(sum)
+    data_tmp_summary = data_tmp.groupby(['Date']).energy.agg('sum')
     # keep only stuff related to the group
     data_tmp_summary = data_tmp_summary[group]
     # convert to array for further processing

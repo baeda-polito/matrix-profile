@@ -12,6 +12,10 @@
             }
         }
     </style>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <main>
     <body>
@@ -27,7 +31,8 @@
         <div class="p-5 mb-4 bg-light rounded-3">
             <h2>{{ section.title }}</h2>
             <p>{{ section.content }}</p>
-            <img src="{{ section.plot }}" style="width: 100%; height: auto;"/>
+            {{ section.plot }}
+            <!--            <img src="{{ section.plot }}" style="width: 100%; height: auto;"/>-->
         </div>
         {% endfor %}
 
@@ -38,10 +43,6 @@
         </footer>
     </div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     </body>
 </main>
 </html>

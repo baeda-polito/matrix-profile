@@ -1,10 +1,71 @@
 # import from default libraries and packages
 import math
+import os
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
+import pandas as pd
+from jinja2 import Environment, FileSystemLoader
+
+
+def save_report(context):
+    """Save the report to a file
+
+    :param context: context of the report
+    :type context: dict
+
+    :example:
+    >>> save_report(context)
+    """
+    # Set up the Jinja2 environment for report
+    env = Environment(loader=FileSystemLoader('.'))
+    template = env.get_template(os.path.join('templates', 'cmp.html'))
+
+    # Render the template with the data
+    html_content = template.render(context)
+
+    # Save the rendered HTML to a file (optional, for inspection)
+    with open(os.path.join('results', 'reports', 'report_cmp.html'), 'w') as file:
+        file.write(html_content)
+
+
+def load_data(variable):
+    """Load data from a file
+
+    :param variable:
+    :return data: data from the file
+    :rtype data: pd.DataFrame
+
+    :example:
+    >>> load_data('data/raw/data.csv')
+    """
+    path_to_data = os.path.join('data')
+    data_raw = pd.read_csv(os.path.join(path_to_data, "polito_raw.csv"))
+    # subset the dataset into 3 columns
+    data_raw = data_raw[['Date_Time', variable, 'AirTemp']]
+    # rename columns
+    data_raw = data_raw.rename(columns={"Date_Time": "timestamp", variable: "value", "AirTemp": "temp"})
+    # convert timestamp to datetime
+    data_raw['timestamp'] = pd.to_datetime(data_raw['timestamp'])
+    data_raw = data_raw.set_index('timestamp')
+    data = data_raw.copy()  # todo preprocess if necessary
+    return data
+
+
+def ensure_dir(dir_path):
+    """Ensures that the directory exists
+
+    :param file_path: path to the file
+    :type file_path: str
+
+    :example:
+    >>> ensure_dir('data/processed')
+    """
+    directory = os.path.dirname(dir_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 
 def hour_to_dec(hour_str):

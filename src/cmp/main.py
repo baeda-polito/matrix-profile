@@ -6,15 +6,13 @@ from statistics import mean
 # import matplotlib.pyplot as plt  # plots
 import numpy as np  # general data manipulation
 import pandas as pd  # dataframe handling
-from jinja2 import Environment, FileSystemLoader
+import plotly.express as px
+from matplotlib import dates as mdates
 # import scipy.stats as stats
-from matplotlib import pyplot as plt  # font plot
-from scipy.stats import stats
+from scipy.stats import zscore
 
-from anomaly_detection_functions import (extract_vector_ad_energy,
-                                         extract_vector_ad_temperature,
-                                         extract_vector_ad_cmp,
-                                         anomaly_detection)
+from src.cmp.anomaly_detection_functions import anomaly_detection, extract_vector_ad_temperature, \
+    extract_vector_ad_energy, extract_vector_ad_cmp
 # import from the local module distancematrix
 from src.distancematrix.calculator import AnytimeCalculator
 # from src.distancematrix.consumer import ContextualMatrixProfile
@@ -23,7 +21,7 @@ from src.distancematrix.consumer.contextual_matrix_profile import ContextualMatr
 from src.distancematrix.generator.euclidean import Euclidean
 # from src.distancematrix.generator import Euclidean
 # import from custom modules useful functions
-from utils import hour_to_dec, dec_to_hour, nan_diag, dec_to_obs
+from utils import hour_to_dec, dec_to_hour, nan_diag, dec_to_obs, ensure_dir, load_data, save_report
 
 if __name__ == '__main__':
     # define a begin time to evaluate execution time & performance of algorithm
@@ -36,9 +34,6 @@ if __name__ == '__main__':
         'sections': [],
         'footer_text': '© 2024 Roberto Chiosa'
     }
-    # Set up the Jinja2 environment for report
-    env = Environment(loader=FileSystemLoader('.'))
-    template = env.get_template(os.path.join('templates', 'cmp.html'))
 
     # Path to folders
     path_to_data = os.path.join('data')
@@ -47,7 +42,6 @@ if __name__ == '__main__':
 
     # from global variables load todo: simplify the wau global variables are defined
     global_variables = pd.read_csv(os.path.join(path_to_data, "global_variables.csv"), header=0)
-
     color_palette = 'viridis'
     dpi_resolution = 300
     fontsize = 10
@@ -57,45 +51,12 @@ if __name__ == '__main__':
     line_color_other = '#D5D5E0'
     line_size = 1
 
-    # update plot parameters
-    # - font family
-    # - font size
-    # - plot style
-    # - remove warning More than 20 figures have been opened.
-
-    plt.rcParams.update({'font.size': fontsize})
-    # plt.style.use("seaborn-paper")
-    plt.rcParams.update({'figure.max_open_warning': 0})
-
     ########################################################################################
-    # PREPROCESSING
-    # load full dataset
-    data_raw = pd.read_csv(os.path.join(path_to_data, "polito_raw.csv"))
-
     electrical_load = 'Total_Power'
-
-    # subset the dataset into 3 columns
-    data_raw = data_raw[['Date_Time', electrical_load, 'AirTemp']]
-
-    # rename columns
-    data_raw = data_raw.rename(columns={"Date_Time": "timestamp", electrical_load: "value", "AirTemp": "temp"})
-    # convert timestamp to datetime
-    data_raw['timestamp'] = pd.to_datetime(data_raw['timestamp'])
-    data_raw = data_raw.set_index('timestamp')
-    data = data_raw.copy()  # todo preprocess if necessary
+    data = load_data(electrical_load)
 
     obs_per_day = 96  # [observation/day]
     obs_per_hour = 4  # [observation/hour]
-
-    min_power = 0  # [kW] minimum value of power
-    # max_power = 850  # [kW]   # maximum value of power
-    max_power = round(max(data['value']))
-
-    # define ticks for plot
-    ticks_power = list(range(min_power, max_power, round(max_power / 6)))
-
-    position_x = 6  # [kW] position of day annotation on x axis
-    position_y = 750  # [kW] position of day annotation on y axis
 
     # print dataset main characteristics
     summary = f'\n*********************\n' \
@@ -108,52 +69,14 @@ if __name__ == '__main__':
               f'- {obs_per_hour}\tobservations per hour\n' \
               f'- {len(data)}observations'
 
-    # Visualise the data
-    plt.figure(figsize=(10, 4))
-
-    plt.subplot(2, 1, 1)
-    plt.title("Total Electrical Load (complete)")
-    plt.plot(data)
-    plt.ylabel("Power [kW]")
-    plt.gca().set_ylim([min_power, max_power])
-    plt.gca().set_yticks(ticks_power)
-
-    plt.subplot(2, 1, 2)
-    plt.title("Total Electrical Load (first two weeks)")
-    plt.plot(data.iloc[:4 * 24 * 7 * 2])
-    plt.ylabel("Power [kW]")
-    plt.gca().set_ylim([min_power, max_power])
-    plt.gca().set_yticks(ticks_power)
-
-    # plt.gca().xaxis.set_major_locator(mdates.DayLocator([1, 8, 15]))
-    # plt.gca().xaxis.set_minor_locator(mdates.DayLocator())
-    # plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
-
-    # plt.grid(b=True, axis="x", which='both', color='black', linestyle=':')
-
-    # add day labels on plot
-    for id_cluster in range(14):
-        timestamp = data.index[position_x + id_cluster * obs_per_day]
-        plt.text(timestamp, position_y, timestamp.day_name()[:3])
-
-    plt.tight_layout()
-    # remove background to transparent
-
-    # save figure to plot directories
-    plt.savefig(os.path.join(path_to_figures, f"dataset_{electrical_load}.png"), dpi=dpi_resolution,
-                bbox_inches='tight', transparent=True)
-    plt.close()
+    # Visualise the data  with plotly line plot
+    fig = px.line(data, title='Life expectancy in Canada')
+    fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
     context['sections'].append({
         "title": "Dataset Summary",
         "content": summary,
-        "plot": os.path.join('..', 'figures', f"dataset_{electrical_load}.png")
+        "plot": fig.to_html(full_html=False)
     })
-    # Render the template with the data
-    html_content = template.render(context)
-
-    # Save the rendered HTML to a file (optional, for inspection)
-    with open(os.path.join('results', 'reports', 'report_cmp.html'), 'w') as file:
-        file.write(html_content)
 
     ########################################################################################
     # Define configuration for the Contextual Matrix Profile calculation.
@@ -240,9 +163,7 @@ if __name__ == '__main__':
               'CONTEXT ' + str(id_tw + 1) + ' : ' + context_string + " (" + context_string_small + ")")
 
         # if figures directory doesnt exists create and save into it
-        # todo convert into ensuredir function
-        if not os.path.exists(os.path.join(path_to_figures, context_string_small)):
-            os.makedirs(os.path.join(path_to_figures, context_string_small))
+        ensure_dir(os.path.join(path_to_figures, context_string_small))
 
         '''
         # Context Definition:
@@ -260,8 +181,6 @@ if __name__ == '__main__':
             for x in range(len(data) // obs_per_day)
         ])
         '''
-
-        # todo: add 1 to contexts
         # Context Definition:
         contexts = GeneralStaticManager([
             range(
@@ -288,8 +207,7 @@ if __name__ == '__main__':
         print("\n")
 
         # if data directory doesnt exists create and save into it
-        if not os.path.exists(os.path.join(path_to_data, context_string_small)):
-            os.makedirs(os.path.join(path_to_data, context_string_small))
+        ensure_dir(os.path.join(path_to_data, context_string_small))
 
         # Save CMP for R plot (use to_csv)
         np.savetxt(os.path.join(path_to_data, context_string_small, 'plot_cmp_full.csv'),
@@ -306,26 +224,18 @@ if __name__ == '__main__':
                    cmp.match_index_series,
                    delimiter=",")
 
-        '''
         # calculate the date labels to define the extent of figure
         date_labels = mdates.date2num(data.index[::m].values)
-        # plot CMP as matrix
-        plt.figure(figsize=(10, 10))
 
-        extents = [date_labels[0], date_labels[-1], date_labels[0], date_labels[-1]]
-        CMP_plot(contextual_mp=cmp.distance_matrix,
-                 palette=color_palette,
-                 title='Contextual Matrix Profile',
-                 extent=extents,
-                 legend_label=distance_string,
-                 date_ticks=14 * 2
-                 )
+        fig = px.imshow(cmp.distance_matrix)
+        fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+        context['sections'].append({
+            "title": "Context " + str(id_tw + 1),
+            "content": fig.to_html(full_html=False),
+            "plot": None
+        })
 
-        plt.savefig(path_to_figures + context_string_small + os.sep + "cmp_context.png",
-                    dpi=dpi_resolution,
-                    bbox_inches='tight')
-        plt.close()
-        '''
+        save_report(context)
 
         ########################################################################################
         # Load Cluster results as boolean dataframe: each column represents a group
@@ -461,8 +371,6 @@ if __name__ == '__main__':
                 cmp_ad_score_plot = cmp_ad_score[ad_order][0:num_anomalies_to_show]
 
                 '''
-
-
                 # Visualise the top anomalies according to the CMP
                 fig, ax = plt.subplots(num_anomalies_to_show, 2,
                                        sharex='all',
@@ -627,7 +535,7 @@ if __name__ == '__main__':
                                                                          "vector_ad_energy"] - mean_energy
             df_result_context_cluster["vector_ad_energy_relative"] = (df_result_context_cluster[
                                                                           "vector_ad_energy"] / mean_energy - 1) * 100
-            df_result_context_cluster["vector_ad_temperature"] = stats.zscore(vector_ad_temperature)
+            df_result_context_cluster["vector_ad_temperature"] = zscore(vector_ad_temperature)
 
             df_result_context_cluster.to_csv(
                 os.path.join(path_to_data, context_string_small, f'anomaly_results_{group_name}.csv'), index=False)
@@ -652,9 +560,4 @@ if __name__ == '__main__':
     print('\n*********************\n' + "END: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     print("TOTAL " + str(int(minutes)) + ' min ' + str(int(seconds)) + ' s')
 
-    # Render the template with the data
-    html_content = template.render(context)
-
-    # Save the rendered HTML to a file (optional, for inspection)
-    with open(os.path.join('results', 'reports', 'report_cmp.html'), 'w') as file:
-        file.write(html_content)
+    save_report(context)
