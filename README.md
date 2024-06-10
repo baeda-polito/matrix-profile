@@ -17,9 +17,7 @@ clustering etc.
 
 ## Getting started
 
-You can setup the project using the following commands:
-
-1. Create virtual environment and activate it and install dependencies:
+Create virtual environment and activate it and install dependencies:
 
 - Makefile
   ```bash
@@ -38,16 +36,15 @@ You can setup the project using the following commands:
   pip install -r requirements.txt
   ```
 
-2. Run the main script through the console:
-   ```bash
-   source .venv/bin/activate
-   python -m src.cmp.main
-   ```
+Run the main script through the console:
+```bash
+source .venv/bin/activate
+python -m src.cmp.main
+```
 
 You should see in the terminal a message output like the following:
 
 ```txt
-*********************
 CONTEXT 1 : Subsequences of 05:45 h (m = 23) that start in [00:00,01:00) (ctx_from00_00_to01_00_m05_45)
 99.997%        0.0 sec
 
@@ -58,13 +55,12 @@ CONTEXT 1 : Subsequences of 05:45 h (m = 23) that start in [00:00,01:00) (ctx_fr
 - Cluster 5 (-)         -> no anomalies green
 ```
 
-At the end of the execution you can find the results in the `results` folder.
+At the end of the execution you can find the results in the [`results`](src/cmp/results) folder.
 
 
 ## Run using docker
-To run the analysis using docker you should build and run the docker image as follows.
 
-1. Build the docker image:
+Build the docker image.
 - Makefile
   ```bash
   make docker-build
@@ -74,8 +70,7 @@ To run the analysis using docker you should build and run the docker image as fo
   docker build -t cmp .
   ```
 
-2. Run the docker image:
-
+Run the docker image.
 - Makefile
   ```bash
   make docker-run
@@ -84,7 +79,9 @@ To run the analysis using docker you should build and run the docker image as fo
   ```bash
   docker run cmp
   ```
-   
+
+At the end of the execution you can find the results in the [`results`](src/cmp/results) folder.
+
 ### Context definition
 
 ```

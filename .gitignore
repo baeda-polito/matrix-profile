@@ -109,3 +109,4 @@ GitHub.sublime-settings
 *.html
 *.csv
 *.png
+.DS_Store
