@@ -7,7 +7,7 @@ import scipy.stats as stats
 import seaborn as sns
 from kneed import KneeLocator
 
-from utils import hour_to_dec
+from src.cmp.utils import hour_to_dec
 
 
 def boxplot_fun(group, vector_ad):
@@ -427,16 +427,3 @@ def anomaly_detection(group, vector_ad):
     return ad_score
 
 
-if __name__ == '__main__':
-    path_to_data = 'Polito_Usecase' + os.sep + 'data'
-    path_to_figures = 'Polito_Usecase' + os.sep + 'figures'
-
-    group_csv = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group.csv", header=None)
-    group_cmp_csv = pd.read_csv(path_to_data + os.sep + 'ad_data' + os.sep + "group_cmp.csv", header=None)
-
-    group_array = np.asarray(group_csv[0], dtype=bool)
-    group_cmp_array = np.asarray(group_cmp_csv)
-
-    # in the code data looks like this
-    cmp_ad_score_result = anomaly_detection(group_array, group_cmp_array)
-    print("end")

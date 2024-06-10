@@ -9,6 +9,21 @@ import numpy as np
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 
+# Path to folders
+path_to_data = os.path.join(os.path.dirname(__file__), 'data')
+path_to_figures = os.path.join(os.path.dirname(__file__), 'results', 'figures')
+path_to_reports = os.path.join(os.path.dirname(__file__), 'results', 'reports')
+path_to_templates = os.path.join(os.path.dirname(__file__), 'templates')
+
+
+def calculate_time_windows():
+    """
+    Calculate the time windows for the contextual matrix profile
+    :return:
+    """
+    df = pd.read_csv(os.path.join(path_to_data, "time_window_corrected.csv"))
+    return df
+
 
 def save_report(context):
     """Save the report to a file
@@ -21,13 +36,13 @@ def save_report(context):
     """
     # Set up the Jinja2 environment for report
     env = Environment(loader=FileSystemLoader('.'))
-    template = env.get_template(os.path.join('templates', 'cmp.html'))
+    template = env.get_template(os.path.join(path_to_templates, 'cmp.html'))
 
     # Render the template with the data
     html_content = template.render(context)
 
     # Save the rendered HTML to a file (optional, for inspection)
-    with open(os.path.join('results', 'reports', 'report_cmp.html'), 'w') as file:
+    with open(os.path.join(path_to_reports, 'report_cmp.html'), 'w') as file:
         file.write(html_content)
 
 
@@ -41,7 +56,6 @@ def load_data(variable):
     :example:
     >>> load_data('data/raw/data.csv')
     """
-    path_to_data = os.path.join('data')
     data_raw = pd.read_csv(os.path.join(path_to_data, "polito_raw.csv"))
     # subset the dataset into 3 columns
     data_raw = data_raw[['Date_Time', variable, 'AirTemp']]
@@ -63,9 +77,8 @@ def ensure_dir(dir_path):
     :example:
     >>> ensure_dir('data/processed')
     """
-    directory = os.path.dirname(dir_path)
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
 
 
 def hour_to_dec(hour_str):

@@ -16,7 +16,10 @@ help:
 setup: ## Setup the project
 setup:
 	python3 -m venv .venv;
-	$(VENV); pip install --upgrade pip
+	$(VENV);
+	pip install --upgrade pip;
+	pip install .;
+	pip install -r requirements.txt;
 
 
 build: ## Build package and generate distribution archives
@@ -37,3 +40,11 @@ clean:
 	rm -rf .pytest_cache
 	# Remove all pycache
 	find . | grep -E "(__pycache__|\.pyc|\.pyo)" | xargs rm -rf
+
+docker-build: ## Build docker image
+docker-build:
+	docker build -t cmp .
+
+docker-run: ## Build docker image
+docker-run:
+	docker run cmp

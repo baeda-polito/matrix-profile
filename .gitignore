@@ -106,6 +106,6 @@ GitHub.sublime-settings
 !.vscode/extensions.json
 .history
 
-
-.csv
-.png
+*.html
+*.csv
+*.png

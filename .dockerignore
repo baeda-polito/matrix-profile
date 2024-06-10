@@ -1,0 +1,42 @@
+test
+docs
+
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environment
+.env
+.venv/
+venv/
+
+# PyCharm
+.idea
+
+# VS Code
+.vscode/
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose.yml
+Dockerfile
+.docker
+.dockerignore
