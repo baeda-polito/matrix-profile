@@ -7,7 +7,7 @@ clustering etc.
 
 
 
-![](/Paper/images/Fig%201%20-%20MP%20and%20CMP%20explained%403.png)
+![](./docs/example.png)
 
 ## Project Organization
 
