@@ -1,0 +1,5 @@
+from,to,context_string,context_string_small,duration,observations
+00:00,01:00,"Subsequences of 05:45 h (m = 23) that start in [00:00,01:00)",ctx_from00_00_to01_00_m05_45,1 h,4
+05:15,06:15,"Subsequences of 06:00 h (m = 24) that start in [05:15,06:15)",ctx_from05_15_to06_15_m06_00,1 h,4
+11:15,12:15,"Subsequences of 06:00 h (m = 24) that start in [11:15,12:15)",ctx_from11_15_to12_15_m06_00,1 h,4
+17:15,18:15,"Subsequences of 06:00 h (m = 24) that start in [17:15,18:15)",ctx_from17_15_to18_15_m06_00,1 h,4
