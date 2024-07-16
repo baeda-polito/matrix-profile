@@ -1,3 +1,7 @@
+#  Copyright © Roberto Chiosa 2024.
+#  Email: roberto.chiosa@polito.it
+#  Last edited: 16/7/2024
+
 import numpy as np
 from ..util import diag_indices_of
 from .abstract_consumer import AbstractStreamingConsumer

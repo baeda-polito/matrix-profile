@@ -1,4 +1,6 @@
-import os
+#  Copyright © Roberto Chiosa 2024.
+#  Email: roberto.chiosa@polito.it
+#  Last edited: 16/7/2024
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -425,5 +427,3 @@ def anomaly_detection(group, vector_ad):
     ad_score = np.asarray(df['severity'])
 
     return ad_score
-
-

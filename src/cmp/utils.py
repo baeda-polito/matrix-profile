@@ -1,7 +1,9 @@
-# import from default libraries and packages
-import math
+#  Copyright © Roberto Chiosa 2024.
+#  Email: roberto.chiosa@polito.it
+#  Last edited: 16/7/2024
 import os
 
+import math
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker

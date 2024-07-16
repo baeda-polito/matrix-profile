@@ -1,11 +1,15 @@
+#  Copyright © Roberto Chiosa 2024.
+#  Email: roberto.chiosa@polito.it
+#  Last edited: 16/7/2024
+
 import numpy as np
 from unittest import TestCase
 import numpy.testing as npt
 from itertools import takewhile
 
-from distancematrix.consumer.radius_profile import RadiusProfile0
-from distancematrix.consumer.radius_profile import RadiusProfile
-from distancematrix.insights import lowest_value_idxs
+from src.distancematrix.consumer.radius_profile import RadiusProfile0
+from src.distancematrix.consumer.radius_profile import RadiusProfile
+from src.distancematrix.insights import lowest_value_idxs
 
 
 class TestRadiusProfile0(TestCase):

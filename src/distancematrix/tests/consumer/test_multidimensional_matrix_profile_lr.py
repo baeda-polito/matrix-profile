@@ -1,10 +1,14 @@
+#  Copyright © Roberto Chiosa 2024.
+#  Email: roberto.chiosa@polito.it
+#  Last edited: 16/7/2024
+
 import numpy as np
 from unittest import TestCase
 import numpy.testing as npt
 
-from distancematrix.util import diag_indices_of
-from distancematrix.util import diag_indices
-from distancematrix.consumer.multidimensional_matrix_profile_lr import MultidimensionalMatrixProfileLR
+from src.distancematrix.util import diag_indices_of
+from src.distancematrix.util import diag_indices
+from src.distancematrix.consumer.multidimensional_matrix_profile_lr import MultidimensionalMatrixProfileLR
 
 
 class TestContextualMatrixProfile(TestCase):

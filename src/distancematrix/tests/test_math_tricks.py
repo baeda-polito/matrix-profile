@@ -1,3 +1,7 @@
+#  Copyright © Roberto Chiosa 2024.
+#  Email: roberto.chiosa@polito.it
+#  Last edited: 16/7/2024
+
 import numpy as np
 from unittest import TestCase
 import numpy.testing as npt
@@ -15,6 +19,7 @@ def brute_sliding_var(data, m):
 
 def brute_sliding_std(data, m):
     return np.array([np.std(data[i:i + m]) for i in range(len(data) - m + 1)])
+
 
 MEAN_STABILITY_DATA = np.array([
     0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,

@@ -1,3 +1,7 @@
+#  Copyright © Roberto Chiosa 2024.
+#  Email: roberto.chiosa@polito.it
+#  Last edited: 16/7/2024
+
 import numpy as np
 import time
 import random
@@ -5,8 +9,8 @@ from collections import OrderedDict
 from math import ceil
 from abc import ABC, abstractmethod
 
-from distancematrix.interrupt_util import interrupt_catcher
-from distancematrix.util import diag_length
+from src.distancematrix.interrupt_util import interrupt_catcher
+from src.distancematrix.util import diag_length
 
 
 class AbstractCalculator(ABC):

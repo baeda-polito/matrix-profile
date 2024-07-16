@@ -1,9 +1,13 @@
+#  Copyright © Roberto Chiosa 2024.
+#  Email: roberto.chiosa@polito.it
+#  Last edited: 16/7/2024
+
 # import from default libraries and packages
 import datetime  # data
 import os
 from statistics import mean
 
-# import matplotlib.pyplot as plt  # plots
+# import matplotlib.pyplot as  plt  # plots
 import numpy as np  # general data manipulation
 import pandas as pd  # dataframe handling
 import plotly.express as px
@@ -12,16 +16,16 @@ from scipy.stats import zscore
 
 from src.cmp.anomaly_detection_functions import anomaly_detection, extract_vector_ad_temperature, \
     extract_vector_ad_energy, extract_vector_ad_cmp
+# from src.distancematrix.generator import Euclidean
+# import from custom modules useful functions
+from src.cmp.utils import hour_to_dec, dec_to_hour, nan_diag, dec_to_obs, ensure_dir, load_data, save_report, \
+    path_to_data, path_to_figures
 # import from the local module distancematrix
 from src.distancematrix.calculator import AnytimeCalculator
 # from src.distancematrix.consumer import ContextualMatrixProfile
 from src.distancematrix.consumer.contextmanager import GeneralStaticManager
 from src.distancematrix.consumer.contextual_matrix_profile import ContextualMatrixProfile
 from src.distancematrix.generator.euclidean import Euclidean
-# from src.distancematrix.generator import Euclidean
-# import from custom modules useful functions
-from src.cmp.utils import hour_to_dec, dec_to_hour, nan_diag, dec_to_obs, ensure_dir, load_data, save_report, \
-    path_to_data, path_to_figures
 
 if __name__ == '__main__':
     # define a begin time to evaluate execution time & performance of algorithm
@@ -187,7 +191,8 @@ if __name__ == '__main__':
 
         # USe colorscale consistent in eaxh context
         val_min = 0
-        val_max = np.nanmax(cmp.distance_matrix * np.isfinite(cmp.distance_matrix))
+        # Find the maximum value among the finite values
+        val_max = np.nanmax(cmp.distance_matrix[np.isfinite(cmp.distance_matrix)])
 
         fig = px.imshow(cmp.distance_matrix, zmin=val_min, zmax=round(val_max),
                         labels=dict(color="Distance"),

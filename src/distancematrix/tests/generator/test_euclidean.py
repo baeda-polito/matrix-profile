@@ -1,9 +1,13 @@
+#  Copyright © Roberto Chiosa 2024.
+#  Email: roberto.chiosa@polito.it
+#  Last edited: 16/7/2024
+
 import numpy as np
 from unittest import TestCase
 import numpy.testing as npt
 
-from distancematrix.util import diag_indices
-from distancematrix.generator.euclidean import Euclidean
+from src.distancematrix.util import diag_indices
+from src.distancematrix.generator.euclidean import Euclidean
 
 
 class TestEuclidean(TestCase):
