@@ -17,6 +17,15 @@ path_to_figures = os.path.join(os.path.dirname(__file__), 'results', 'figures')
 path_to_reports = os.path.join(os.path.dirname(__file__), 'results', 'reports')
 path_to_templates = os.path.join(os.path.dirname(__file__), 'templates')
 
+color_palette = 'viridis'
+dpi_resolution = 300
+fontsize = 10
+line_style_context = '-'
+line_style_other = ':'
+line_color_context = '#D83C3B'
+line_color_other = '#D5D5E0'
+line_size = 1
+
 
 def calculate_time_windows():
     """
@@ -37,8 +46,8 @@ def save_report(context):
     >>> save_report(context)
     """
     # Set up the Jinja2 environment for report
-    env = Environment(loader=FileSystemLoader('.'))
-    template = env.get_template(os.path.join(path_to_templates, 'cmp.html'))
+    env = Environment(loader=FileSystemLoader(path_to_templates))
+    template = env.get_template('cmp.html')
 
     # Render the template with the data
     html_content = template.render(context)
@@ -59,6 +68,7 @@ def load_data(variable):
     >>> load_data('data/raw/data.csv')
     """
     data_raw = pd.read_csv(os.path.join(path_to_data, "polito_raw.csv"))
+    # todo add validation on loaded data
     # subset the dataset into 3 columns
     data_raw = data_raw[['Date_Time', variable, 'AirTemp']]
     # rename columns

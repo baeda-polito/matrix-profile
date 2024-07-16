@@ -4,12 +4,9 @@
 
 # import from default libraries and packages
 import datetime  # data
-import os
 from statistics import mean
 
 # import matplotlib.pyplot as  plt  # plots
-import numpy as np  # general data manipulation
-import pandas as pd  # dataframe handling
 import plotly.express as px
 # import scipy.stats as stats
 from scipy.stats import zscore
@@ -18,8 +15,7 @@ from src.cmp.anomaly_detection_functions import anomaly_detection, extract_vecto
     extract_vector_ad_energy, extract_vector_ad_cmp
 # from src.distancematrix.generator import Euclidean
 # import from custom modules useful functions
-from src.cmp.utils import hour_to_dec, dec_to_hour, nan_diag, dec_to_obs, ensure_dir, load_data, save_report, \
-    path_to_data, path_to_figures
+from src.cmp.utils import *
 # import from the local module distancematrix
 from src.distancematrix.calculator import AnytimeCalculator
 # from src.distancematrix.consumer import ContextualMatrixProfile
@@ -38,17 +34,6 @@ if __name__ == '__main__':
         'footer_text': '© 2024 Roberto Chiosa',
         'contexts': []
     }
-
-    # from global variables load todo: simplify the wau global variables are defined
-    global_variables = pd.read_csv(os.path.join(path_to_data, "global_variables.csv"), header=0)
-    color_palette = 'viridis'
-    dpi_resolution = 300
-    fontsize = 10
-    line_style_context = '-'
-    line_style_other = ':'
-    line_color_context = '#D83C3B'
-    line_color_other = '#D5D5E0'
-    line_size = 1
 
     # automatically identify the number of time windows
     # time window equal bin oppure con cart
