@@ -2,13 +2,13 @@
 #  Email: roberto.chiosa@polito.it
 #  Last edited: 16/7/2024
 
-import numpy as np
 from unittest import TestCase
-import numpy.testing as npt
-from itertools import takewhile
 
-from src.distancematrix.consumer.radius_profile import RadiusProfile0
+import numpy as np
+import numpy.testing as npt
+
 from src.distancematrix.consumer.radius_profile import RadiusProfile
+from src.distancematrix.consumer.radius_profile import RadiusProfile0
 from src.distancematrix.insights import lowest_value_idxs
 
 

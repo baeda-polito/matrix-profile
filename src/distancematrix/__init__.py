@@ -2,7 +2,7 @@
 #  Email: roberto.chiosa@polito.it
 #  Last edited: 16/7/2024
 
-import distancematrix.consumer
-import distancematrix.generator
+import src.distancematrix.consumer
+import src.distancematrix.generator
 from src.distancematrix.calculator import AnytimeCalculator
 from src.distancematrix.calculator import StreamingCalculator

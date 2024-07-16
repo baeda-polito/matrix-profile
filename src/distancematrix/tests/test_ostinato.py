@@ -8,9 +8,9 @@ from unittest import TestCase
 import numpy as np
 import numpy.testing as npt
 
-from src.distancematrix.generator import ZNormEuclidean
-from src.distancematrix.consumer import MatrixProfileLR
 from src.distancematrix.calculator import AnytimeCalculator
+from src.distancematrix.consumer import MatrixProfileLR
+from src.distancematrix.generator import ZNormEuclidean
 from src.distancematrix.ostinato import find_consensus_motif, CMResult
 
 

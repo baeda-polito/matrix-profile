@@ -2,17 +2,18 @@
 #  Email: roberto.chiosa@polito.it
 #  Last edited: 16/7/2024
 
-import numpy as np
 from unittest import TestCase
+
+import numpy as np
 import numpy.testing as npt
 
-from src.distancematrix.util import diag_indices_of
-from src.distancematrix.consumer.distance_matrix import DistanceMatrix
 from src.distancematrix.calculator import AnytimeCalculator
 from src.distancematrix.calculator import StreamingCalculator
 from src.distancematrix.calculator import _ratio_to_int
-from src.distancematrix.tests.generator.mock_generator import MockGenerator
 from src.distancematrix.consumer.abstract_consumer import AbstractConsumer
+from src.distancematrix.consumer.distance_matrix import DistanceMatrix
+from src.distancematrix.tests.generator.mock_generator import MockGenerator
+from src.distancematrix.util import diag_indices_of
 
 
 class SummingConsumer(AbstractConsumer):

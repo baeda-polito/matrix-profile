@@ -5,11 +5,11 @@
 import numpy as np
 from scipy.signal import fftconvolve
 
-from src.distancematrix.util import diag_length
-from src.distancematrix.math_tricks import sliding_mean_std
-from src.distancematrix.generator.abstract_generator import AbstractGenerator
 from src.distancematrix.generator.abstract_generator import AbstractBoundStreamingGenerator
+from src.distancematrix.generator.abstract_generator import AbstractGenerator
+from src.distancematrix.math_tricks import sliding_mean_std
 from src.distancematrix.ringbuffer import RingBuffer
+from src.distancematrix.util import diag_length
 
 _EPS = 1e-12
 

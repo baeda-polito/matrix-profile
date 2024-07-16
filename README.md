@@ -5,17 +5,13 @@ simplicity and scalability. In particular it has implications for time series mo
 shapelet discovery (classification), density estimation, semantic segmentation, visualization, rule discovery,
 clustering etc.
 
-
-
 ![](./docs/example.png)
 
 ## Project Organization
 
-- `src`: Folder containing the contextual matrix profile codebase (i.e., folder `cmp`) and necessary packages (i.e., `distancematrix`).
-- `tests`: Contains Python-based test cases to validate source code.
-- `pyproject.toml`: Contains metadata about the project and configurations for additional tools used to format, lint,
-  type-check, and analyze Python code. (
-  See [here](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) for reference)
+- `src`: Folder containing the contextual matrix profile codebase (i.e., folder `cmp`) and necessary packages (
+  i.e., `distancematrix`).
+- `pyproject.toml`: Contains metadata about the project, dependencies and configurations
 
 ## Getting started
 
@@ -29,16 +25,19 @@ Create virtual environment and activate it and install dependencies:
   ```bash
   python3 -m venv .venv
   source .venv/bin/activate
-  pip install -r requirements.txt
+  pip install poetry
+  poetry install
   ```
 - Windows:
   ```bash
   python -m venv venv
   venv\Scripts\activate
-  pip install -r requirements.txt
+  pip install poetry
+  poetry install
   ```
 
 Run the main script through the console:
+
 ```bash
 source .venv/bin/activate
 python -m src.cmp.main
@@ -59,10 +58,10 @@ CONTEXT 1 : Subsequences of 05:45 h (m = 23) that start in [00:00,01:00) (ctx_fr
 
 At the end of the execution you can find the results in the [`results`](src/cmp/results) folder.
 
-
 ## Run using docker
 
 Build the docker image.
+
 - Makefile
   ```bash
   make docker-build
@@ -73,6 +72,7 @@ Build the docker image.
   ```
 
 Run the docker image.
+
 - Makefile
   ```bash
   make docker-run
@@ -126,8 +126,9 @@ contexts = GeneralStaticManager([
 
 You can cite this work by using the following reference or either though [this Bibtex file](./docs/ref.bib).
 
-> Chiosa, Roberto, et al. "Towards a self-tuned data analytics-based process for an automatic context-aware detection and
-diagnosis of anomalies in building energy consumption timeseries." Energy and Buildings 270 (2022): 112302.
+> Chiosa, Roberto, et al. "Towards a self-tuned data analytics-based process for an automatic context-aware detection
+> and
+> diagnosis of anomalies in building energy consumption timeseries." Energy and Buildings 270 (2022): 112302.
 
 ## Contributors
 

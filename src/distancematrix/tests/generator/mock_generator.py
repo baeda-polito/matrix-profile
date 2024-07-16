@@ -4,9 +4,9 @@
 
 import numpy as np
 
-from src.distancematrix.util import diag_indices_of
-from src.distancematrix.generator.abstract_generator import AbstractGenerator
 from src.distancematrix.generator.abstract_generator import AbstractBoundStreamingGenerator
+from src.distancematrix.generator.abstract_generator import AbstractGenerator
+from src.distancematrix.util import diag_indices_of
 
 
 class MockGenerator(AbstractGenerator):

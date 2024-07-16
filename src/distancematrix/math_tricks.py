@@ -3,6 +3,7 @@
 #  Last edited: 16/7/2024
 
 import numpy as np
+
 from src.distancematrix.ringbuffer import RingBuffer
 from src.distancematrix.util import sliding_window_view
 

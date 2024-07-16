@@ -2,9 +2,10 @@
 #  Email: roberto.chiosa@polito.it
 #  Last edited: 16/7/2024
 
+import collections
 from abc import ABC, abstractmethod
 from typing import Iterable, Tuple
-import collections
+
 import numpy as np
 
 

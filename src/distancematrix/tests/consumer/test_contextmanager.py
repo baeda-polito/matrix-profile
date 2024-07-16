@@ -2,9 +2,10 @@
 #  Email: roberto.chiosa@polito.it
 #  Last edited: 16/7/2024
 
-from unittest import TestCase
-import numpy.testing as npt
 from itertools import zip_longest
+from unittest import TestCase
+
+import numpy.testing as npt
 
 from src.distancematrix.consumer.contextmanager import GeneralStaticManager
 

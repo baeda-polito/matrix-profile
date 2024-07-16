@@ -3,14 +3,14 @@
 #  Last edited: 16/7/2024
 
 import unittest
+from unittest import TestCase
 
 import numpy as np
-from unittest import TestCase
 import numpy.testing as npt
 
-from src.distancematrix.valmod import _find_all_motifs_full_matrix_iteration
-from src.distancematrix.valmod import LowerBoundEntry
 from src.distancematrix.generator.znorm_euclidean import ZNormEuclidean
+from src.distancematrix.valmod import LowerBoundEntry
+from src.distancematrix.valmod import _find_all_motifs_full_matrix_iteration
 
 
 class TestValmod(TestCase):

@@ -2,16 +2,17 @@
 #  Email: roberto.chiosa@polito.it
 #  Last edited: 16/7/2024
 
-import numpy as np
-from numpy import nan
 from unittest import TestCase
-import numpy.testing as npt
 
-from src.distancematrix.util import diag_indices_of
-from src.distancematrix.util import diag_indices
+import numpy as np
+import numpy.testing as npt
+from numpy import nan
+
 from src.distancematrix.consumer.matrix_profile_lr import MatrixProfileLR
-from src.distancematrix.consumer.matrix_profile_lr import ShiftingMatrixProfileLR
 from src.distancematrix.consumer.matrix_profile_lr import MatrixProfileLRReservoir
+from src.distancematrix.consumer.matrix_profile_lr import ShiftingMatrixProfileLR
+from src.distancematrix.util import diag_indices
+from src.distancematrix.util import diag_indices_of
 
 
 def brute_force_mp(dist_matrix):

@@ -3,17 +3,18 @@
 #  Last edited: 16/7/2024
 
 from unittest import TestCase
+
 import numpy as np
 import numpy.testing as npt
 
-from src.distancematrix.util import diag_length
+from src.distancematrix.util import cut_indices_of
 from src.distancematrix.util import diag_indices
 from src.distancematrix.util import diag_indices_of
-from src.distancematrix.util import cut_indices_of
-from src.distancematrix.util import shortest_path_distances
+from src.distancematrix.util import diag_length
 from src.distancematrix.util import shortest_path
-from src.distancematrix.util import sliding_min
+from src.distancematrix.util import shortest_path_distances
 from src.distancematrix.util import sliding_max
+from src.distancematrix.util import sliding_min
 from src.distancematrix.util import sliding_window_view
 
 

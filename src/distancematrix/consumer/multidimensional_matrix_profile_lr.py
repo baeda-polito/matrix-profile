@@ -3,8 +3,8 @@
 #  Last edited: 16/7/2024
 
 import numpy as np
-from src.distancematrix.ringbuffer import RingBuffer
 
+from src.distancematrix.ringbuffer import RingBuffer
 from .abstract_consumer import AbstractStreamingConsumer
 
 

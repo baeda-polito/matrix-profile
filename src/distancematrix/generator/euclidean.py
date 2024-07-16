@@ -4,11 +4,11 @@
 
 import numpy as np
 
+from src.distancematrix.generator.abstract_generator import AbstractBoundStreamingGenerator
+from src.distancematrix.generator.abstract_generator import AbstractGenerator
+from src.distancematrix.ringbuffer import RingBuffer
 from src.distancematrix.util import diag_length
 from src.distancematrix.util import sliding_window_view
-from src.distancematrix.ringbuffer import RingBuffer
-from src.distancematrix.generator.abstract_generator import AbstractGenerator
-from src.distancematrix.generator.abstract_generator import AbstractBoundStreamingGenerator
 
 EPSILON = 1e-15
 

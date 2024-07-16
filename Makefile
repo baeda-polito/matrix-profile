@@ -13,23 +13,6 @@ help:
 	@echo ''
 	$(call find.functions)
 
-setup: ## Setup the project
-setup:
-	python3 -m venv .venv;
-	$(VENV);
-	pip install --upgrade pip;
-	pip install .;
-	pip install -r requirements.txt;
-
-
-build: ## Build package and generate distribution archives
-build:
-	$(VENV); python3 -m build --wheel # build the package
-
-
-activate: ## Source venv and environment files for testing
-activate:
-	$(VENV);
 
 clean: ## Remove build and cache files
 clean:

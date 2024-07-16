@@ -2,12 +2,13 @@
 #  Email: roberto.chiosa@polito.it
 #  Last edited: 16/7/2024
 
-import numpy as np
-import time
 import random
-from collections import OrderedDict
-from math import ceil
+import time
 from abc import ABC, abstractmethod
+from collections import OrderedDict
+
+import numpy as np
+from math import ceil
 
 from src.distancematrix.interrupt_util import interrupt_catcher
 from src.distancematrix.util import diag_length

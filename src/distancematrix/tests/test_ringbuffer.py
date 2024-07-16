@@ -2,8 +2,9 @@
 #  Email: roberto.chiosa@polito.it
 #  Last edited: 16/7/2024
 
-import numpy as np
 from unittest import TestCase
+
+import numpy as np
 import numpy.testing as npt
 
 from src.distancematrix.ringbuffer import RingBuffer

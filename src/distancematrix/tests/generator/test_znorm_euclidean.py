@@ -2,13 +2,14 @@
 #  Email: roberto.chiosa@polito.it
 #  Last edited: 16/7/2024
 
-import numpy as np
-from unittest import TestCase
-import numpy.testing as npt
 from abc import abstractmethod
+from unittest import TestCase
 
-from src.distancematrix.util import diag_indices
+import numpy as np
+import numpy.testing as npt
+
 from src.distancematrix.generator.znorm_euclidean import ZNormEuclidean
+from src.distancematrix.util import diag_indices
 
 
 class AbstractGeneratorTest(object):

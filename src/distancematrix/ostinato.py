@@ -3,12 +3,13 @@
 #  Last edited: 16/7/2024
 
 from collections import namedtuple
+
 import numpy as np
 
 from src.distancematrix import AnytimeCalculator
+from src.distancematrix.consumer import MatrixProfileLR
 from src.distancematrix.generator import ZNormEuclidean
 from src.distancematrix.generator.znorm_euclidean import BoundZNormEuclidean
-from src.distancematrix.consumer import MatrixProfileLR
 from src.distancematrix.math_tricks import sliding_mean_std
 from src.distancematrix.ringbuffer import RingBuffer
 

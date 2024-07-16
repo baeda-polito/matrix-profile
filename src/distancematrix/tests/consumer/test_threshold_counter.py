@@ -2,15 +2,16 @@
 #  Email: roberto.chiosa@polito.it
 #  Last edited: 16/7/2024
 
-import numpy as np
-from unittest import TestCase
-import numpy.testing as npt
 from itertools import takewhile
+from unittest import TestCase
 
-from src.distancematrix.util import diag_indices_of
-from src.distancematrix.insights import lowest_value_idxs
-from src.distancematrix.consumer.threshold_counter import ThresholdCounter
+import numpy as np
+import numpy.testing as npt
+
 from src.distancematrix.consumer.threshold_counter import DistancedThresholdCounter
+from src.distancematrix.consumer.threshold_counter import ThresholdCounter
+from src.distancematrix.insights import lowest_value_idxs
+from src.distancematrix.util import diag_indices_of
 
 
 class TestThresholdCounter(TestCase):

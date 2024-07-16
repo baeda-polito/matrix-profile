@@ -2,12 +2,13 @@
 #  Email: roberto.chiosa@polito.it
 #  Last edited: 16/7/2024
 
-import numpy as np
 from unittest import TestCase
+
+import numpy as np
 import numpy.testing as npt
 
-from src.distancematrix.util import diag_indices
 from src.distancematrix.generator.euclidean import Euclidean
+from src.distancematrix.util import diag_indices
 
 
 class TestEuclidean(TestCase):
